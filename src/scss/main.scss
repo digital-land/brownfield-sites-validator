@@ -8,3 +8,8 @@ $path: "/static/govuk_template/images/";
 @import "components/hero";
 @import "common/forms";
 @import "common/layout";
+
+
+* {
+	font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
+}
