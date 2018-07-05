@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% from "macros/forms.html" import render_input_field %}
+
+
+{% block title %}{{ url }} validation result{% endblock %}
+
+{% block content %}
+
+    <main id="content" role="main">
+        <div class="grid-row">
+            <div class="column-full">
+                <h1 class="heading-medium">Result for {{ url }}</h1>
+            </div>
+        </div>
+
+        <div class="grid-row">
+            <div class="column-full">
+                {% if result.errors %}
+                    <img src="https://img.shields.io/badge/CSV-invalid-red.svg?longCache=true&style=for-the-badge"
+                         alt="csv invalid">
+                    <ul>
+                        {% for error in result.errors %}
+                            <li>{{ error.fieldname }} {{ error.error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if result.warnings %}
+                    <img src="https://img.shields.io/badge/csv-warning-yellow.svg?longCache=true&style=for-the-badge"
+                         alt="csv invalid">
+                    <ul>
+                        {% for warning in result.warnings %}
+                            <li>{{ warning.warning }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+            </div>
+        </div>
+        <div class="grid-row">
+            <div class="column-full">
+                 <h2 class="heading-small">Do some fixing here</h2>
+            </div>
+        </div>
+    </main>
+
+{% endblock %}
+
+

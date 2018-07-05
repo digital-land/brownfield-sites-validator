@@ -1,0 +1,10 @@
+// Common layout bits
+// ==================
+
+.full-page-width-container {
+	@extend %site-width-container;
+}
+
+.column-three-quarters {
+  @include grid-column(3 / 4);
+}

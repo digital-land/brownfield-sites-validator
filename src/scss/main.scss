@@ -1,0 +1,10 @@
+// Path to assets for use with the file-url function
+// in the govuk frontend toolkit's url-helpers partial
+$path: "/static/govuk_template/images/";
+
+// Import all the govuk-elements partials listed in _govuk-elements.scss
+@import "govuk-elements";
+
+@import "components/hero";
+@import "common/forms";
+@import "common/layout";

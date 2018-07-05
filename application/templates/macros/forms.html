@@ -1,0 +1,8 @@
+{% macro render_input_field(field, hint, default_error) -%}
+  <div class="form-group">
+    {{ field.label(class="form-label-bold") }}
+    <span class="form-hint text">{{ hint }}</span>
+    <span class="error-message">{{ default_error }}</span>
+    {{ field(class="form-control") }}
+  </div>
+{%- endmacro %}

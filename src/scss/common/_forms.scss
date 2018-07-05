@@ -1,0 +1,28 @@
+// Common form style bits
+// ======================
+
+// Buttons
+// -------
+.button-load-data,
+.button-filter-table {
+  @include button($govuk-blue);
+  margin-top: 5px;
+}
+
+.button-close {
+  margin-top: 5px;
+}
+
+// Error handling
+// --------------
+.form-group {
+  .error-message {
+    display: none;
+  }
+}
+
+.form-group-error {
+  .error-message {
+    display: block;
+  }
+}
