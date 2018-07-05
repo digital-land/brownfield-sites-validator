@@ -31,8 +31,15 @@ file. Secret configuration variables should be added to a .env file in base dire
 Deployment
 ----------
 
-In your production environment, make sure the ``FLASK_CONFIG`` environment variable is set to ``config.Config``.
+Currently this application is deployed to https://brownfield-sites-validator.cloudapps.digital on the [GOV.UK Paas](https://www.cloud.service.gov.uk/)
 
+The following environment variables are set using ```cf set-env```
+
+    FLASK_ENV=production
+    FLASK_CONFIG=config.Config
+    FLASK_APP=application.wsgi:app
+    SECRET_KEY=[something secret]
+    MAPBOX_TOKEN=[set to valid token]
 
 # Licence
 

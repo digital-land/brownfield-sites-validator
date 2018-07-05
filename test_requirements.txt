@@ -1,0 +1,4 @@
+-i https://pypi.org/simple
+py==1.5.3
+pytest==3.5.1
+-r requirements.txt

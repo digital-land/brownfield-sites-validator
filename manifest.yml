@@ -1,0 +1,5 @@
+---
+applications:
+- name: brownfield-sites-validator
+  memory: 1G
+  buildpack: python_buildpack
