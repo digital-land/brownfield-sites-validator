@@ -3,3 +3,9 @@ applications:
 - name: brownfield-sites-validator
   memory: 1G
   buildpack: python_buildpack
+  env:
+    FLASK_APP: application.wsgi:app
+    FLASK_CONFIG: config.Config
+    FLASK_ENV: production
+  services:
+   - user-provided-config-service

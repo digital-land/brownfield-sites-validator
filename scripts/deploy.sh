@@ -24,5 +24,8 @@ if [ -n "$CF_USERNAME" ] && [ -n "$CF_PASSWORD" ]; then
 fi
 
 # push default manifest - i.e. the actual application
+#cf push
 
-cf push
+# zero downtime push with autopilot
+cf install-plugin autopilot -f -r CF-Community
+cf zero-downtime-push brownfield-sites-validator -f manifest.yml
