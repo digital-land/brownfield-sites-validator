@@ -9,7 +9,17 @@ $path: "/static/govuk_template/images/";
 @import "common/forms";
 @import "common/layout";
 
+@import "from_frontend/related-items";
+@import "from_frontend/panel";
 
 * {
 	font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
+}
+
+.govuk-width-container {
+  @extend %site-width-container;
+}
+
+.url {
+  word-break: break-word;
 }

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<main id="content">
+<div class="govuk-width-container">
+
+  <div class="govuk-breadcrumbs">
+  <ol class="govuk-breadcrumbs__list">
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="#">Home</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Validate</li>
+  </ol>
+</div>
+
+
+  <div class="govuk-main-wrapper">
+    <div class="grid-row">
+      <div class="column-two-thirds">
+
+        <h1 class="heading-xlarge">Validate Brownfield site data</h1>
+
+        <p class="text">Use this service to:</p>
+
+        <ul class="list-bullet">
+          <li>check a brownfield site register against the standard</li>
+          <li>generate fixes</li>
+          <li>generate GeoJSON</li>
+        </ul>
+
+        <p class="text">Validating takes about 1 minute.</p>
+
+        <a href="{{ url_for('frontend.form') }}" role="button" class="button button-start">
+  Start now
+</a>
+
+        <h2 class="heading-medium">Before you start</h2>
+
+        <p class="text">You can also <a class="govuk-link" href="#">do this...</a>.</p>
+
+      </div>
+
+      <div class="column-one-third">
+
+        <!-- The Related items component is not part of GOV.UK Frontend but will be styled if used in the Prototype Kit -->
+
+        <aside class="app-related-items" role="complementary">
+          <h2 class="heading-medium" id="subsection-title">
+            Related content
+          </h2>
+          <nav role="navigation" aria-labelledby="subsection-title">
+            <ul class="list govuk-!-font-size-16">
+              <li>
+                <a href="#">
+                  Related link
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </aside>
+
+        </div>
+    </div>
+  </div>
+</div>
+</main>
+
+{% endblock %}

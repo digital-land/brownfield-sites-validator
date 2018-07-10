@@ -1,0 +1,33 @@
+$govuk-border-width: 4px;
+.govuk-panel {
+    @include core-19();
+
+    box-sizing: border-box;
+
+    margin-bottom: $gutter-half;
+    padding: 50px - $govuk-border-width;
+
+    border: $govuk-border-width solid transparent;
+
+    text-align: center;
+
+    @include media(tablet) {
+      padding: 45px - $govuk-border-width;
+    }
+  }
+
+  .govuk-panel--confirmation {
+    color: $page-colour;
+    background: $turquoise;
+  }
+
+  .govuk-panel__title {
+    margin-top: 0;
+    margin-bottom: 45px;
+
+    @include core-48();
+  }
+
+  .govuk-panel__body {
+    @include core-36();
+  }

@@ -19,10 +19,19 @@
 {% block content %}
 
     <main id="content" role="main">
-        <div class="grid-row">
+      <div class="govuk-main-wrapper">
+          <div class="grid-row">
             <div class="column-full">
-                <h1 class="heading-medium">{{ url }}</h1>
+              <div class="govuk-panel govuk-panel--confirmation">
+                <h2 class="govuk-panel__title">
+                  Validation complete
+                </h2>
+                <div class="govuk-panel__body">
+                  URL<br><strong class="url">{{ url }}</strong>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
 
         <div class="grid-row">
