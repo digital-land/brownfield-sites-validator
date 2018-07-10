@@ -13,9 +13,12 @@ frontend = Blueprint('frontend', __name__, template_folder='templates')
 
 @frontend.route('/')
 def index():
+    return render_template('start-page.html')
+
+@frontend.route('/form')
+def form():
     form = BrownfieldSiteURLForm()
     return render_template('index.html', form=form)
-
 
 @frontend.route('/validation')
 def validation():

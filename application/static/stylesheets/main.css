@@ -5,19 +5,19 @@
   clear: both;
 }
 
-#content, .hero_content, .full-page-width-container {
+#content, .hero_content, .full-page-width-container, .govuk-width-container {
   max-width: 960px;
   margin: 0 15px;
 }
 
 @media (min-width: 641px) {
-  #content, .hero_content, .full-page-width-container {
+  #content, .hero_content, .full-page-width-container, .govuk-width-container {
     margin: 0 30px;
   }
 }
 
 @media (min-width: 1020px) {
-  #content, .hero_content, .full-page-width-container {
+  #content, .hero_content, .full-page-width-container, .govuk-width-container {
     margin: 0 auto;
   }
 }
@@ -47,19 +47,19 @@
   clear: both;
 }
 
-#content, .hero_content, .full-page-width-container {
+#content, .hero_content, .full-page-width-container, .govuk-width-container {
   max-width: 960px;
   margin: 0 15px;
 }
 
 @media (min-width: 641px) {
-  #content, .hero_content, .full-page-width-container {
+  #content, .hero_content, .full-page-width-container, .govuk-width-container {
     margin: 0 30px;
   }
 }
 
 @media (min-width: 1020px) {
-  #content, .hero_content, .full-page-width-container {
+  #content, .hero_content, .full-page-width-container, .govuk-width-container {
     margin: 0 auto;
   }
 }
@@ -2339,6 +2339,20 @@ input[type=number] {
     float: left;
     width: 75%;
   }
+}
+
+.app-related-items {
+  border-top: 10px solid #005ea5;
+  padding-top: 10px;
+  margin-top: 30px;
+}
+
+.app-related-items .heading-medium {
+  margin-top: 0;
+}
+
+.app-related-items .govuk-list > li {
+  margin-bottom: 10px;
 }
 
 * {

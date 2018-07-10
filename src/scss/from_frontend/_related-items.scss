@@ -1,0 +1,18 @@
+// This is a GOV.UK Publishing specific component that
+// can be seen at http://govuk-static.herokuapp.com/component-guide/related_items
+
+.app-related-items {
+  border-top: 10px solid $govuk-blue;
+  padding-top: 10px;
+  // Below added because: Frontend breaking changes
+  margin-top: $gutter;
+}
+
+// Below added because: Frontend breaking changes
+.app-related-items .heading-medium {
+  margin-top: 0;
+}
+
+.app-related-items .govuk-list > li {
+  margin-bottom: 10px;
+}
