@@ -10,6 +10,7 @@ $path: "/static/govuk_template/images/";
 @import "common/layout";
 
 @import "from_frontend/related-items";
+@import "from_frontend/panel";
 
 * {
 	font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
@@ -17,4 +18,8 @@ $path: "/static/govuk_template/images/";
 
 .govuk-width-container {
   @extend %site-width-container;
+}
+
+.url {
+  word-break: break-word;
 }

@@ -2355,6 +2355,69 @@ input[type=number] {
   margin-bottom: 10px;
 }
 
+.govuk-panel {
+  font-family: "nta", Arial, sans-serif;
+  font-weight: 400;
+  text-transform: none;
+  font-size: 16px;
+  line-height: 1.25;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+  padding: 46px;
+  border: 4px solid transparent;
+  text-align: center;
+}
+
+@media (min-width: 641px) {
+  .govuk-panel {
+    font-size: 19px;
+    line-height: 1.31579;
+  }
+}
+
+@media (min-width: 641px) {
+  .govuk-panel {
+    padding: 41px;
+  }
+}
+
+.govuk-panel--confirmation {
+  color: #fff;
+  background: #28a197;
+}
+
+.govuk-panel__title {
+  margin-top: 0;
+  margin-bottom: 45px;
+  font-family: "nta", Arial, sans-serif;
+  font-weight: 400;
+  text-transform: none;
+  font-size: 32px;
+  line-height: 1.09375;
+}
+
+@media (min-width: 641px) {
+  .govuk-panel__title {
+    font-size: 48px;
+    line-height: 1.04167;
+  }
+}
+
+.govuk-panel__body {
+  font-family: "nta", Arial, sans-serif;
+  font-weight: 400;
+  text-transform: none;
+  font-size: 24px;
+  line-height: 1.04167;
+}
+
+@media (min-width: 641px) {
+  .govuk-panel__body {
+    font-size: 36px;
+    line-height: 1.11111;
+  }
+}
+
 * {
   font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
 }
