@@ -1,8 +1,11 @@
 # Prototype Brownfield sites validator
 
-This prototype is being used to explore approaches to working with brownfield site. The work here is intended to complement existing tools/services.
+This prototype is being used to explore approaches to validating geospatial data publications, starting with the [brownfield site register standard](https://www.gov.uk/government/publications/brownfield-land-registers-data-standard).
 
-Check a publication meets the [brownfield site register standard](https://www.gov.uk/government/publications/brownfield-land-registers-data-standard).
+The work here builds upon existing tools and services, such as [csvlint.io](http://csvlint.io/) from the ODI and 
+the [LGA validator](https://validator.opendata.esd.org.uk/) though reporting issues found in .xls, .xlsx .xlsm and other file formats,
+checking headers and co-constraints,
+and with a stronger focus on geospatial issues.
 
 The tool may be used to fix common errors, view the register on a map, and convert the data to [geojson](https://en.wikipedia.org/wiki/GeoJSON) and other formats.
 
