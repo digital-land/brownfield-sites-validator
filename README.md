@@ -1,9 +1,10 @@
-# Brownfield sites validator
+# Prototype Brownfield sites validator
+
+This prototype is being used to explore approaches to working with brownfield site. The work here is intended to complement existing tools/services.
 
 Check a publication meets the [brownfield site register standard](https://www.gov.uk/government/publications/brownfield-land-registers-data-standard).
 
 The tool may be used to fix common errors, view the register on a map, and convert the data to [geojson](https://en.wikipedia.org/wiki/GeoJSON) and other formats.
-
 
 Requirements
 
