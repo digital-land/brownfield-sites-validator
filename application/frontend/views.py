@@ -1,3 +1,4 @@
+import requests
 from flask import (
     Blueprint,
     render_template,
@@ -10,6 +11,7 @@ from flask import (
 from application.frontend.forms import BrownfieldSiteURLForm
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
+
 
 @frontend.route('/')
 def index():
@@ -62,5 +64,15 @@ def _get_data_and_validate(url):
     else:
         result = {'errors': [], 'warnings': []}
 
+    _check_headers(result, url)
+
     return result
+
+
+def _check_headers(result, url):
+    resp = requests.head(url)
+    content_type = resp.headers.get('Content-type')
+    if content_type is not None and content_type != 'text/csv':
+        warning = 'Content type is %s Should be set to text/csv' % content_type
+        result['warnings'].append(warning)
 
