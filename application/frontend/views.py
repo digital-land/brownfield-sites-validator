@@ -17,10 +17,12 @@ frontend = Blueprint('frontend', __name__, template_folder='templates')
 def index():
     return render_template('start-page.html')
 
+
 @frontend.route('/form')
 def form():
     form = BrownfieldSiteURLForm()
     return render_template('index.html', form=form)
+
 
 @frontend.route('/validation')
 def validation():
@@ -75,4 +77,3 @@ def _check_headers(result, url):
     if content_type is not None and content_type != 'text/csv':
         warning = 'Content type is %s Should be set to text/csv' % content_type
         result['warnings'].append(warning)
-
