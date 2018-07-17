@@ -1,4 +1,9 @@
+import csv
+import io
+
 import requests
+from bs4 import UnicodeDammit
+
 from flask import (
     Blueprint,
     render_template,
@@ -7,6 +12,7 @@ from flask import (
     request,
     abort
 )
+
 
 from application.frontend.forms import BrownfieldSiteURLForm
 
@@ -56,24 +62,76 @@ def asset_path_context_processor():
 
 # stub method for getting data and validating
 def _get_data_and_validate(url):
-
-    if url.endswith('warning.csv'):
-        result = {'warnings': [{'warning': 'encode the file using utf-8'}]}
-    elif url.endswith('invalid.csv'):
-        result = {'errors': [{'fieldname': 'start date', 'error': 'incorrect date format, use ISO 8601'},
-                           {'fieldname': 'location', 'error': 'incorrect co-ordinate system use WGS84'}],
-                'warnings': [{'warning': 'encode the file using utf-8'}]}
-    else:
-        result = {'errors': [], 'warnings': []}
-
-    _check_headers(result, url)
-
+    result = {'errors': [], 'warnings': []}
+    _check_file(result, url)
     return result
 
 
-def _check_headers(result, url):
-    resp = requests.head(url)
+def _check_file(result, url):
+    resp = requests.get(url)
     content_type = resp.headers.get('Content-type')
     if content_type is not None and content_type != 'text/csv':
-        warning = 'Content type is %s Should be set to text/csv' % content_type
-        result['warnings'].append(warning)
+        validation = ValidationResult('Content-Type', expected='text/csv', actual=[content_type])
+        result['warnings'].append(validation)
+
+    dammit = UnicodeDammit(resp.content)
+    encoding = dammit.original_encoding
+    if encoding != 'utf-8':
+        validation = ValidationResult('File encoding', expected='utf-8', actual=[encoding])
+        result['warnings'].append(validation)
+
+    reader = csv.DictReader(io.StringIO(resp.content.decode(encoding)))
+
+    # just for the moment hobble the file to see validation error
+    fields = reader.fieldnames[0:5]
+
+    missing = set(required_fields).difference(set(fields))
+    if missing:
+        validation = ValidationResult('Missing fields', expected=None, actual=list(missing))
+        result['errors'].append(validation)
+
+    # just to mess with validation
+    fields.append('SomethingRandom')
+
+    extra = set(fields).difference(set(required_fields))
+    if extra:
+        validation = ValidationResult('Extra fields', expected=None, actual=list(extra))
+        result['errors'].append(validation)
+
+
+required_fields = ['OrganisationURI',
+                   'OrganisationLabel',
+                   'SiteReference',
+                   'PreviouslyPartOf',
+                   'SiteNameAddress',
+                   'SiteplanURL',
+                   'CoordinateReferenceSystem',
+                   'GeoX',
+                   'GeoY',
+                   'Hectares',
+                   'OwnershipStatus',
+                   'Deliverable',
+                   'PlanningStatus',
+                   'PermissionType',
+                   'PermissionDate',
+                   'PlanningHistory',
+                   'ProposedForPIP',
+                   'MinNetDwellings',
+                   'DevelopmentDescription',
+                   'NonHousingDevelopment',
+                   'Part2',
+                   'NetDwellingsRangeFrom',
+                   'NetDwellingsRangeTo',
+                   'HazardousSubstances',
+                   'SiteInformation',
+                   'Notes',
+                   'FirstAddedDate',
+                   'LastUpdatedDate']
+
+
+class ValidationResult:
+
+    def __init__(self, name, expected, actual):
+        self.name = name
+        self.expected = expected
+        self.actual = actual

@@ -15,31 +15,41 @@
         </div>
 
         <div class="grid-row">
-            <div class="column-full">
+            <div class="column-half">
                 {% if result.errors %}
+                    <h2 class="heading-medium">Errors</h2>
                     <img src="https://img.shields.io/badge/CSV-invalid-red.svg?longCache=true&style=for-the-badge"
                          alt="csv invalid">
-                    <ul>
+                    <ul class="list">
                         {% for error in result.errors %}
-                            <li>{{ error.fieldname }} {{ error.error }}</li>
+                            <h3 class="heading-small">{{ error.name }}</h3>
+                            {% if error.expected %}
+                                <li>Expected {{ error.expected }}, actual value {{ error.expected }} }}</li>
+                            {% else %}
+                                <li>
+                                    <ul>
+                                        {% for value in error.actual %}
+                                            <li>{{ value }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% endif %}
                         {% endfor %}
                     </ul>
                 {% endif %}
+            </div>
+
+            <div class="column-half">
                 {% if result.warnings %}
+                    <h2 class="heading-medium">Warnings</h2>
                     <img src="https://img.shields.io/badge/csv-warning-yellow.svg?longCache=true&style=for-the-badge"
                          alt="csv invalid">
-                    <ul>
+                    <ul class="main">
                         {% for warning in result.warnings %}
-                            <li>{{ warning }}</li>
+                            <li>{{ warning.name }}. Expected {{ warning.expected }}, actual value {{ warning.expected }}</li>
                         {% endfor %}
                     </ul>
                 {% endif %}
-
-            </div>
-        </div>
-        <div class="grid-row">
-            <div class="column-full">
-                 <h2 class="heading-small">Do some fixing here</h2>
             </div>
         </div>
     </main>
