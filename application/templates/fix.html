@@ -15,6 +15,7 @@
         </div>
 
         <div class="grid-row">
+
             <div class="column-half">
                 {% if result.errors %}
                     <h2 class="heading-medium">Errors</h2>
@@ -23,17 +24,17 @@
                     <ul class="list">
                         {% for error in result.errors %}
                             <h3 class="heading-small">{{ error.name }}</h3>
-                            {% if error.expected %}
-                                <li>Expected {{ error.expected }}, actual value {{ error.expected }} }}</li>
-                            {% else %}
                                 <li>
+                                {% if error.results | count > 1 %}
                                     <ul>
-                                        {% for value in error.actual %}
+                                        {% for value in error.results %}
                                             <li>{{ value }}</li>
                                         {% endfor %}
                                     </ul>
-                                </li>
-                            {% endif %}
+                                {% else %}
+                                    <li>{{ error.results[0] }}</li>
+                                {% endif %}
+                            </li>
                         {% endfor %}
                     </ul>
                 {% endif %}
@@ -44,9 +45,20 @@
                     <h2 class="heading-medium">Warnings</h2>
                     <img src="https://img.shields.io/badge/csv-warning-yellow.svg?longCache=true&style=for-the-badge"
                          alt="csv invalid">
-                    <ul class="main">
+                      <ul class="list">
                         {% for warning in result.warnings %}
-                            <li>{{ warning.name }}. Expected {{ warning.expected }}, actual value {{ warning.expected }}</li>
+                            <h3 class="heading-small">{{ warning.name }}</h3>
+                            <li>
+                                {% if warning.results | count > 1 %}
+                                    <ul>
+                                        {% for value in warning.results %}
+                                            <li>{{ value }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <li>{{ warning.results[0] }}</li>
+                                {% endif %}
+                            </li>
                         {% endfor %}
                     </ul>
                 {% endif %}

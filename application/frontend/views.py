@@ -71,13 +71,15 @@ def _check_file(result, url):
     resp = requests.get(url)
     content_type = resp.headers.get('Content-type')
     if content_type is not None and content_type != 'text/csv':
-        validation = ValidationResult('Content-Type', expected='text/csv', actual=[content_type])
+        res = 'Expected text/csv, actual value %s' % content_type
+        validation = ValidationResult('Content-Type', results=[res])
         result['warnings'].append(validation)
 
     dammit = UnicodeDammit(resp.content)
     encoding = dammit.original_encoding
     if encoding != 'utf-8':
-        validation = ValidationResult('File encoding', expected='utf-8', actual=[encoding])
+        res = 'Expected utf-8, actual value %s' % encoding
+        validation = ValidationResult('File encoding', results=[res])
         result['warnings'].append(validation)
 
     reader = csv.DictReader(io.StringIO(resp.content.decode(encoding)))
@@ -87,7 +89,7 @@ def _check_file(result, url):
 
     missing = set(required_fields).difference(set(fields))
     if missing:
-        validation = ValidationResult('Missing fields', expected=None, actual=list(missing))
+        validation = ValidationResult('Missing fields', results=list(missing))
         result['errors'].append(validation)
 
     # just to mess with validation
@@ -95,7 +97,7 @@ def _check_file(result, url):
 
     extra = set(fields).difference(set(required_fields))
     if extra:
-        validation = ValidationResult('Extra fields', expected=None, actual=list(extra))
+        validation = ValidationResult('Extra fields', results=list(extra))
         result['errors'].append(validation)
 
 
@@ -131,7 +133,6 @@ required_fields = ['OrganisationURI',
 
 class ValidationResult:
 
-    def __init__(self, name, expected, actual):
+    def __init__(self, name, results):
         self.name = name
-        self.expected = expected
-        self.actual = actual
+        self.results = results
