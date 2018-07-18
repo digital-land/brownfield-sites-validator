@@ -29,26 +29,11 @@ def validate():
     if form.url.data and form.validate():
         warnings, errors = _get_data_and_validate(form.url.data)
         if warnings or errors:
-            return redirect(url_for('frontend.fix', url=form.url.data))
+            return render_template('fix.html', url=form.url.data, warnings=warnings, errors=errors)
         else:
             from application.data.stubs import geojson
             return render_template('valid.html', url=form.url.data, geojson=geojson)
     return render_template('validate.html', form=form)
-
-
-@frontend.route('/fix')
-def fix():
-    url = request.args.get('url')
-    if url is None:
-        return abort(403)
-
-    if not url.endswith('.csv'):
-        return abort(400)
-
-    # in real world we stored validation result before redirection here
-    warnings, errors = _get_data_and_validate(url)
-
-    return render_template('fix.html', url=url, warnings=warnings, errors=errors)
 
 
 @frontend.context_processor
