@@ -26,26 +26,21 @@ frontend = Blueprint('frontend', __name__, template_folder='templates')
 
 @frontend.route('/')
 def index():
-    return render_template('start-page.html')
+    return render_template('index.html')
 
 
-@frontend.route('/form')
-def form():
-    form = BrownfieldSiteURLForm()
-    return render_template('index.html', form=form)
+@frontend.route('/validate')
+def validate():
+    form = BrownfieldSiteURLForm(request.args)
+    if form.url.data and form.validate():
+        warnings, errors = _get_data_and_validate(form.url.data)
+        if warnings or errors:
+            return redirect(url_for('frontend.fix', url=form.url.data))
+        else:
+            from application.data.stubs import geojson
+            return render_template('valid.html', url=form.url.data, geojson=geojson)
+    return render_template('validate.html', form=form)
 
-
-@frontend.route('/validation')
-def validation():
-    url = request.args.get('url')
-    if url is None:
-        return abort(403)
-    warnings, errors = _get_data_and_validate(url)
-    if warnings or errors:
-        return redirect(url_for('frontend.fix', url=url))
-    else:
-        from application.data.stubs import geojson
-        return render_template('validation.html', url=url, geojson=geojson)
 
 
 @frontend.route('/fix')
@@ -53,6 +48,9 @@ def fix():
     url = request.args.get('url')
     if url is None:
         return abort(403)
+
+    if not url.endswith('.csv'):
+        return abort(400)
 
     # in real world we stored validation result before redirection here
     warnings, errors = _get_data_and_validate(url)

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% from "macros/forms.html" import render_input_field %}
+
+{% block title %}Brownfield sites validator{% endblock %}
+
+{% block content %}
+
+    <main id="content" role="main">
+        <div class="grid-row">
+            <div class="column-full">
+                <h1 class="heading-large">Brownfield sites validator</h1>
+                <p class="lede text">
+                    Check a file meets the <a
+                        href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard">brownfield
+                    land registers data standard</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="grid-row">
+            <div class="column-full">
+                <form method="GET" action="{{ url_for('frontend.validate')}}">
+                    {{ render_input_field(form.url, hint='e.g. http://data.bassetlaw.gov.uk/media/751005/BrownfieldLandRegister2017.csv')}}
+                    <button class="button button-validate" type="submit">Validate</button>
+                    {{ form.csrf_token }}
+                </form>
+            </div>
+        </div>
+    </main>
+
+{% endblock %}
+
+

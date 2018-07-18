@@ -1,34 +1,69 @@
 {% extends "base.html" %}
 
-{% from "macros/forms.html" import render_input_field %}
-
-{% block title %}Brownfield sites validator{% endblock %}
-
 {% block content %}
 
-    <main id="content" role="main">
-        <div class="grid-row">
-            <div class="column-full">
-                <h1 class="heading-large">Brownfield sites validator</h1>
-                <p class="lede text">
-                    Check a file meets the <a
-                        href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard">brownfield
-                    land registers data standard</a>
-                </p>
-            </div>
-        </div>
+<main id="content">
+<div class="govuk-width-container">
 
-        <div class="grid-row">
-            <div class="column-full">
-                <form method="GET" action="{{ url_for('frontend.validation')}}">
-                    {{ render_input_field(form.url, hint='e.g. http://data.bassetlaw.gov.uk/media/751005/BrownfieldLandRegister2017.csv')}}
-                    <button class="button button-validate" type="submit">Validate</button>
-                    {{ form.csrf_token }}
-                </form>
-            </div>
+  <div class="govuk-breadcrumbs">
+  <ol class="govuk-breadcrumbs__list">
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="#">Home</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Validate</li>
+  </ol>
+</div>
+
+
+  <div class="govuk-main-wrapper">
+    <div class="grid-row">
+      <div class="column-two-thirds">
+
+        <h1 class="heading-xlarge">Validate Brownfield site data</h1>
+
+        <p class="text">Use this service to:</p>
+
+        <ul class="list-bullet">
+          <li>check a brownfield site register against the standard</li>
+          <li>generate fixes</li>
+          <li>generate GeoJSON</li>
+        </ul>
+
+        <p class="text">Validating takes about 1 minute.</p>
+
+        <a href="{{ url_for('frontend.validate') }}" role="button" class="button button-start">
+  Start now
+</a>
+
+        <h2 class="heading-medium">Before you start</h2>
+
+        <p class="text">You can also <a class="govuk-link" href="#">do this...</a>.</p>
+
+      </div>
+
+      <div class="column-one-third">
+
+        <!-- The Related items component is not part of GOV.UK Frontend but will be styled if used in the Prototype Kit -->
+
+        <aside class="app-related-items" role="complementary">
+          <h2 class="heading-medium" id="subsection-title">
+            Related content
+          </h2>
+          <nav role="navigation" aria-labelledby="subsection-title">
+            <ul class="list govuk-!-font-size-16">
+              <li>
+                <a href="#">
+                  Related link
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </aside>
+
         </div>
-    </main>
+    </div>
+  </div>
+</div>
+</main>
 
 {% endblock %}
-
-

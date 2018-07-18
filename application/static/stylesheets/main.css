@@ -2421,3 +2421,7 @@ input[type=number] {
 * {
   font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
 }
+
+.url {
+  word-break: break-word;
+}
