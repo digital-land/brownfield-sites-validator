@@ -13,6 +13,11 @@ from flask import (
     abort
 )
 
+from vladiate import Vlad
+from vladiate.exceptions import ValidationException
+from vladiate.validators import SetValidator, Validator, FloatValidator, IntValidator, Ignore
+from vladiate.inputs import String
+
 
 from application.frontend.forms import BrownfieldSiteURLForm
 
@@ -35,8 +40,8 @@ def validation():
     url = request.args.get('url')
     if url is None:
         return abort(403)
-    result = _get_data_and_validate(url)
-    if result.get('errors') or result.get('warnings'):
+    warnings, errors = _get_data_and_validate(url)
+    if warnings or errors:
         return redirect(url_for('frontend.fix', url=url))
     else:
         from application.data.stubs import geojson
@@ -50,9 +55,9 @@ def fix():
         return abort(403)
 
     # in real world we stored validation result before redirection here
-    result = _get_data_and_validate(url)
+    warnings, errors = _get_data_and_validate(url)
 
-    return render_template('fix.html', url=url, result=result)
+    return render_template('fix.html', url=url, warnings=warnings, errors=errors)
 
 
 @frontend.context_processor
@@ -62,77 +67,222 @@ def asset_path_context_processor():
 
 # stub method for getting data and validating
 def _get_data_and_validate(url):
-    result = {'errors': [], 'warnings': []}
-    _check_file(result, url)
-    return result
-
-
-def _check_file(result, url):
+    warnings = []
     resp = requests.get(url)
     content_type = resp.headers.get('Content-type')
     if content_type is not None and content_type != 'text/csv':
-        res = 'Expected text/csv, actual value %s' % content_type
-        validation = ValidationResult('Content-Type', results=[res])
-        result['warnings'].append(validation)
+        message = 'Expected text/csv, actual value %s' % content_type
+        warnings.append(ValidatorWarning('Content-Type', message=message))
 
     dammit = UnicodeDammit(resp.content)
     encoding = dammit.original_encoding
     if encoding != 'utf-8':
-        res = 'Expected utf-8, actual value %s' % encoding
-        validation = ValidationResult('File encoding', results=[res])
-        result['warnings'].append(validation)
+        message = 'Expected utf-8, actual value %s' % encoding
+        warnings.append(ValidatorWarning('File encoding', message=message))
 
-    reader = csv.DictReader(io.StringIO(resp.content.decode(encoding)))
+    validator = BrownfieldSiteRegisterValidator(source=String(resp.content.decode(encoding)))
+    validator.validate()
 
-    # just for the moment hobble the file to see validation error
-    fields = reader.fieldnames[0:5]
+    # unpack the validator error messages from the exception class until we come up with something tidy?
+    errors = []
+    for field, failure in validator.failures.items():
+        unpacked = []
+        for line_no, errs in failure.items():
+            unpacked.append({line_no: [message.args[0] for message in errs]})
+        errors.append({field: unpacked})
 
-    missing = set(required_fields).difference(set(fields))
-    if missing:
-        validation = ValidationResult('Missing fields', results=list(missing))
-        result['errors'].append(validation)
-
-    # just to mess with validation
-    fields.append('SomethingRandom')
-
-    extra = set(fields).difference(set(required_fields))
-    if extra:
-        validation = ValidationResult('Extra fields', results=list(extra))
-        result['errors'].append(validation)
+    return warnings, errors
 
 
-required_fields = ['OrganisationURI',
-                   'OrganisationLabel',
-                   'SiteReference',
-                   'PreviouslyPartOf',
-                   'SiteNameAddress',
-                   'SiteplanURL',
-                   'CoordinateReferenceSystem',
-                   'GeoX',
-                   'GeoY',
-                   'Hectares',
-                   'OwnershipStatus',
-                   'Deliverable',
-                   'PlanningStatus',
-                   'PermissionType',
-                   'PermissionDate',
-                   'PlanningHistory',
-                   'ProposedForPIP',
-                   'MinNetDwellings',
-                   'DevelopmentDescription',
-                   'NonHousingDevelopment',
-                   'Part2',
-                   'NetDwellingsRangeFrom',
-                   'NetDwellingsRangeTo',
-                   'HazardousSubstances',
-                   'SiteInformation',
-                   'Notes',
-                   'FirstAddedDate',
-                   'LastUpdatedDate']
+class ValidatorWarning:
 
-
-class ValidationResult:
-
-    def __init__(self, name, results):
+    def __init__(self, name, message):
         self.name = name
-        self.results = results
+        self.message = message
+
+
+class URLValidator(Validator):
+
+    def __init__(self, **kwargs):
+        super(URLValidator, self).__init__(**kwargs)
+        self.failures = set([])
+
+    def validate(self, field, row={}):
+        if not self.empty_ok:
+            valid, exception = self.validate_url(field)
+            if not valid and (field or not self.empty_ok):
+                self.failures.add(field)
+                raise ValidationException("{} - {}".format(field, exception))
+
+    @property
+    def bad(self):
+        return self.failures
+
+    @staticmethod
+    def validate_url(url):
+        from urllib.request import urlopen
+        from urllib.error import URLError, HTTPError
+        try:
+            urlopen(url)
+            return True, None
+        except HTTPError as e:
+            return False, e
+        except URLError as e:
+            return False, e.reason
+        except Exception as e:
+            return False, e
+
+
+class StringNoLineBreaksValidator(Validator):
+
+    def __init__(self, **kwargs):
+        super(StringNoLineBreaksValidator, self).__init__(**kwargs)
+        self.failures = set([])
+
+    def validate(self, field, row={}):
+        if not self.empty_ok:
+            valid = self.has_no_linebreaks(field)
+            if not valid and (field or not self.empty_ok):
+                self.failures.add(field)
+                raise ValidationException("{} - contains line breaks".format(field))
+
+    @property
+    def bad(self):
+        return self.failures
+
+    @staticmethod
+    def has_no_linebreaks(field):
+        if '\r\n' in field or '\n' in field:
+            return False
+        return True
+
+
+class ISO8601DateValidator(Validator):
+
+    def __init__(self, **kwargs):
+        super(ISO8601DateValidator, self).__init__(**kwargs)
+        self.failures = set([])
+
+    def validate(self, field, row={}):
+        if not self.empty_ok:
+            valid, message = self.validate_date(field)
+            if not valid and (field or not self.empty_ok):
+                self.failures.add(field)
+                raise ValidationException("{} - {}".format(field, message))
+
+    @property
+    def bad(self):
+        return self.failures
+
+    @staticmethod
+    def validate_date(field):
+        import datetime
+        try:
+            datetime.datetime.strptime(field, '%Y-%m-%d')
+            return True, None
+        except ValueError as e:
+            return False, 'incorrect date format - should be YYYY-MM-DD'
+
+
+class BrownfieldSiteRegisterValidator(Vlad):
+
+    valid_coordinate_reference_system = ['WGS84', 'OSGB36', 'ETRS89']
+    valid_ownership_status = ['owned by a public authority', 'not owned by a public authority', 'unknown ownership',
+                              'mixed ownership']
+    valid_planning_status = ['permissioned', 'not permissioned', 'pending decision']
+    valid_permission_type = ['full planning permission',
+                             'outline planning permission',
+                             'reserved matters approval',
+                             'permission in principle',
+                             'technical details consent',
+                             'planning permission granted under an order',
+                             'other']
+
+    validators = {
+        'OrganisationURI' : [
+            URLValidator()
+        ],
+        'OrganisationLabel' : [
+            StringNoLineBreaksValidator()
+        ],
+        'SiteReference': [
+            StringNoLineBreaksValidator()
+        ],
+        'PreviouslyPartOf': [
+            StringNoLineBreaksValidator(empty_ok=True)
+        ],
+        'SiteNameAddress': [
+            StringNoLineBreaksValidator()
+        ],
+        'SiteplanURL': [
+            URLValidator()
+        ],
+        'CoordinateReferenceSystem': [
+            SetValidator(valid_set=valid_coordinate_reference_system)
+        ],
+        'GeoX': [
+            FloatValidator()
+        ],
+        'GeoY': [
+            FloatValidator()
+        ],
+        'Hectares': [
+            FloatValidator()
+        ],
+        'OwnershipStatus': [
+            SetValidator(valid_set=valid_ownership_status)
+        ],
+        'Deliverable': [
+            SetValidator(valid_set=['yes'], empty_ok=True)
+        ],
+        'PlanningStatus': [
+            SetValidator(valid_set=valid_planning_status)
+        ],
+        'PermissionType': [
+            SetValidator(valid_set=valid_permission_type, empty_ok=True)
+        ],
+        'PermissionDate': [
+            ISO8601DateValidator(empty_ok=True)
+        ],
+        'PlanningHistory': [
+            URLValidator(empty_ok=True)
+        ],
+        'ProposedForPIP': [
+            SetValidator(valid_set=['yes'], empty_ok=True)
+        ],
+        'MinNetDwellings': [
+            IntValidator()
+        ],
+        'DevelopmentDescription': [
+            Ignore()
+        ],
+        'NonHousingDevelopment': [
+            Ignore()
+        ],
+        'Part2': [
+            SetValidator(valid_set=['yes'], empty_ok=True)
+        ],
+        'NetDwellingsRangeFrom': [
+            IntValidator(empty_ok=True)
+        ],
+        'NetDwellingsRangeTo': [
+            IntValidator(empty_ok=True)
+        ],
+        'HazardousSubstances': [
+            SetValidator(valid_set=['yes'], empty_ok=True)
+        ],
+        'SiteInformation': [
+            URLValidator(empty_ok=True)
+        ],
+        'Notes': [
+            Ignore()
+        ],
+        'FirstAddedDate': [
+            ISO8601DateValidator()
+        ],
+        'LastUpdatedDate': [
+            ISO8601DateValidator()
+        ]
+    }
+
+
