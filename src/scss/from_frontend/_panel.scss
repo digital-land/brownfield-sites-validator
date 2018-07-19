@@ -31,3 +31,8 @@ $govuk-border-width: 4px;
   .govuk-panel__body {
     @include core-36();
   }
+
+  .govuk-panel--error {
+    background: $red;
+    color: $page-colour;
+  }

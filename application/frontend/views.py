@@ -27,14 +27,17 @@ def index():
 def validate():
     form = BrownfieldSiteURLForm(request.args)
     if form.url.data and form.validate():
-        warnings, errors, missing = _get_data_and_validate(form.url.data)
+        warnings, errors, missing, row_num = _get_data_and_validate(form.url.data)
         if warnings or errors:
-            return render_template('fix.html', url=form.url.data, warnings=warnings, errors=errors, missing=missing)
+            return render_template('fix.html', url=form.url.data, warnings=warnings, errors=errors, missing=missing, row_num=row_num)
         else:
             from application.data.stubs import geojson
             return render_template('valid.html', url=form.url.data, geojson=geojson)
     return render_template('validate.html', form=form)
 
+@frontend.route('/error')
+def error():
+  return render_template('not-available.html')
 
 @frontend.context_processor
 def asset_path_context_processor():
@@ -56,6 +59,7 @@ def _get_data_and_validate(url):
         message = 'Expected utf-8, actual value %s' % encoding
         warnings.append(ValidatorWarning('File encoding', message=message))
 
+    rows = resp.content.decode(encoding).splitlines()
     validator = BrownfieldSiteRegisterValidator(source=String(string_input=resp.content.decode(encoding)),
                                                 ignore_missing_validators=True)
     validator.validate()
@@ -65,13 +69,17 @@ def _get_data_and_validate(url):
     for field, failure in validator.failures.items():
         unpacked = []
         for line_no, errs in failure.items():
-            unpacked.append({line_no: [message.args[0] for message in errs]})
+          obj = {
+            "line": line_no,
+            "errors": [message.args[0] for message in errs]
+          }
+          unpacked.append(obj)
         errors.append({field: unpacked})
 
     missing = []
     for f in validator.missing_fields:
         missing.append(f)
 
-    return warnings, errors, missing
+    return warnings, errors, missing, len(rows)
 
 

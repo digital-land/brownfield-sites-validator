@@ -10,15 +10,17 @@
     <main id="content" role="main">
         <div class="grid-row">
             <div class="column-full">
-                <h1 class="heading-medium">Result for {{ url }}</h1>
+                <h1 class="heading-large">Validating</h1>
+                <p class="lede"><a class="csv-url" href="{{ url }}">{{ url }}</a></p>
             </div>
         </div>
 
         <div class="grid-row">
             <div class="column-full">
+              <h2 class="heading-medium">Is the file served correctly?</h2>
                 {% if warnings %}
-                    <img src="https://img.shields.io/badge/csv-warning-yellow.svg?longCache=true&style=for-the-badge"
-                         alt="csv warning">
+                    <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
+                         alt="file warnings">
                     <ul class="list">
                         {% for warning in warnings %}
                             <li>{{ warning.name }} {{ warning.message }}</li>
@@ -29,24 +31,36 @@
         </div>
 
         <div class="grid-row">
+          <div class="column-full">
+            <h2 class="heading-medium">What was found</h2>
+            <p>X rows in the file.</p>
+            <p>X empty rows.</p>
+            <p>{{ row_num }} rows analysed.</p>
+          </div>
+        </div>
+
+        <div class="grid-row">
             <div class="column-full">
+              <h2 class="heading-medium">Does it follow the standard?</h2>
                 {% if errors %}
-                    <img src="https://img.shields.io/badge/csv-invalid-red.svg?longCache=true&style=for-the-badge"
-                         alt="csv invalid">
-                    <ul class="list list-bullet">
+                    <img src="https://img.shields.io/badge/schema-errors-red.svg?longCache=true&style=for-the-badge"
+                         alt="schema errors">
+                    <div class="panel panel-error"><p>{{ errors | length }} fields have errors.</p></div>
+                    <ol class="list list-number">
                         {% for error in errors %}
                             {% for field, failures in error.items() %}
-                                <li>Errors in: {{ field }}</li>
-                                <ul>
-                                    {% for f in failures %}
-                                        {% for line_no, err in f.items() %}
-                                             <li>Line number: {{ line_no }} {{ err }}</li>
-                                        {% endfor %}
-                                    {% endfor %}
-                                </ul>
+                                <li>
+                                  <h3 class="heading-small">{{ field }}</h3>
+                                  <p class="no-margin">X type(s) of error:</p>
+                                  <ul class="list-bullet-coloured list-bullet-coloured--error">
+                                    <li>Incorrect date format. Should be YYYY-MM-DD'</li>
+                                  </ul>
+                                  <p>Across <span class="row-value">{{ failures | length }} rows</span>.</p>
+                                  <p><a href="">Fix these errors</a>.</p>
+                                </li>
                             {% endfor %}
                         {% endfor %}
-                    </ul>
+                    </ol>
                 {% endif %}
             </div>
         </div>
@@ -62,6 +76,33 @@
             </div>
           </div>
         {% endif %}
+        <div class="grid-row">
+          <div class="column-full">
+            <h2 class="heading-medium">Does the data make sense?</h2>
+            <img src="https://img.shields.io/badge/data-warning-yellow.svg?longCache=true&style=for-the-badge"
+               alt="data warnings">
+            <div class="panel panel-warning"><p>X fields have warnings.</p></div>
+            <ol class="list list-number">
+              <li>
+                <h3 class="heading-small">SiteplanURL</h3>
+                <p class="no-margin">X type(s) of warning:</p>
+                <ul class="list-bullet-coloured">
+                  <li>SSL Certificate invalid.</li>
+                  <li>URL not reachable.</li>
+                </ul>
+                <p>Across <span class="row-value">5 rows</span>.</p>
+              </li>
+              <li>
+                <h3 class="heading-small">LastUpdatedDate</h3>
+                <p class="no-margin">X type(s) of warning:</p>
+                <ul class="list-bullet-coloured">
+                  <li>Date in the future.</li>
+                </ul>
+                <p>Across <span class="row-value">8 rows</span>.</p>
+              </li>
+            </ol>
+          </div>
+        </div>
     </main>
 
 {% endblock %}

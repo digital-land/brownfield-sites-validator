@@ -1,3 +1,4 @@
+@charset "UTF-8";
 .grid-row:after, #content:after, .notice:after, .panel:after, fieldset:after, .form-section:after,
 .form-group:after, .form-group-error:after, .breadcrumbs ol:after {
   content: "";
@@ -2418,10 +2419,53 @@ input[type=number] {
   }
 }
 
+.govuk-panel--error {
+  background: #b10e1e;
+  color: #fff;
+}
+
 * {
   font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
 }
 
 .url {
   word-break: break-word;
+}
+
+.no-margin {
+  margin-bottom: 5px;
+}
+
+.row-value {
+  font-weight: bold;
+}
+
+.csv-url {
+  word-wrap: break-word;
+}
+
+.panel-error {
+  border-color: #b10e1e;
+  background: #f8f8f8;
+}
+
+.panel-warning {
+  border-color: #ffbf47;
+  background: #f8f8f8;
+}
+
+.list-bullet-coloured li {
+  padding-left: 1em;
+}
+
+.list-bullet-coloured li:before {
+  content: "•";
+  color: #ffbf47;
+  margin-left: -10px;
+  font-size: 24px;
+  padding-right: 10px;
+}
+
+.list-bullet-coloured--error li:before {
+  color: #b10e1e;
 }
