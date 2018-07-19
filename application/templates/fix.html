@@ -50,6 +50,18 @@
                 {% endif %}
             </div>
         </div>
+        {% if missing %}
+          <div class="grid-row">
+            <div class="column-full">
+                <h2 class="heading-medium">Missing fields</h2>
+                <ul>
+                    {% for m in missing %}
+                        <li>{{ m }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+          </div>
+        {% endif %}
     </main>
 
 {% endblock %}

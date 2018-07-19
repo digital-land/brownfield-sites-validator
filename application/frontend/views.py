@@ -27,9 +27,9 @@ def index():
 def validate():
     form = BrownfieldSiteURLForm(request.args)
     if form.url.data and form.validate():
-        warnings, errors = _get_data_and_validate(form.url.data)
+        warnings, errors, missing = _get_data_and_validate(form.url.data)
         if warnings or errors:
-            return render_template('fix.html', url=form.url.data, warnings=warnings, errors=errors)
+            return render_template('fix.html', url=form.url.data, warnings=warnings, errors=errors, missing=missing)
         else:
             from application.data.stubs import geojson
             return render_template('valid.html', url=form.url.data, geojson=geojson)
@@ -56,7 +56,8 @@ def _get_data_and_validate(url):
         message = 'Expected utf-8, actual value %s' % encoding
         warnings.append(ValidatorWarning('File encoding', message=message))
 
-    validator = BrownfieldSiteRegisterValidator(source=String(resp.content.decode(encoding)))
+    validator = BrownfieldSiteRegisterValidator(source=String(string_input=resp.content.decode(encoding)),
+                                                ignore_missing_validators=True)
     validator.validate()
 
     # unpack the validator error messages from the exception class until we come up with something tidy?
@@ -67,6 +68,10 @@ def _get_data_and_validate(url):
             unpacked.append({line_no: [message.args[0] for message in errs]})
         errors.append({field: unpacked})
 
-    return warnings, errors
+    missing = []
+    for f in validator.missing_fields:
+        missing.append(f)
+
+    return warnings, errors, missing
 
 

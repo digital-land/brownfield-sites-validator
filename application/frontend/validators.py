@@ -1,6 +1,7 @@
 from vladiate import Vlad
 from vladiate.exceptions import ValidationException
-from vladiate.validators import Validator, SetValidator, FloatValidator, IntValidator, Ignore, RegexValidator
+from vladiate.validators import Validator, SetValidator, FloatValidator, IntValidator, Ignore, RegexValidator, \
+    NotEmptyValidator
 
 
 class ValidatorWarning:
@@ -53,7 +54,7 @@ class StringNoLineBreaksValidator(Validator):
             valid = self.has_no_linebreaks(field)
             if not valid and (field or not self.empty_ok):
                 self.failures.add(field)
-                raise ValidationException("{} - contains line breaks".format(field))
+                raise ValidationException("{} contains line breaks".format(field))
 
     @property
     def bad(self):
@@ -77,7 +78,7 @@ class ISO8601DateValidator(Validator):
             valid, message = self.validate_date(field)
             if not valid and (field or not self.empty_ok):
                 self.failures.add(field)
-                raise ValidationException("{} - {}".format(field, message))
+                raise ValidationException('{} {}'.format(field, message).strip())
 
     @property
     def bad(self):
@@ -85,12 +86,14 @@ class ISO8601DateValidator(Validator):
 
     @staticmethod
     def validate_date(field):
+        if field.strip() == '':
+            return False, 'Date in format YYYY-MM-DD is required'
         import datetime
         try:
             datetime.datetime.strptime(field, '%Y-%m-%d')
             return True, None
         except ValueError as e:
-            return False, 'incorrect date format - should be YYYY-MM-DD'
+            return False, 'Incorrect date format. Should be YYYY-MM-DD'
 
 
 class BrownfieldSiteRegisterValidator(Vlad):
@@ -102,42 +105,53 @@ class BrownfieldSiteRegisterValidator(Vlad):
 
     validators = {
         'OrganisationURI' : [
+            NotEmptyValidator(),
             URLValidator()
         ],
         'OrganisationLabel' : [
+            NotEmptyValidator(),
             StringNoLineBreaksValidator()
         ],
         'SiteReference': [
+            NotEmptyValidator(),
             StringNoLineBreaksValidator()
         ],
         'PreviouslyPartOf': [
             StringNoLineBreaksValidator(empty_ok=True)
         ],
         'SiteNameAddress': [
+            NotEmptyValidator(),
             StringNoLineBreaksValidator()
         ],
         'SiteplanURL': [
+            NotEmptyValidator(),
             URLValidator()
         ],
         'CoordinateReferenceSystem': [
+            NotEmptyValidator(),
             SetValidator(valid_set=valid_coordinate_reference_system)
         ],
         'GeoX': [
+            NotEmptyValidator(),
             FloatValidator()
         ],
         'GeoY': [
+            NotEmptyValidator(),
             FloatValidator()
         ],
         'Hectares': [
+            NotEmptyValidator(),
             FloatValidator()
         ],
         'OwnershipStatus': [
+            NotEmptyValidator(),
             RegexValidator(pattern=ownership_status_pattern)
         ],
         'Deliverable': [
             SetValidator(valid_set=['yes'], empty_ok=True)
         ],
         'PlanningStatus': [
+            NotEmptyValidator(),
             RegexValidator(pattern=planning_status_pattern)
         ],
         'PermissionType': [
@@ -153,6 +167,7 @@ class BrownfieldSiteRegisterValidator(Vlad):
             SetValidator(valid_set=['yes'], empty_ok=True)
         ],
         'MinNetDwellings': [
+            NotEmptyValidator(),
             IntValidator()
         ],
         'DevelopmentDescription': [
@@ -180,9 +195,11 @@ class BrownfieldSiteRegisterValidator(Vlad):
             Ignore()
         ],
         'FirstAddedDate': [
+            NotEmptyValidator(),
             ISO8601DateValidator()
         ],
         'LastUpdatedDate': [
+            NotEmptyValidator(),
             ISO8601DateValidator()
         ]
     }
