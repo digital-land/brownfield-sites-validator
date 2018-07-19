@@ -1,6 +1,6 @@
 from vladiate import Vlad
 from vladiate.exceptions import ValidationException
-from vladiate.validators import Validator, SetValidator, FloatValidator, IntValidator, Ignore
+from vladiate.validators import Validator, SetValidator, FloatValidator, IntValidator, Ignore, RegexValidator
 
 
 class ValidatorWarning:
@@ -96,16 +96,9 @@ class ISO8601DateValidator(Validator):
 class BrownfieldSiteRegisterValidator(Vlad):
 
     valid_coordinate_reference_system = ['WGS84', 'OSGB36', 'ETRS89']
-    valid_ownership_status = ['owned by a public authority', 'not owned by a public authority', 'unknown ownership',
-                              'mixed ownership']
-    valid_planning_status = ['permissioned', 'not permissioned', 'pending decision']
-    valid_permission_type = ['full planning permission',
-                             'outline planning permission',
-                             'reserved matters approval',
-                             'permission in principle',
-                             'technical details consent',
-                             'planning permission granted under an order',
-                             'other']
+    ownership_status_pattern = r'(?i)(owned by a public authority|not owned by a public authority|unknown ownership|mixed ownership)'
+    planning_status_pattern = r'(?i)(permissioned|not permissioned|pending decision)'
+    permission_type_pattern = r'(?i)(full planning permission|outline planning permission|reserved matters approval|permission in principle|technical details consent|planning permission granted under an order|other)'
 
     validators = {
         'OrganisationURI' : [
@@ -139,16 +132,16 @@ class BrownfieldSiteRegisterValidator(Vlad):
             FloatValidator()
         ],
         'OwnershipStatus': [
-            SetValidator(valid_set=valid_ownership_status)
+            RegexValidator(pattern=ownership_status_pattern)
         ],
         'Deliverable': [
             SetValidator(valid_set=['yes'], empty_ok=True)
         ],
         'PlanningStatus': [
-            SetValidator(valid_set=valid_planning_status)
+            RegexValidator(pattern=planning_status_pattern)
         ],
         'PermissionType': [
-            SetValidator(valid_set=valid_permission_type, empty_ok=True)
+            RegexValidator(pattern=permission_type_pattern, empty_ok=True)
         ],
         'PermissionDate': [
             ISO8601DateValidator(empty_ok=True)
