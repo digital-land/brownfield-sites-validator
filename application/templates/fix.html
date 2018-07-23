@@ -64,17 +64,25 @@
             </div>
         </div>
 
-        {% if result.missing %}
-          <div class="grid-row">
-            <div class="column-full">
-                <h2 class="heading-medium">Missing fields</h2>
-                <ul>
-                    {% for m in missing %}
-                        <li>{{ m }}</li>
-                    {% endfor %}
-                </ul>
+        {% if result.missing or result.unknown %}
+            <div class="grid-row">
+                <div class="column-half">
+                    <h2 class="heading-medium">Missing fields</h2>
+                    <ul>
+                        {% for missing in result.missing %}
+                            <li>{{ missing }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="column-half">
+                    <h2 class="heading-medium">Unknown fields</h2>
+                    <ul>
+                        {% for unknown in result.unknown %}
+                            <li>{{ unknown }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-          </div>
         {% endif %}
 
         <div class="grid-row">

@@ -24,7 +24,7 @@ def validate():
 
     if form.url.data and form.validate():
         result = _get_data_and_validate(form.url.data)
-        if result.file_warnings and result.errors:
+        if (result.file_warnings and result.errors) or result.file_errors:
             return render_template('fix.html', url=form.url.data, result=result)
         else:
             from application.data.stubs import geojson

@@ -16,6 +16,7 @@ class Error(Enum):
     NO_LINE_BREAK = 'No line breaks allowed'
     REQUIRED_FIELD = 'Required data is missing'
     INVALID_FLOAT = 'This field must contain a floating point number'
+    INVALID_CSV_HEADERS = 'This file does not contain the expected headers'
 
 
 class Warning(Enum):
@@ -168,6 +169,7 @@ class RegisterValidator:
 
         self.source = source
         self.file_warnings = file_warnings
+        self.file_errors = []
         self.line_count = line_count
         self.errors = defaultdict(lambda: defaultdict(list))
         self.warnings = defaultdict(lambda: defaultdict(list))
@@ -182,6 +184,13 @@ class RegisterValidator:
 
         reader = csv.DictReader(self.source.open(), delimiter=self.delimiter)
         self.missing = set(self.validators) - set(reader.fieldnames)
+
+        # if this happens, then file headers are completely broken and not point
+        # carrying on
+        if self.missing == set(self.validators):
+            self.file_errors = ValidationIssue('file', Error.INVALID_CSV_HEADERS)
+            self.unknown = set(reader.fieldnames)
+            return self
 
         for line, row in enumerate(reader):
             self.rows_analysed += 1
