@@ -2,7 +2,6 @@
 
 {% from "macros/forms.html" import render_input_field %}
 
-
 {% block title %}{{ url }} validation result{% endblock %}
 
 {% block content %}
@@ -18,12 +17,12 @@
         <div class="grid-row">
             <div class="column-full">
               <h2 class="heading-medium">Is the file served correctly?</h2>
-                {% if warnings %}
+                {% if result.file_warnings %}
                     <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
                          alt="file warnings">
                     <ul class="list">
-                        {% for warning in warnings %}
-                            <li>{{ warning.name }} {{ warning.message }}</li>
+                        {% for warning in result.file_warnings %}
+                            <li>{{ warning.data }}. {{ warning.type_.value }}</li>
                         {% endfor %}
                     </ul>
                 {% endif %}
@@ -33,38 +32,39 @@
         <div class="grid-row">
           <div class="column-full">
             <h2 class="heading-medium">What was found</h2>
-            <p>X rows in the file.</p>
-            <p>X empty rows.</p>
-            <p>{{ row_num }} rows analysed.</p>
+            <p>{{ result.line_count }} rows in the file (including header)</p>
+            <p>{{ result.rows_analysed }} rows analysed.</p>
           </div>
         </div>
 
         <div class="grid-row">
             <div class="column-full">
               <h2 class="heading-medium">Does it follow the standard?</h2>
-                {% if errors %}
+                {% if result.errors %}
                     <img src="https://img.shields.io/badge/schema-errors-red.svg?longCache=true&style=for-the-badge"
                          alt="schema errors">
-                    <div class="panel panel-error"><p>{{ errors | length }} fields have errors.</p></div>
+                    <div class="panel panel-error"><p>{{ result.errors | count }} fields have errors.</p></div>
                     <ol class="list list-number">
-                        {% for error in errors %}
-                            {% for field, failures in error.items() %}
-                                <li>
-                                  <h3 class="heading-small">{{ field }}</h3>
-                                  <p class="no-margin">X type(s) of error:</p>
-                                  <ul class="list-bullet-coloured list-bullet-coloured--error">
-                                    <li>Incorrect date format. Should be YYYY-MM-DD'</li>
-                                  </ul>
-                                  <p>Across <span class="row-value">{{ failures | length }} rows</span>.</p>
-                                  <p><a href="">Fix these errors</a>.</p>
-                                </li>
-                            {% endfor %}
+                        {% for field in result.errors %}
+                            <li>
+                                <h3 class="heading-small">{{ field }}</h3>
+                                {%  set error_count = result.error_types_for_field(field) | count   %}
+                                <p class="no-margin">{{ error_count }} type{% if error_count > 1 %}(s){% endif %} of error:</p>
+                                <ul class="list-bullet-coloured list-bullet-coloured--error">
+                                    {% for error_type in result.error_types_for_field(field) %}
+                                        <li>{{ error_type.value }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <p>Across <span class="row-value">{{ result.errors[field] | count }} rows</span>.</p>
+                                <p><a href="#">Fix these errors</a>.</p>
+                            </li>
                         {% endfor %}
                     </ol>
                 {% endif %}
             </div>
         </div>
-        {% if missing %}
+
+        {% if result.missing %}
           <div class="grid-row">
             <div class="column-full">
                 <h2 class="heading-medium">Missing fields</h2>
@@ -76,35 +76,32 @@
             </div>
           </div>
         {% endif %}
+
         <div class="grid-row">
           <div class="column-full">
             <h2 class="heading-medium">Does the data make sense?</h2>
             <img src="https://img.shields.io/badge/data-warning-yellow.svg?longCache=true&style=for-the-badge"
                alt="data warnings">
-            <div class="panel panel-warning"><p>X fields have warnings.</p></div>
-            <ol class="list list-number">
-              <li>
-                <h3 class="heading-small">SiteplanURL</h3>
-                <p class="no-margin">X type(s) of warning:</p>
-                <ul class="list-bullet-coloured">
-                  <li>SSL Certificate invalid.</li>
-                  <li>URL not reachable.</li>
-                </ul>
-                <p>Across <span class="row-value">5 rows</span>.</p>
-              </li>
-              <li>
-                <h3 class="heading-small">LastUpdatedDate</h3>
-                <p class="no-margin">X type(s) of warning:</p>
-                <ul class="list-bullet-coloured">
-                  <li>Date in the future.</li>
-                </ul>
-                <p>Across <span class="row-value">8 rows</span>.</p>
-              </li>
-            </ol>
+            <div class="panel panel-warning"><p>{{ result.warnings | count }} fields have warnings.</p></div>
+              <ol class="list list-number">
+                  {% for field in result.warnings %}
+                      <li>
+                          <h3 class="heading-small">{{ field }}</h3>
+                          {% set warning_count = result.warning_types_for_field(field) | count %}
+                          <p class="no-margin">{{ warning_count }} type{% if warning_count > 1 %}(s){% endif %} of
+                              error:</p>
+                          <ul class="list-bullet-coloured list-bullet-coloured--error">
+                              {% for warning_type in result.warning_types_for_field(field) %}
+                                  <li>{{ warning_type.value }}</li>
+                              {% endfor %}
+                          </ul>
+                          <p>Across <span class="row-value">{{ result.warnings[field] | count }} rows</span>.</p>
+                          <p><a href="#">Fix these errors</a>.</p>
+                      </li>
+                  {% endfor %}
+              </ol>
           </div>
         </div>
     </main>
 
 {% endblock %}
-
-

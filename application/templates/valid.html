@@ -34,6 +34,32 @@
           </div>
         </div>
 
+        {% if result.file_warnings or result.warnings_by_type %}
+            <div class="grid-row">
+                <div class="column-full">
+                    <img src="https://img.shields.io/badge/csv-warning-yellow.svg?longCache=true&style=for-the-badge"
+                         alt="csv warning">
+                    <ul class="list list-bullet">
+                        {% for warning in result.file_warnings %}
+                            <li>{{ warning.data }} {{ warning.name }} {{ warning.message }}. {{ warning.type_.value }}</li>
+                        {% endfor %}
+                        {% if result.warnings_by_type %}
+                            {% for warning in result.warnings_by_type %}
+                                <li>{{ warning.value }}</li>
+                                <ul class="list list-bullet">
+                                    {% for field in result.warnings_by_type[warning] %}
+                                        <li>Field: {{ field }} - {{ result.warnings_by_type[warning][field] | count }} lines
+                                            have this warning
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+
         <div class="grid-row">
             <div class="column-full">
                 <img src="https://img.shields.io/badge/CSV-valid-brightgreen.svg?longCache=true&style=for-the-badge"
