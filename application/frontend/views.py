@@ -27,8 +27,7 @@ def validate():
         if (result.file_warnings and result.errors) or result.file_errors:
             return render_template('fix.html', url=form.url.data, result=result)
         else:
-            from application.data.stubs import geojson
-            return render_template('valid.html', url=form.url.data, geojson=geojson, result=result)
+            return render_template('valid.html', url=form.url.data, result=result)
 
     return render_template('validate.html', form=form)
 
