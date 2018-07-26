@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Error(Enum):
+class ValidationError(Enum):
     INVALID_URL = 'An invalid URL was found in the file'
     INVALID_DATE = 'Date format should be YYYY-MM-DD'
     NO_LINE_BREAK = 'No line breaks allowed'
@@ -29,7 +29,7 @@ class Error(Enum):
         return {'type': self.name, 'message': self.value}
 
 
-class Warning(Enum):
+class ValidationWarning(Enum):
     HTTP_WARNING = 'There was a problem fetching data from a URL in the file'
     DATE_WARNING = 'The date is in the future. Please check'
     CONTENT_TYPE_WARNING = 'Set Content-Type to test/csv;charset-utf8'
@@ -37,7 +37,6 @@ class Warning(Enum):
 
     def to_dict(self):
         return {'type': self.name, 'message': self.value}
-
 
 
 class StringInput():
@@ -49,6 +48,9 @@ class StringInput():
 
     def open(self):
         return self.string_io
+
+
+# TODO RegexValidator, CrossfieldValidator, convert files if needed e.g. xls/xlsm -> csv then validate
 
 
 class BaseFieldValidator:
@@ -77,10 +79,10 @@ class URLValidator(BaseFieldValidator):
                 resp.raise_for_status()
                 self.checked.add(data)
             except (InvalidSchema, MissingSchema) as e:
-                errors.append({'data': data, 'error': Error.INVALID_URL.to_dict(), 'message' : str(e)})
+                errors.append({'data': data, 'error': ValidationError.INVALID_URL.to_dict(), 'message' : str(e)})
                 logger.info('Found error with', data)
             except HTTPError as e:
-                warnings.append({'data': data, 'warning': Warning.HTTP_WARNING.to_dict(), 'message' : str(e)})
+                warnings.append({'data': data, 'warning': ValidationWarning.HTTP_WARNING.to_dict(), 'message' : str(e)})
                 logger.info('Found warning with', data)
 
         return errors, warnings
@@ -97,7 +99,7 @@ class StringNoLineBreaksValidator(BaseFieldValidator):
         errors = []
         warnings = []
         if (data or not self.allow_empty) and ('\r\n' in data or '\n' in data):
-            errors.append({'data': data, 'error': Error.NO_LINE_BREAK.to_dict()})
+            errors.append({'data': data, 'error': ValidationError.NO_LINE_BREAK.to_dict()})
             logger.info('Found error with', data)
         return errors, warnings
 
@@ -117,7 +119,7 @@ class ISO8601DateValidator(BaseFieldValidator):
             try:
                 datetime.datetime.strptime(data, '%Y-%m-%d')
             except ValueError as e:
-                errors.append({'data': data, 'error': Error.INVALID_DATE.to_dict()})
+                errors.append({'data': data, 'error': ValidationError.INVALID_DATE.to_dict()})
                 logger.info('Found error with', data)
 
         return errors, warnings
@@ -134,7 +136,7 @@ class NotEmptyValidator(BaseFieldValidator):
         errors = []
         warnings = []
         if data.strip() == '':
-            errors.append({'data': data, 'error': Error.REQUIRED_FIELD.to_dict()})
+            errors.append({'data': data, 'error': ValidationError.REQUIRED_FIELD.to_dict()})
             logger.info('Found error with', data)
         return errors, warnings
 
@@ -151,7 +153,7 @@ class FloatValidator(BaseFieldValidator):
             if data or not self.allow_empty:
                 float(data)
         except ValueError as e:
-            errors.append({'data': data, 'error': Error.INVALID_FLOAT.to_dict()})
+            errors.append({'data': data, 'error': ValidationError.INVALID_FLOAT.to_dict()})
             logger.info('Found error with', data)
         return errors, warnings
 
@@ -204,6 +206,17 @@ class RegisterValidator:
                 'rows_analysed': self.rows_analysed,
                 'report': self.report}
 
+    @classmethod
+    def from_dict(cls, datadict):
+        validator = cls(None, file_warnings=datadict['file_warnings'], line_count=datadict['line_count'])
+        validator.errors = datadict['errors']
+        validator.warnings = datadict['warnings']
+        validator.missing = datadict['missing']
+        validator.unknown = datadict['unknown']
+        validator.rows_analysed = datadict['rows_analysed']
+        validator.report = datadict['report']
+        return validator
+
     def validate(self):
 
         reader = csv.DictReader(self.source.open(), delimiter=self.delimiter)
@@ -213,7 +226,7 @@ class RegisterValidator:
         # if this happens, then file headers are completely broken and not point
         # carrying on
         if self.missing == set(self.validators):
-            self.file_errors = {'data': 'file', 'error': Error.INVALID_CSV_HEADERS.to_dict()}
+            self.file_errors = {'data': 'file', 'error': ValidationError.INVALID_CSV_HEADERS.to_dict()}
             self.unknown = set(reader.fieldnames)
             return self
 

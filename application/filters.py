@@ -1,12 +1,12 @@
-from application.validators.validators import Error, Warning
+from application.validators.validators import ValidationError, ValidationWarning
 
 
 def format_error(error):
-    return Error[error].value
+    return ValidationError[error].value
 
 
 def format_warning(warning):
-    return Warning[warning].value
+    return ValidationWarning[warning].value
 
 
 def healthcheck(validation_dict):

@@ -11,7 +11,7 @@ from application.frontend.forms import BrownfieldSiteURLForm
 from application.validators.validators import (
     BrownfieldSiteValidator,
     StringInput,
-    Warning
+    ValidationWarning
 )
 
 from application.models import BrownfieldSitePublication
@@ -41,7 +41,6 @@ def validate():
 
 @frontend.route('/validate/results')
 def validate_results():
-    import json
     sites = BrownfieldSitePublication.query.filter(BrownfieldSitePublication.validation_result.isnot(None))
     return render_template('results.html', sites=sites)
 
@@ -58,20 +57,27 @@ def asset_path_context_processor():
 
 def _get_data_and_validate(url):
 
-    file_warnings = []
+    # quick hack to use stored validation result. but maybe put timestamp on
+    # db record and only use if quite fresh, otherwise fetch and update
+    # stored one. Or maybe not do this at all? Just store for index page,
+    # but fetch fresh each time validate view method called?
+    site_in_db = BrownfieldSitePublication.query.filter_by(data_url=url).first()
+    if site_in_db is not None and site_in_db.validation_result is not None:
+        return BrownfieldSiteValidator.from_dict(site_in_db.validation_result)
+    else:
+        file_warnings = []
+        resp = requests.get(url)
+        content_type = resp.headers.get('Content-type')
+        if content_type is not None and content_type != 'text/csv':
+            file_warnings.append({'data': 'Content-Type:%s' % content_type, 'warning': ValidationWarning.CONTENT_TYPE_WARNING.to_dict()})
 
-    resp = requests.get(url)
-    content_type = resp.headers.get('Content-type')
-    if content_type is not None and content_type != 'text/csv':
-        file_warnings.append({'data': 'Content-Type:%s' % content_type, 'warning': Warning.CONTENT_TYPE_WARNING.to_dict()})
+        dammit = UnicodeDammit(resp.content)
+        encoding = dammit.original_encoding
+        if encoding != 'utf-8':
+            file_warnings.append({'data': 'File encoding: %s' % encoding, 'warning': ValidationWarning.FILE_ENCODING_WARNING.to_dict()})
 
-    dammit = UnicodeDammit(resp.content)
-    encoding = dammit.original_encoding
-    if encoding != 'utf-8':
-        file_warnings.append({'data': 'File encoding: %s' % encoding, 'warning': Warning.FILE_ENCODING_WARNING.to_dict()})
+        content = resp.content.decode(encoding)
+        line_count = len(content.splitlines())
 
-    content = resp.content.decode(encoding)
-    line_count = len(content.splitlines())
-
-    validator = BrownfieldSiteValidator(source=StringInput(string_input=content), file_warnings=file_warnings, line_count=line_count)
-    return validator.validate()
+        validator = BrownfieldSiteValidator(source=StringInput(string_input=content), file_warnings=file_warnings, line_count=line_count)
+        return validator.validate()
