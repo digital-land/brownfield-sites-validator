@@ -13,9 +13,10 @@ requests = "*"
 "beautifulsoup4" = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
-"psycopg2" = "*"
 "boto3" = "*"
 python-frontmatter = "*"
+"psycopg2-binary" = "*"
+"psycopg2" = "*"
 
 [dev-packages]
 pytest = "*"

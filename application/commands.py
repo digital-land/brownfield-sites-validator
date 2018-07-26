@@ -1,3 +1,5 @@
+import json
+
 import boto3
 import click
 import frontmatter
@@ -51,22 +53,16 @@ def load():
 @click.command()
 @with_appcontext
 def validate():
-
     sites = BrownfieldSitePublication.query.all()
     for site in sites:
         print('Validating', site.data_url)
-        result = {}
         try:
             validation = _get_data_and_validate(site.data_url)
-            result['file_warnings'] = True if validation['file_warnings'] else False
-            result['file_errors'] = True if validation['file_errors'] else False
-            result['errors'] = True if validation['errors'] else False
-        except Exception as e:
-            result['errors'] = True
-
-        if result:
-            print('Got result for', site.data_url)
-            site.validation_result = result
+            site.validation_result = validation.to_dict()
             db.session.add(site)
             db.session.commit()
+            print('Added data from', site.data_url)
+        except Exception as e:
+            print('error', e)
+
     print('Done')

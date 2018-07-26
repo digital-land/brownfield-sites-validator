@@ -52,4 +52,8 @@ def register_commands(app):
 
 
 def register_filters(app):
-    pass
+    from application.filters import format_error, format_warning, healthcheck
+    app.add_template_filter(format_error)
+    app.add_template_filter(format_warning)
+    app.add_template_filter(healthcheck)
+

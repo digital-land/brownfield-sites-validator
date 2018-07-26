@@ -21,8 +21,8 @@
                     <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
                          alt="file warnings">
                     <ul class="list">
-                        {% for warning in result.file_warnings %}
-                            <li>{{ warning.data }}. {{ warning.type_.value }}</li>
+                        {% for w in result.file_warnings %}
+                            <li>{{ w.data }}. {{ w.warning.message }}</li>
                         {% endfor %}
                     </ul>
                 {% endif %}
@@ -48,11 +48,11 @@
                         {% for field in result.errors %}
                             <li>
                                 <h3 class="heading-small">{{ field }}</h3>
-                                {%  set error_count = result.error_types_for_field(field) | count   %}
+                                {%  set error_count = result.report[field]['errors'] | count   %}
                                 <p class="no-margin">{{ error_count }} type{% if error_count > 1 %}(s){% endif %} of error:</p>
                                 <ul class="list-bullet-coloured list-bullet-coloured--error">
-                                    {% for error_type in result.error_types_for_field(field) %}
-                                        <li>{{ error_type.value }}</li>
+                                    {% for error in result.report[field]['errors'] %}
+                                        <li>{{ error | format_error }}</li>
                                     {% endfor %}
                                 </ul>
                                 <p>Across <span class="row-value">{{ result.errors[field] | count }} rows</span>.</p>
@@ -95,12 +95,12 @@
                   {% for field in result.warnings %}
                       <li>
                           <h3 class="heading-small">{{ field }}</h3>
-                          {% set warning_count = result.warning_types_for_field(field) | count %}
+                          {% set warning_count = result.report[field]['warnings']| count %}
                           <p class="no-margin">{{ warning_count }} type{% if warning_count > 1 %}(s){% endif %} of
                               error:</p>
                           <ul class="list-bullet-coloured list-bullet-coloured--error">
-                              {% for warning_type in result.warning_types_for_field(field) %}
-                                  <li>{{ warning_type.value }}</li>
+                              {% for warning in result.report[field]['warnings'] %}
+                                  <li>{{ warning | format_warning }}</li>
                               {% endfor %}
                           </ul>
                           <p>Across <span class="row-value">{{ result.warnings[field] | count }} rows</span>.</p>

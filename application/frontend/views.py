@@ -7,9 +7,13 @@ from flask import (
     request
 )
 
-from application.extensions import db
 from application.frontend.forms import BrownfieldSiteURLForm
-from application.frontend.validators import BrownfieldSiteValidator, StringInput, Warning, ValidationIssue
+from application.validators.validators import (
+    BrownfieldSiteValidator,
+    StringInput,
+    Warning
+)
+
 from application.models import BrownfieldSitePublication
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
@@ -37,6 +41,7 @@ def validate():
 
 @frontend.route('/validate/results')
 def validate_results():
+    import json
     sites = BrownfieldSitePublication.query.filter(BrownfieldSitePublication.validation_result.isnot(None))
     return render_template('results.html', sites=sites)
 
@@ -58,12 +63,12 @@ def _get_data_and_validate(url):
     resp = requests.get(url)
     content_type = resp.headers.get('Content-type')
     if content_type is not None and content_type != 'text/csv':
-        file_warnings.append(ValidationIssue('Content-Type:%s' % content_type, Warning.CONTENT_TYPE_WARNING))
+        file_warnings.append({'data': 'Content-Type:%s' % content_type, 'warning': Warning.CONTENT_TYPE_WARNING.to_dict()})
 
     dammit = UnicodeDammit(resp.content)
     encoding = dammit.original_encoding
     if encoding != 'utf-8':
-        file_warnings.append(ValidationIssue('File encoding: %s' % encoding, Warning.FILE_ENCODING_WARNING))
+        file_warnings.append({'data': 'File encoding: %s' % encoding, 'warning': Warning.FILE_ENCODING_WARNING.to_dict()})
 
     content = resp.content.decode(encoding)
     line_count = len(content.splitlines())
