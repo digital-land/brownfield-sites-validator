@@ -1,12 +1,12 @@
 ---
 applications:
-- name: brownfield-sites-validator
-  memory: 1G
+- name: digital-land-brownfield-db-migration
+  no-route: true
+  memory: 512M
   buildpack: python_buildpack
   env:
     FLASK_APP: application.wsgi:app
     FLASK_CONFIG: config.Config
     FLASK_ENV: production
   services:
-   - pg-digital-land-brownfield
-   - user-provided-config-service
+  - user-provided-config-service

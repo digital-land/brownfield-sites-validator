@@ -11,6 +11,11 @@ click = "*"
 flask-wtf = "*"
 requests = "*"
 "beautifulsoup4" = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
+"psycopg2" = "*"
+"boto3" = "*"
+python-frontmatter = "*"
 
 [dev-packages]
 pytest = "*"

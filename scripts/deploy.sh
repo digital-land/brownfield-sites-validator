@@ -26,6 +26,10 @@ fi
 # push default manifest - i.e. the actual application
 #cf push
 
+cf push -f manifest-db-migration.yml
+cf run-task digital-land-brownfield-db-migration "flask db upgrade" --name db-upgrade
+cf stop digital-land-brownfield-db-migration
+
 # zero downtime push with autopilot
 cf install-plugin autopilot -f -r CF-Community
 cf zero-downtime-push brownfield-sites-validator -f manifest.yml

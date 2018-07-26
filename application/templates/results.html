@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<main id="content">
+    <div class="govuk-width-container">
+        <div class="govuk-breadcrumbs">
+            <ol class="govuk-breadcrumbs__list">
+                <li class="govuk-breadcrumbs__list-item">
+                    <a class="govuk-breadcrumbs__link" href="#">Home</a>
+                </li>
+                <li class="govuk-breadcrumbs__list-item">Validate</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="govuk-main-wrapper">
+        <div class="grid-row">
+            <div class="column-two-thirds">
+
+                <h1 class="heading-large">Results</h1>
+
+                <ul>
+                    {% for site in sites %}
+                        <li>
+                            {{ site.publication }}
+                            {{ site.data_url }}
+                            {% if site.validation_result.errors %}errors{% endif %}
+                            <a href="{{ url_for('frontend.validate', url=site.data_url)}}">See results</a>
+                        </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+{%  endblock %}

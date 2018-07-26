@@ -1,3 +1,8 @@
+"""
+    Sketch of a validation approach for csv files.
+    Heavily influenced by (that is to say, ripped off from https://github.com/di/vladiate)
+"""
+
 import csv
 
 from io import StringIO
@@ -184,6 +189,7 @@ class RegisterValidator:
 
         reader = csv.DictReader(self.source.open(), delimiter=self.delimiter)
         self.missing = set(self.validators) - set(reader.fieldnames)
+        self.unknown = set(reader.fieldnames) - set(self.validators)
 
         # if this happens, then file headers are completely broken and not point
         # carrying on
@@ -202,8 +208,6 @@ class RegisterValidator:
                             self.errors[field_name][line].extend(errors)
                         if warnings:
                             self.warnings[field_name][line].extend(warnings)
-                else:
-                    self.unknown.append(field_name)
 
         self._gather_results()
 

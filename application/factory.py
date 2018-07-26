@@ -36,11 +36,19 @@ def register_blueprints(app):
 
 
 def register_extensions(app):
-    pass
+
+    from application.extensions import db
+    db.init_app(app)
+
+    from application.models import BrownfieldSitePublication
+    from application.extensions import migrate
+    migrate.init_app(app=app)
 
 
 def register_commands(app):
-    pass
+    from application.commands import load, validate
+    app.cli.add_command(load, name='load')
+    app.cli.add_command(validate, name='validate')
 
 
 def register_filters(app):

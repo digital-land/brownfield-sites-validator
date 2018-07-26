@@ -71,25 +71,34 @@
 
 {% endblock %}
 
-{##}
-{#{% block end_body %}#}
-{##}
-{#    <script>#}
-{##}
-{#        var map = L.map("map", {});#}
-{##}
-{#        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ config.MAPBOX_TOKEN }}', {#}
-{#            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',#}
-{#            maxZoom: 18,#}
-{#            id: 'mapbox.streets',#}
-{#            accessToken: '{{ config.MAPBOX_TOKEN }}'#}
-{#        }).addTo(map);#}
-{##}
-{##}
-{#        geojsonLayer = L.geoJSON({{ geojson | tojson }}).addTo(map);#}
-{#        map.fitBounds(geojsonLayer.getBounds());#}
-{##}
-{#    </script>#}
-{##}
-{#{% endblock %}#}
+{% block end_body %}
+
+    <script>
+
+        var map = L.map("map", {});
+
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ config.MAPBOX_TOKEN }}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox.streets',
+            accessToken: '{{ config.MAPBOX_TOKEN }}'
+        }).addTo(map);
+
+        geojsonLayer = L.geoJSON({{ geojson | tojson }}).addTo(map);
+        map.fitBounds(geojsonLayer.getBounds());
+
+        var onEachFeature = function(feature, layer) {
+            layer.bindTooltip(feature.properties.SiteNameAddress);
+        };
+
+       geojsonLayer = L.geoJSON({{ feature | tojson }}, {
+            onEachFeature: onEachFeature
+        });
+
+        geojsonLayer.addTo(map);
+        map.fitBounds(geojsonLayer.getBounds());
+    
+    </script>
+
+{% endblock %}
 

@@ -7,8 +7,10 @@ from flask import (
     request
 )
 
+from application.extensions import db
 from application.frontend.forms import BrownfieldSiteURLForm
 from application.frontend.validators import BrownfieldSiteValidator, StringInput, Warning, ValidationIssue
+from application.models import BrownfieldSitePublication
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
 
@@ -27,9 +29,16 @@ def validate():
         if (result.file_warnings and result.errors) or result.file_errors:
             return render_template('fix.html', url=form.url.data, result=result)
         else:
-            return render_template('valid.html', url=form.url.data, result=result)
+            brownfield_site = BrownfieldSitePublication.query.filter_by(data_url=form.url.data).one()
+            return render_template('valid.html', url=form.url.data, feature=brownfield_site.geojson, result=result)
 
     return render_template('validate.html', form=form)
+
+
+@frontend.route('/validate/results')
+def validate_results():
+    sites = BrownfieldSitePublication.query.filter(BrownfieldSitePublication.validation_result.isnot(None))
+    return render_template('results.html', sites=sites)
 
 
 @frontend.route('/error')
