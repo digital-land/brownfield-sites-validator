@@ -22,30 +22,33 @@
 
       <div class="govuk-main-wrapper">
 
-        {% if result.file_warnings or result.warnings_by_type %}
-            <div class="grid-row">
-                <div class="column-full">
-                          <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
-                         alt="file warnings" style="padding-top: 20px">
-                    <ul class="list list-bullet">
-                        {% for warning in result.file_warnings %}
-                            <li>{{ warning.data }} {{ warning.name }} {{ warning.message }}. {{ warning.type_.value }}</li>
-                        {% endfor %}
-                        {% if result.warnings_by_type %}
-                            {% for warning in result.warnings_by_type %}
-                                <li>{{ warning.value }}</li>
-                                <ul class="list list-bullet">
-                                    {% for field in result.warnings_by_type[warning] %}
-                                        <li>Field: {{ field }} - {{ result.warnings_by_type[warning][field] | count }} lines
-                                            have this warning
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
+          {% if result.file_warnings or result.warnings %}
+              <div class="grid-row">
+                  <div class="column-full">
+                      <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
+                           alt="file warnings" style="padding-top: 20px">
+                      <ul class="list list-bullet">
+                          {% for w in result.file_warnings %}
+                              <li>{{ w.data }} {{ w.warning.name }} {{ w.warning.message }}.</li>
+                          {% endfor %}
+                          {{% for field in result.warnings %}
+                          <li>
+                              <h3 class="heading-small">{{ field }}</h3>
+                              {% set warning_count = result.report[field]['warnings']| count %}
+                              <p class="no-margin">{{ warning_count }} type{% if warning_count > 1 %}(s){% endif %} of
+                                  error:</p>
+                              <ul class="list-bullet-coloured list-bullet-coloured--error">
+                                  {% for warning in result.report[field]['warnings'] %}
+                                      <li>{{ warning | format_warning }}</li>
+                                  {% endfor %}
+                              </ul>
+                              <p>Across <span class="row-value">{{ result.warnings[field] | count }} rows</span>.</p>
+                              <p><a href="#">Fix these errors</a>.</p>
+                          </li>
+                      {% endfor %}
+                      </ul>
+                  </div>
+              </div>
         {% endif %}
 
           <div class="grid-row">
