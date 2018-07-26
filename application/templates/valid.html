@@ -84,20 +84,17 @@
             accessToken: '{{ config.MAPBOX_TOKEN }}'
         }).addTo(map);
 
-        geojsonLayer = L.geoJSON({{ geojson | tojson }}).addTo(map);
-        map.fitBounds(geojsonLayer.getBounds());
-
         var onEachFeature = function(feature, layer) {
             layer.bindTooltip(feature.properties.SiteNameAddress);
         };
 
-       geojsonLayer = L.geoJSON({{ feature | tojson }}, {
+        geojsonLayer = L.geoJSON({{ feature | tojson }}, {
             onEachFeature: onEachFeature
         });
 
         geojsonLayer.addTo(map);
         map.fitBounds(geojsonLayer.getBounds());
-    
+
     </script>
 
 {% endblock %}
