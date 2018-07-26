@@ -10,3 +10,4 @@ applications:
     FLASK_ENV: production
   services:
   - user-provided-config-service
+  - pg-digital-land-brownfield

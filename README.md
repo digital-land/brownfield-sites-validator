@@ -25,6 +25,18 @@ Make a virtualenv for the project and install python dependencies
 
     pip install -r requirements.txt
 
+Create a local postgres database for the application called **brownfield** (see the .flaskenv file)
+
+    createdb brownfield
+
+Run database migrations
+
+    python -m flask db upgrade
+
+Load data
+
+    python -m flask load
+
 Run the application
 
     python -m flask run
@@ -37,13 +49,27 @@ Deployment
 
 Currently this application is deployed to https://brownfield-sites-validator.cloudapps.digital on the [GOV.UK Paas](https://www.cloud.service.gov.uk/)
 
-The following environment variables are set using ```cf set-env```
+The following environment variables are needed for to run the application in production
 
     FLASK_ENV=production
     FLASK_CONFIG=config.Config
     FLASK_APP=application.wsgi:app
     SECRET_KEY=[something secret]
     MAPBOX_TOKEN=[set to valid token]
+
+Deployment is done using a zero downtime deploy plugin [autopilot](https://github.com/contraband/autopilot)
+
+Autopilot plugin provisions a new instance and then routes traffic to the new instance before tearing down the old one. Therefore
+setting envionment variables via ```cf set-env``` is not an option (they variables would not be present in
+the newly created instance).
+
+To get around this issue, a standalone service ```user-provided-config-service``` has been created
+to contain configuration. [See notes here](https://docs.cloudfoundry.org/devguide/services/user-provided.html). Any application that is bound to this service can
+then access variables via the ```VCAP_SERVICES``` configuration values. See ```Config.py``` for
+how those value are retrieved in the application. If you need to add configuration to the ```user-provided-config-service``` it
+seems that updates are destructive, so please recreate all the values, do not just add the
+new ones.
+
 
 # Licence
 
