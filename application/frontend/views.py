@@ -29,7 +29,11 @@ def validate():
     form = BrownfieldSiteURLForm(request.args)
 
     if form.url.data and form.validate():
-        result = _get_data_and_validate(form.url.data)
+        if request.args.get('cached') is not None:
+            cached = True
+        else:
+            cached = False
+        result = _get_data_and_validate(form.url.data, cached=cached)
         if (result.file_warnings and result.errors) or result.file_errors:
             return render_template('fix.html', url=form.url.data, result=result)
         else:
@@ -55,14 +59,14 @@ def asset_path_context_processor():
     return {'asset_path': '/static/govuk_template'}
 
 
-def _get_data_and_validate(url):
+def _get_data_and_validate(url, cached=False):
 
     # quick hack to use stored validation result. but maybe put timestamp on
     # db record and only use if quite fresh, otherwise fetch and update
     # stored one. Or maybe not do this at all? Just store for index page,
     # but fetch fresh each time validate view method called?
     site_in_db = BrownfieldSitePublication.query.filter_by(data_url=url).first()
-    if site_in_db is not None and site_in_db.validation_result is not None:
+    if site_in_db is not None and site_in_db.validation_result is not None and cached:
         return BrownfieldSiteValidator.from_dict(site_in_db.validation_result)
     else:
         file_warnings = []

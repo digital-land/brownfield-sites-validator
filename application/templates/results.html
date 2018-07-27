@@ -28,7 +28,7 @@
                             <tr>
                                 <td>{{ site.publication }}</td>
                                 <td>
-                                    <a href="{{ url_for('frontend.validate', url=site.data_url)}}">{{ site.validation_result | healthcheck }}</a>
+                                    <a href="{{ url_for('frontend.validate', url=site.data_url, cached=True)}}">{{ site.validation_result | healthcheck }}</a>
                                 </td>
                             </tr>
                         {% endfor %}
