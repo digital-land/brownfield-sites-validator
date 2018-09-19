@@ -6,6 +6,8 @@
 import csv
 import json
 import logging
+import re
+
 import requests
 
 from io import StringIO
@@ -24,6 +26,7 @@ class ValidationError(Enum):
     REQUIRED_FIELD = 'Required data is missing'
     INVALID_FLOAT = 'This field must contain a floating point number'
     INVALID_CSV_HEADERS = 'This file does not contain the expected headers'
+    INVALID_CONTENT = 'This field does not contain expected content'
 
     def to_dict(self):
         return {'type': self.name, 'message': self.value}
@@ -178,6 +181,27 @@ class CrossFieldValidator(BaseFieldValidator):
         pass
 
 
+class RegexValidator(BaseFieldValidator):
+
+    def __init__(self, expected, **kwargs):
+        super(RegexValidator, self).__init__(**kwargs)
+        self.expected = expected
+        pattern = r'(?i)(%s)' % '|'.join(self.expected)
+        self.regex = re.compile(pattern)
+
+    def validate(self, data, row={}):
+        errors = []
+        warnings = []
+        if data or not self.allow_empty:
+            if self.regex.match(data) is None:
+                # note = 'Content should be one of: %s' % ','.join(self.expected)
+                error = ValidationError.INVALID_CONTENT.to_dict()
+                # error['message'] = '%s. %s' % (error['message'] , note)
+                errors.append({'data': data, 'error': error})
+                logger.info('Found error with', data)
+        return errors, warnings
+
+
 class RegisterValidator:
 
     def __init__(self, source, file_warnings, line_count, validators={}, delimiter=None):
@@ -303,6 +327,7 @@ class BrownfieldSiteValidator(RegisterValidator):
         ],
         'CoordinateReferenceSystem': [
             NotEmptyValidator(),
+            RegexValidator(expected=valid_coordinate_reference_system)
         ],
         'GeoX': [
             NotEmptyValidator(),
