@@ -194,10 +194,8 @@ class RegexValidator(BaseFieldValidator):
         warnings = []
         if data or not self.allow_empty:
             if self.regex.match(data) is None:
-                # note = 'Content should be one of: %s' % ','.join(self.expected)
-                error = ValidationError.INVALID_CONTENT.to_dict()
-                # error['message'] = '%s. %s' % (error['message'] , note)
-                errors.append({'data': data, 'error': error})
+                message = 'Content should be one of: %s' % ','.join(self.expected)
+                errors.append({'data': data, 'error': ValidationError.INVALID_CONTENT.to_dict(), 'message' : message})
                 logger.info('Found error with', data)
         return errors, warnings
 
@@ -297,9 +295,15 @@ class RegisterValidator:
 class BrownfieldSiteValidator(RegisterValidator):
 
     valid_coordinate_reference_system = ['WGS84', 'OSGB36', 'ETRS89']
-    ownership_status_pattern = r'(?i)(owned by a public authority|not owned by a public authority|unknown ownership|mixed ownership)'
-    planning_status_pattern = r'(?i)(permissioned|not permissioned|pending decision)'
-    permission_type_pattern = r'(?i)(full planning permission|outline planning permission|reserved matters approval|permission in principle|technical details consent|planning permission granted under an order|other)'
+    ownership_status_pattern = ['owned by a public authority','not owned by a public authority','unknown ownership|mixed ownership']
+    planning_status_pattern = ['permissioned','not permissioned','pending decision']
+    permission_type_pattern = ['full planning permission',
+                               'outline planning permission',
+                               'reserved matters approval',
+                               'permission in principle',
+                               'technical details consent',
+                               'planning permission granted under an order',
+                               'other']
 
     validators = {
         'OrganisationURI' : [
@@ -342,13 +346,17 @@ class BrownfieldSiteValidator(RegisterValidator):
             FloatValidator()
         ],
         'OwnershipStatus': [
-            NotEmptyValidator()
+            NotEmptyValidator(),
+            RegexValidator(expected=ownership_status_pattern)
         ],
         'Deliverable': [],
         'PlanningStatus': [
-            NotEmptyValidator()
+            NotEmptyValidator(),
+            RegexValidator(expected=planning_status_pattern)
         ],
-        'PermissionType': [],
+        'PermissionType': [
+            RegexValidator(expected=permission_type_pattern, allow_empty=True)
+        ],
         'PermissionDate': [
             ISO8601DateValidator(allow_empty=True)
         ],
