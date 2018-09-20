@@ -301,15 +301,15 @@ class RegisterValidator:
 class BrownfieldSiteValidator(RegisterValidator):
 
     valid_coordinate_reference_system = ['WGS84', 'OSGB36', 'ETRS89']
-    ownership_status_pattern = ['owned by a public authority','not owned by a public authority','unknown ownership|mixed ownership']
-    planning_status_pattern = ['permissioned','not permissioned','pending decision']
-    permission_type_pattern = ['full planning permission',
-                               'outline planning permission',
-                               'reserved matters approval',
-                               'permission in principle',
-                               'technical details consent',
-                               'planning permission granted under an order',
-                               'other']
+    valid_ownership_status = ['owned by a public authority', 'not owned by a public authority', 'unknown ownership|mixed ownership']
+    valid_planning_status = ['permissioned', 'not permissioned', 'pending decision']
+    valid_permission_type = ['full planning permission',
+                             'outline planning permission',
+                             'reserved matters approval',
+                             'permission in principle',
+                             'technical details consent',
+                             'planning permission granted under an order',
+                             'other']
 
     validators = {
         'OrganisationURI' : [
@@ -354,15 +354,15 @@ class BrownfieldSiteValidator(RegisterValidator):
         ],
         'OwnershipStatus': [
             NotEmptyValidator(),
-            RegexValidator(expected=ownership_status_pattern)
+            RegexValidator(expected=valid_ownership_status)
         ],
         'Deliverable': [],
         'PlanningStatus': [
             NotEmptyValidator(),
-            RegexValidator(expected=planning_status_pattern)
+            RegexValidator(expected=valid_planning_status)
         ],
         'PermissionType': [
-            RegexValidator(expected=permission_type_pattern, allow_empty=True)
+            RegexValidator(expected=valid_permission_type, allow_empty=True)
         ],
         'PermissionDate': [
             ISO8601DateValidator(allow_empty=True)
