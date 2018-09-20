@@ -4,10 +4,8 @@
 """
 
 import csv
-import json
 import logging
 import re
-
 import requests
 
 from io import StringIO
@@ -27,6 +25,7 @@ class ValidationError(Enum):
     INVALID_FLOAT = 'This field must contain a floating point number'
     INVALID_CSV_HEADERS = 'This file does not contain the expected headers'
     INVALID_CONTENT = 'This field does not contain expected content'
+    INVALID_LOCATION = 'This point is not within expected area'
 
     def to_dict(self):
         return {'type': self.name, 'message': self.value}
@@ -53,7 +52,7 @@ class StringInput():
         return self.string_io
 
 
-# TODO RegexValidator, CrossfieldValidator, convert files if needed e.g. xls/xlsm -> csv then validate
+# TODO CrossfieldValidator, convert files if needed e.g. xls/xlsm -> csv then validate
 
 
 class BaseFieldValidator:
@@ -61,7 +60,7 @@ class BaseFieldValidator:
     def __init__(self, allow_empty=False):
         self.allow_empty = allow_empty
 
-    def validate(self, field, row):
+    def validate(self, field, data, row):
         raise NotImplementedError
 
 
@@ -73,7 +72,7 @@ class URLValidator(BaseFieldValidator):
         super(URLValidator, self).__init__(**kwargs)
         self.checked = set([])
 
-    def validate(self, data, row={}):
+    def validate(self, field, data, row):
         errors = []
         warnings = []
         if (data or not self.allow_empty) and data not in self.checked:
@@ -98,7 +97,7 @@ class StringNoLineBreaksValidator(BaseFieldValidator):
     def __init__(self, **kwargs):
         super(StringNoLineBreaksValidator, self).__init__(**kwargs)
 
-    def validate(self, data, row={}):
+    def validate(self, field, data, row):
         errors = []
         warnings = []
         if (data or not self.allow_empty) and ('\r\n' in data or '\n' in data):
@@ -114,7 +113,7 @@ class ISO8601DateValidator(BaseFieldValidator):
     def __init__(self, **kwargs):
         super(ISO8601DateValidator, self).__init__(**kwargs)
 
-    def validate(self, data, row={}):
+    def validate(self, field, data, row):
         import datetime
         errors = []
         warnings = []
@@ -135,7 +134,7 @@ class NotEmptyValidator(BaseFieldValidator):
     def __init__(self, **kwargs):
         super(NotEmptyValidator, self).__init__(**kwargs)
 
-    def validate(self, data, row={}):
+    def validate(self, field, data, row):
         errors = []
         warnings = []
         if data.strip() == '':
@@ -149,7 +148,7 @@ class FloatValidator(BaseFieldValidator):
     def __init__(self, **kwargs):
         super(FloatValidator, self).__init__(**kwargs)
 
-    def validate(self, data, row={}):
+    def validate(self, field, data, row):
         errors = []
         warnings = []
         try:
@@ -161,13 +160,6 @@ class FloatValidator(BaseFieldValidator):
         return errors, warnings
 
 
-class AnythingValidator(BaseFieldValidator):
-    ''' Field needs to be present but can be pretty much any content '''
-
-    def validate(self, field, row={}):
-        pass
-
-
 class CrossFieldValidator(BaseFieldValidator):
 
     ''' Checks field against another field in row '''
@@ -176,9 +168,23 @@ class CrossFieldValidator(BaseFieldValidator):
         super(CrossFieldValidator, self).__init__(**kwargs)
         self.validate_against_fields = validate_against_fields
 
-    def validate(self, field, row):
-        # because we have access to entire row then we can validate against other fields
-        pass
+    def validate(self, field, data, row):
+        # TODO need to work out location of borough to check in co-ordinates
+        # are in the borough - maybe this validator is a geovalidator that is a subclass
+        # of a crossfield validator?
+        errors = []
+        warnings = []
+        try:
+            if data or not self.allow_empty:
+                # TODO the actual checking
+                print('Field data:', field, data, 'check against')
+                for to_check_against in self.validate_against_fields:
+                    print('field', to_check_against, row[to_check_against])
+        except ValueError as e:
+            errors.append({'data': data, 'error': ValidationError.INVALID_FLOAT.to_dict()})
+            logger.info('Found error with', data)
+
+        return errors, warnings
 
 
 class RegexValidator(BaseFieldValidator):
@@ -189,7 +195,7 @@ class RegexValidator(BaseFieldValidator):
         pattern = r'(?i)(%s)' % '|'.join(self.expected)
         self.regex = re.compile(pattern)
 
-    def validate(self, data, row={}):
+    def validate(self, field, data, row):
         errors = []
         warnings = []
         if data or not self.allow_empty:
@@ -254,14 +260,14 @@ class RegisterValidator:
 
         for line, row in enumerate(reader):
             self.rows_analysed += 1
-            for field_name, field in row.items():
-                if field_name in self.validators:
-                    for validator in self.validators[field_name]:
-                        errors, warnings = validator.validate(field, row=row)
+            for field, data in row.items():
+                if field in self.validators:
+                    for validator in self.validators[field]:
+                        errors, warnings = validator.validate(field, data, row)
                         if errors:
-                            self.errors[field_name][line].extend(errors)
+                            self.errors[field][line].extend(errors)
                         if warnings:
-                            self.warnings[field_name][line].extend(warnings)
+                            self.warnings[field][line].extend(warnings)
 
         self._gather_results()
 
@@ -339,7 +345,8 @@ class BrownfieldSiteValidator(RegisterValidator):
         ],
         'GeoY': [
             NotEmptyValidator(),
-            FloatValidator()
+            FloatValidator(),
+            CrossFieldValidator(validate_against_fields=['GeoX'])
         ],
         'Hectares': [
             NotEmptyValidator(),
