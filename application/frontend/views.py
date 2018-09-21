@@ -18,11 +18,18 @@ from application.models import BrownfieldSitePublication
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
 
-
 @frontend.route('/')
 def index():
     return render_template('index.html')
 
+@frontend.route('/results')
+def validate_results():
+    pubs = BrownfieldSitePublication.query.order_by(BrownfieldSitePublication.organisation).all()
+    return render_template('results.html', registers=pubs)
+
+@frontend.route('/start')
+def start():
+    return render_template('start.html')
 
 @frontend.route('/validate')
 def validate():
@@ -41,12 +48,6 @@ def validate():
             return render_template('valid.html', url=form.url.data, feature=brownfield_site.geojson, result=result)
 
     return render_template('validate.html', form=form)
-
-
-@frontend.route('/validate/results')
-def validate_results():
-    sites = BrownfieldSitePublication.query.filter(BrownfieldSitePublication.validation_result.isnot(None))
-    return render_template('results.html', sites=sites)
 
 
 @frontend.route('/error')
