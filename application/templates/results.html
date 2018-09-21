@@ -14,22 +14,73 @@
 
         <div class="govuk-main-wrapper">
             <div class="grid-row">
+                <div class="column-two-thirds">
+                    <h1 class="heading-xlarge">
+                      <span class="heading-secondary">Brownfield sites</span>
+                      Validation results</h1>
+                    <p class="lede">Each Planning Authority is expected to publish a brownfield site register that complies with the standard.</p>
+                    <p class="text">Below are the results when each register is fun through a validator.</p>
+                </div>
+            <div>
+            <div class="grid-row">
                 <div class="column-full">
-                    <h1 class="heading-large">Results</h1>
-                    <table>
+                    <table class="validation-results-table">
                       <thead>
-                        <tr>
-                          <th>Publication</th>
-                          <th>Validation result</th>
+                        <tr class="top-heading-row">
+                          <th colspan="2"></th>
+                          <th class="top-heading-row--cell" colspan="2">Rows</th>
+                          <th class="top-heading-row--cell" colspan="4">Fields</th>
+                          <th class="top-heading-row--cell" colspan="2">File</th>
+                          <th colspan="2"></th>
+                        </tr>
+                        <tr class="validation-result-row">
+                          <th colspan="2">Local Authority</th>
+                          <th class="center-align-cell">Found</th>
+                          <th class="center-align-cell">Analysed</th>
+                          <th class="center-align-cell">Missing</th>
+                          <th class="center-align-cell">Unknown</th>
+                          <th class="center-align-cell">Errors</th>
+                          <th class="center-align-cell">Warnings</th>
+                          <th class="center-align-cell">Errors</th>
+                          <th class="center-align-cell">Warning</th>
+                          <th>Date last analysed</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {% for site in sites %}
-                            <tr>
-                                <td>{{ site.publication }}</td>
-                                <td>
-                                    <a href="{{ url_for('frontend.validate', url=site.data_url, cached=True)}}">{{ site.validation_result | healthcheck }}</a>
+                        {% for register in registers %}
+                            <tr class="validation-result-row">
+                                <td colspan="2">{{ register.organisation }}
+                                  <a class="full-results-link" href="{{ url_for('frontend.validate', url=register.data_url, cached=True)}}">See full results</a>
                                 </td>
+                                {% if register.validation_result is not none %}
+                                <td class="validation-result-numeric-cell">{{ register.validation_result.line_count - 1 }}</td>
+                                <td class=" 
+                                {%- if register.validation_result.rows_analysed == register.validation_result.line_count - 1 %}successful{% else %}unsuccessful{% endif %} validation-result-numeric-cell">
+                                  {{- register.validation_result.rows_analysed }}</td>
+                                <td class="
+                                  {%- if register.validation_result.missing|length is gt 0 %}error{% endif %} validation-result-numeric-cell">
+                                  {{- register.validation_result.missing | length }}</td>
+                                <td class=" 
+                                  {%- if register.validation_result.unknown|length is gt 0 %}warning{% endif %} validation-result-numeric-cell">
+                                  {{- register.validation_result.unknown | length }}</td>
+                                <td class="
+                                  {%- if register.validation_result.errors|length is gt 0 %}error{% endif %} validation-result-numeric-cell">
+                                  {{- register.validation_result.errors | length }}</td>
+                                <td class=" 
+                                  {%- if register.validation_result.warnings|length is gt 0 %}warning{% endif %} validation-result-numeric-cell">
+                                  {{- register.validation_result.warnings | length }}</td>
+                                <td class="
+                                  {%- if register.validation_result.file_errors|length is gt 0 %}error{% endif %} validation-result-numeric-cell">
+                                  {{- register.validation_result.file_errors | length }}</td>
+                                <td class=" 
+                                  {%- if register.validation_result.file_warnings|length is gt 0 %}warning{% endif %} validation-result-numeric-cell">
+                                  {{- register.validation_result.file_warnings | length }}</td>
+                                {% else %}
+                                <td colspan="8">
+                                  <span class="validation-result-not-available">No results available</span>
+                                </td>
+                                {% endif %}
+                                <td></td>
                             </tr>
                         {% endfor %}
                       </tbody>

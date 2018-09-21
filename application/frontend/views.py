@@ -45,8 +45,8 @@ def validate():
 
 @frontend.route('/validate/results')
 def validate_results():
-    sites = BrownfieldSitePublication.query.filter(BrownfieldSitePublication.validation_result.isnot(None))
-    return render_template('results.html', sites=sites)
+    pubs = BrownfieldSitePublication.query.order_by(BrownfieldSitePublication.organisation).all()
+    return render_template('results.html', registers=pubs)
 
 
 @frontend.route('/error')

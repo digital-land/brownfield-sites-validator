@@ -2217,6 +2217,54 @@ input[type=number] {
   }
 }
 
+.validation-results-table {
+  margin-top: 30px;
+}
+
+.top-heading-row .top-heading-row--cell {
+  padding-left: 9px;
+  border-left: 1px solid #bfc1c3;
+}
+
+.validation-result-row .full-results-link {
+  display: inline-block;
+  font-size: 0.84211em;
+}
+
+.validation-result-row .validation-result-numeric-cell,
+.validation-result-row .center-align-cell {
+  text-align: center;
+  padding-right: 0;
+}
+
+.validation-result-row .center-align-cell {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.validation-result-row .validation-result-not-available {
+  color: #6f777b;
+}
+
+.validation-result-row .successful {
+  color: #006435;
+  font-weight: 700;
+  background: rgba(0, 100, 53, 0.1);
+}
+
+.validation-result-row .unsuccessful, .validation-result-row .error {
+  color: #b10e1e;
+  font-weight: 700;
+  background: #f8f8f8;
+  background: rgba(177, 14, 30, 0.1);
+}
+
+.validation-result-row .warning {
+  color: #ffbf47;
+  font-weight: 700;
+  background: rgba(255, 191, 71, 0.1);
+}
+
 .button-load-data,
 .button-filter-table {
   background-color: #005ea5;

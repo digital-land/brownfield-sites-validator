@@ -1,0 +1,55 @@
+$govuk-green-colour: 	#006435;
+
+.validation-results-table {
+  margin-top: $gutter;
+}
+
+.top-heading-row {
+  .top-heading-row--cell {
+    padding-left: 9px;
+    border-left: 1px solid $border-colour;
+  }
+}
+
+.validation-result-row {
+
+  .full-results-link {
+    display: inline-block;
+    font-size: em(16, 19);
+  }
+
+  .validation-result-numeric-cell,
+  .center-align-cell {
+    text-align: center;
+    padding-right: 0;
+  }
+
+  .center-align-cell {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .validation-result-not-available {
+    color: $secondary-text-colour;
+  }
+
+  .successful {
+    color: $govuk-green-colour;
+    font-weight: 700;
+    background: rgba($govuk-green-colour, 0.1);
+  }
+
+  .unsuccessful, .error {
+    color: $red;
+    font-weight: 700;
+    background: $highlight-colour;
+    background: rgba($red, 0.1);
+  }
+
+  .warning {
+    color: $yellow;
+    font-weight: 700;
+    background: rgba($yellow, 0.1);
+  }
+
+}
