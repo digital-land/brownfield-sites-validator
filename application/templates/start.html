@@ -5,15 +5,35 @@
 <main id="content">
 <div class="govuk-width-container">
 
+  <div class="govuk-breadcrumbs">
+  <ol class="govuk-breadcrumbs__list">
+    <li class="govuk-breadcrumbs__list-item">
+      <a class="govuk-breadcrumbs__link" href="#">Home</a>
+    </li>
+    <li class="govuk-breadcrumbs__list-item">Validate</li>
+  </ol>
+</div>
+
+
   <div class="govuk-main-wrapper">
     <div class="grid-row">
       <div class="column-two-thirds">
 
-        <h1 class="heading-xlarge">Brownfield site data</h1>
+        <h1 class="heading-xlarge">Validate Brownfield site data</h1>
 
-        <p class="text">Use the <a href="{{ url_for('frontend.start' )}}">validate a brownfield site register service</a> to test your dataset against the standard.</p>
+        <p class="text">Use this service to:</p>
 
-        <p class="text"><a href="{{ url_for('frontend.validate_results' )}}">View the results </a>for the brownfield site registers that have been run through the validator.</p>
+        <ul class="list-bullet">
+          <li>check a brownfield site register against the standard</li>
+          <li>generate fixes</li>
+          <li>generate GeoJSON</li>
+        </ul>
+
+        <p style="margin-top: 10px">
+            <a href="{{ url_for('frontend.validate') }}" role="button" class="button button-start">
+            Start now
+            </a>
+        </p>
 
       </div>
 
