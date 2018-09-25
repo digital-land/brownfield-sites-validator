@@ -5446,3 +5446,11 @@
 .list-bullet-coloured--error li:before {
   color: #b10e1e;
 }
+
+.govuk-inset-text--error {
+  border-color: #b10e1e;
+}
+
+.govuk-inset-text--warning {
+  border-color: #ffbf47;
+}

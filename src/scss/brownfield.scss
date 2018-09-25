@@ -73,3 +73,11 @@ $govuk-images-path: '/static/govuk-frontend/assets/images/';
     }
   }
 }
+
+.govuk-inset-text--error {
+  border-color: govuk-colour("red");
+}
+
+.govuk-inset-text--warning {
+  border-color: govuk-colour("yellow");
+}
