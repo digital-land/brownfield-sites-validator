@@ -1,13 +1,13 @@
 $govuk-green-colour: 	#006435;
 
 .validation-results-table {
-  margin-top: $gutter;
+  margin-top: $govuk-gutter;
 }
 
 .top-heading-row {
   .top-heading-row--cell {
     padding-left: 9px;
-    border-left: 1px solid $border-colour;
+    border-left: 1px solid $govuk-border-colour;
   }
 }
 
@@ -15,7 +15,7 @@ $govuk-green-colour: 	#006435;
 
   .full-results-link {
     display: inline-block;
-    font-size: em(16, 19);
+    font-size: govuk-em(16, 19);
   }
 
   .validation-result-numeric-cell,
@@ -30,7 +30,7 @@ $govuk-green-colour: 	#006435;
   }
 
   .validation-result-not-available {
-    color: $secondary-text-colour;
+    color: $govuk-secondary-text-colour;
   }
 
   .successful {
@@ -40,16 +40,15 @@ $govuk-green-colour: 	#006435;
   }
 
   .unsuccessful, .error {
-    color: $red;
+    color: govuk-colour("red");
     font-weight: 700;
-    background: $highlight-colour;
-    background: rgba($red, 0.1);
+    background: rgba( govuk-colour("red") , 0.1);
   }
 
   .warning {
-    color: $yellow;
+    color: govuk-colour("yellow");
     font-weight: 700;
-    background: rgba($yellow, 0.1);
+    background: rgba(govuk-colour("yellow"), 0.1);
   }
 
 }

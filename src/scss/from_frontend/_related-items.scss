@@ -2,10 +2,10 @@
 // can be seen at http://govuk-static.herokuapp.com/component-guide/related_items
 
 .app-related-items {
-  border-top: 10px solid $govuk-blue;
+  border-top: 10px solid govuk-colour("blue");
   padding-top: 10px;
   // Below added because: Frontend breaking changes
-  margin-top: $gutter;
+  margin-top: $govuk-gutter;
 }
 
 // Below added because: Frontend breaking changes
