@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "components/phase-banner/macro.njk" import govukPhaseBanner %}
+
+{% block head %}
+  <link href="/static/stylesheets/brownfield.css" rel="stylesheet" />
+{% endblock %}
+
+{% block beforeContent %}
+{{ govukPhaseBanner({
+  "tag": {
+    "text": "prototype"
+  },
+  "html": 'This is a prototype'
+}) }}
+{% endblock %}

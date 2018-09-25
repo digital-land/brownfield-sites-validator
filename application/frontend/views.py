@@ -59,6 +59,10 @@ def error():
 def asset_path_context_processor():
     return {'asset_path': '/static/govuk_template'}
 
+@frontend.context_processor
+def asset_path_context_processor():
+    return {'assetPath': '/static/govuk-frontend/assets'}
+
 
 def _get_data_and_validate(url, cached=False):
 
