@@ -1,12 +1,12 @@
 {% macro render_input_field(field, hint) -%}
-  <div class="form-group">
-    {{ field.label(class="form-label-bold") }}
-    <span class="form-hint text">{{ hint }}</span>
+  <div class="govuk-form-group">
+    {{ field.label(class="govuk-form-label-bold") }}
+    <span class="govuk-hint govuk-body">{{ hint }}</span>
     {% if field.errors %}
-        <div class="form-group-error">
-            <span class="error-message">{{ field.errors[0] }}</span>
+        <div class="govuk-form-group--error">
+            <span class="govuk-error-message">{{ field.errors[0] }}</span>
         </div>
     {% endif %}
-    {{ field(class="form-control") }}
+    {{ field(class="govuk-input") }}
   </div>
 {%- endmacro %}
