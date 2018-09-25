@@ -1,28 +1,24 @@
-{% extends "base.html" %}
+{% extends "default.html" %}
 
 {% block content %}
 
-<main id="content">
-<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
 
-  <div class="govuk-main-wrapper">
-    <div class="grid-row">
-      <div class="column-two-thirds">
+        <h1 class="govuk-heading-xl">Brownfield site data</h1>
 
-        <h1 class="heading-xlarge">Brownfield site data</h1>
+        <p class="govuk-body">Use the <a href="{{ url_for('frontend.start' )}}">validate a brownfield site register service</a> to test your dataset against the standard.</p>
 
-        <p class="text">Use the <a href="{{ url_for('frontend.start' )}}">validate a brownfield site register service</a> to test your dataset against the standard.</p>
-
-        <p class="text"><a href="{{ url_for('frontend.validate_results' )}}">View the results </a>for the brownfield site registers that have been run through the validator.</p>
+        <p class="govuk-body"><a href="{{ url_for('frontend.validate_results' )}}">View the results </a>for the brownfield site registers that have been run through the validator.</p>
 
       </div>
 
-      <div class="column-one-third">
+      <div class="govuk-grid-column-one-third">
 
         <!-- The Related items component is not part of GOV.UK Frontend but will be styled if used in the Prototype Kit -->
 
         <aside class="app-related-items" role="complementary">
-          <h2 class="heading-medium" id="subsection-title">
+          <h2 class="govuk-heading-m" id="subsection-title">
             Related content
           </h2>
           <nav role="navigation" aria-labelledby="subsection-title">
@@ -33,8 +29,5 @@
 
         </div>
     </div>
-  </div>
-</div>
-</main>
 
 {% endblock %}

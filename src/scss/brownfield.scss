@@ -1,0 +1,88 @@
+$govuk-fonts-path: '/static/govuk-frontend/assets/fonts/';
+$govuk-images-path: '/static/govuk-frontend/assets/images/';
+
+// govuk design system imports
+// ===========================
+@import "settings/all";
+@import "tools/all";
+@import "helpers/all";
+@import "core/all";
+@import "objects/all";
+@import "components/all";
+@import "utilities/all";
+@import "overrides/all";
+
+// project imports
+// ===============
+@import "components/hero";
+@import "components/validation-results";
+@import "common/buttons";
+@import "common/forms";
+
+@import "from_frontend/related-items";
+
+// Additional styles
+// =================
+
+* {
+	font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
+}
+
+.url {
+  word-break: break-word;
+}
+
+.no-margin {
+  margin-bottom: 5px;
+}
+
+.row-value {
+  font-weight: bold;
+}
+
+.csv-url {
+  word-wrap: break-word;
+}
+
+.panel-error {
+  border-color: govuk-colour("red");
+  background: govuk-colour("grey-3");
+}
+
+.panel-warning {
+  border-color: govuk-colour("yellow");
+  background: govuk-colour("grey-3");
+}
+
+.list-bullet-coloured {
+  li {
+    padding-left: 1em;
+    &:before {
+      content: "•";
+      color: govuk-colour("yellow");
+      margin-left: -10px;
+      font-size: 24px;
+      padding-right: 10px;
+    }
+  }
+}
+.list-bullet-coloured--error {
+  li {
+    &:before {
+      color: govuk-colour("red");
+    }
+  }
+}
+
+.govuk-inset-text--error {
+  border-color: govuk-colour("red");
+}
+
+.govuk-inset-text--warning {
+  border-color: govuk-colour("yellow");
+}
+
+.govuk-panel--error {
+  border: 10px solid govuk-colour("red");
+  background: $govuk-canvas-background-colour;
+}

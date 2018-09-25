@@ -15,17 +15,17 @@
 }
 
 .hero {
-	background: $govuk-blue;
-	color: $page-colour;
-	@include media(tablet) {
-		margin-bottom: $gutter;
+	background: govuk-colour("blue");
+	color: $govuk-body-background-colour;
+	@include govuk-media-query($from: tablet) {
+		margin-bottom: $govuk-gutter;
 	}
 }
 
 .hero_content {
-	@extend %site-width-container;
+	width: $govuk-page-width;
 	padding: 25px 0 15px;
-	@include media(tablet) {
+	@include govuk-media-query($from: tablet) {
 		padding: 40px 0 30px;
 	}
 }

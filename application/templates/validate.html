@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "default.html" %}
 
 {% from "macros/forms.html" import render_input_field %}
 
@@ -6,28 +6,25 @@
 
 {% block content %}
 
-    <main id="content" role="main">
-        <div class="grid-row">
-            <div class="column-full">
-                <h1 class="heading-large">Brownfield sites validator</h1>
-                <p class="lede text">
-                    Check a file meets the <a
-                        href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard">brownfield
-                    land registers data standard</a>
-                </p>
-            </div>
-        </div>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-l">Brownfield sites validator</h1>
+        <p class="govuk-body">
+          Check a file meets the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard">brownfield
+          land registers data standard</a>
+        </p>
+      </div>
+    </div>
 
-        <div class="grid-row">
-            <div class="column-full">
-                <form method="GET" action="{{ url_for('frontend.validate')}}">
-                    {{ render_input_field(form.url, hint='e.g. http://data.bassetlaw.gov.uk/media/751005/BrownfieldLandRegister2017.csv')}}
-                    <button class="button button-validate" type="submit">Validate</button>
-                    {{ form.csrf_token }}
-                </form>
-            </div>
-        </div>
-    </main>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <form class="govuk-form" method="GET" action="{{ url_for('frontend.validate')}}">
+          {{ render_input_field(form.url, hint='e.g. http://data.bassetlaw.gov.uk/media/751005/BrownfieldLandRegister2017.csv')}}
+          <button class="govuk-button button-validate" type="submit">Validate</button>
+          {{ form.csrf_token }}
+        </form>
+      </div>
+    </div>
 
 {% endblock %}
 

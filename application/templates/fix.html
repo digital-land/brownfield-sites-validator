@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "default.html" %}
 
 {% from "macros/forms.html" import render_input_field %}
 
@@ -6,99 +6,98 @@
 
 {% block content %}
 
-    <main id="content" role="main">
-        <div class="grid-row">
-            <div class="column-full">
-                <h1 class="heading-large">Validating</h1>
-                <p class="lede"><a class="csv-url" href="{{ url }}">{{ url }}</a></p>
-            </div>
-        </div>
-
-        <div class="grid-row">
-            <div class="column-full">
-              <h2 class="heading-medium">Is the file served correctly?</h2>
-                {% if result.file_warnings %}
-                    <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
-                         alt="file warnings">
-                    <ul class="list">
-                        {% for w in result.file_warnings %}
-                            <li>{{ w.data }}. {{ w.warning.message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="grid-row">
-          <div class="column-full">
-            <h2 class="heading-medium">What was found</h2>
-            <p>{{ result.line_count }} rows in the file (including header)</p>
-            <p>{{ result.rows_analysed }} rows analysed.</p>
+      <div class="govuk-grid-row">
+          <div class="govuk-grid-column-full">
+              <h1 class="govuk-heading-l">Validating</h1>
+              <p class="govuk-body-l"><a class="govuk-link csv-url" href="{{ url }}">{{ url }}</a></p>
           </div>
+      </div>
+
+      <div class="govuk-grid-row">
+          <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">Is the file served correctly?</h2>
+              {% if result.file_warnings %}
+                  <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
+                       alt="file warnings">
+                  <ul class="govuk-list govuk-list--bullet">
+                      {% for w in result.file_warnings %}
+                          <li>{{ w.data }}. {{ w.warning.message }}</li>
+                      {% endfor %}
+                  </ul>
+              {% endif %}
+          </div>
+      </div>
+
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          <h2 class="govuk-heading-m">What was found</h2>
+          <p class="govuk-body">{{ result.line_count }} rows in the file (including header)</p>
+          <p class="govuk-body">{{ result.rows_analysed }} rows analysed.</p>
         </div>
+      </div>
 
-        <div class="grid-row">
-            <div class="column-full">
-              <h2 class="heading-medium">Does it follow the standard?</h2>
-                {% if result.errors %}
-                    <img src="https://img.shields.io/badge/schema-errors-red.svg?longCache=true&style=for-the-badge"
-                         alt="schema errors">
-                    <div class="panel panel-error"><p>{{ result.errors | count }} fields have errors.</p></div>
-                    <ol class="list list-number">
-                        {% for field in result.errors %}
-                            <li>
-                                <h3 class="heading-small">{{ field }}</h3>
-                                {%  set error_count = result.report[field]['errors'] | count   %}
-                                <p class="no-margin">{{ error_count }} type{% if error_count > 1 %}(s){% endif %} of error:</p>
-                                <ul class="list-bullet-coloured list-bullet-coloured--error">
-                                    {% for error in result.report[field]['errors'] %}
-                                        <li>{{ error | format_error }}</li>
-                                    {% endfor %}
-                                </ul>
-                                <p>Across <span class="row-value">{{ result.errors[field] | count }} rows</span>.</p>
-                                <p><a href="#">Fix these errors</a>.</p>
-                            </li>
-                        {% endfor %}
-                    </ol>
-                {% endif %}
-            </div>
-        </div>
+      <div class="govuk-grid-row">
+          <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">Does it follow the standard?</h2>
+              {% if result.errors %}
+                  <img src="https://img.shields.io/badge/schema-errors-red.svg?longCache=true&style=for-the-badge"
+                       alt="schema errors">
+                  <div class="govuk-inset-text govuk-inset-text--error"><p>{{ result.errors | count }} fields have errors.</p></div>
+                  <ol class="govuk-list govuk-list--number">
+                      {% for field in result.errors %}
+                          <li>
+                              <h3 class="govuk-heading-s">{{ field }}</h3>
+                              {%  set error_count = result.report[field]['errors'] | count   %}
+                              <p class="no-margin">{{ error_count }} type{% if error_count > 1 %}(s){% endif %} of error:</p>
+                              <ul class="govuk-list list-bullet-coloured list-bullet-coloured--error">
+                                  {% for error in result.report[field]['errors'] %}
+                                      <li>{{ error | format_error }}</li>
+                                  {% endfor %}
+                              </ul>
+                              <p>Across <span class="row-value">{{ result.errors[field] | count }} rows</span>.</p>
+                              <p><a href="#">Fix these errors</a>.</p>
+                          </li>
+                      {% endfor %}
+                  </ol>
+              {% endif %}
+          </div>
+      </div>
 
-        {% if result.missing or result.unknown %}
-            <div class="grid-row">
-                <div class="column-half">
-                    <h2 class="heading-medium">Missing fields</h2>
-                    <ul>
-                        {% for missing in result.missing %}
-                            <li>{{ missing }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="column-half">
-                    <h2 class="heading-medium">Unknown fields</h2>
-                    <ul>
-                        {% for unknown in result.unknown %}
-                            <li>{{ unknown }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        {% endif %}
+      {% if result.missing or result.unknown %}
+          <div class="govuk-grid-row">
+              <div class="govuk-grid-column-half">
+                  <h2 class="govuk-heading-m">Missing fields</h2>
+                  <ul>
+                      {% for missing in result.missing %}
+                          <li>{{ missing }}</li>
+                      {% endfor %}
+                  </ul>
+              </div>
+              <div class="govuk-grid-column-half">
+                  <h2 class="govuk-heading-m">Unknown fields</h2>
+                  <ul>
+                      {% for unknown in result.unknown %}
+                          <li>{{ unknown }}</li>
+                      {% endfor %}
+                  </ul>
+              </div>
+          </div>
+      {% endif %}
 
-        <div class="grid-row">
-          <div class="column-full">
-            <h2 class="heading-medium">Does the data make sense?</h2>
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-full">
+            <h2 class="govuk-heading-m">Does the data make sense?</h2>
             <img src="https://img.shields.io/badge/data-warning-yellow.svg?longCache=true&style=for-the-badge"
                alt="data warnings">
-            <div class="panel panel-warning"><p>{{ result.warnings | count }} fields have warnings.</p></div>
-              <ol class="list list-number">
+            <div class="govuk-inset-text govuk-inset-text--warning"><p>{{ result.warnings | count }} fields have warnings.</p></div>
+              <ol class="govuk-list govuk-list--number">
                   {% for field in result.warnings %}
                       <li>
-                          <h3 class="heading-small">{{ field }}</h3>
+                          <h3 class="govuk-heading-s">{{ field }}</h3>
                           {% set warning_count = result.report[field]['warnings']| count %}
                           <p class="no-margin">{{ warning_count }} type{% if warning_count > 1 %}(s){% endif %} of
                               error:</p>
-                          <ul class="list-bullet-coloured list-bullet-coloured--error">
+                          <ul class="govuk-list list-bullet-coloured list-bullet-coloured--error">
                               {% for warning in result.report[field]['warnings'] %}
                                   <li>{{ warning | format_warning }}</li>
                               {% endfor %}
@@ -110,6 +109,5 @@
               </ol>
           </div>
         </div>
-    </main>
 
 {% endblock %}

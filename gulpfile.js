@@ -8,7 +8,8 @@ const gulp = require("gulp"),
 const config = {
 	scssPath: "src/scss",
 	destPath: "application/static/stylesheets",
-  imgDestPath: "application/static/govuk_template/images"
+  imgDestPath: "application/static/govuk_template/images",
+  govukAssetPath: "application/static/govuk-frontend/assets"
 }
 
 // Delete our old stylesheets files
@@ -23,7 +24,8 @@ gulp.task("scss", ['clean-css', 'copy'], function() {
 	.pipe(sass({outputStyle: 'expanded',
 		includePaths: [ 'src/govuk_frontend_toolkit/stylesheets',
 			'application/static/govuk_template/stylesheets',
-			'src/govuk_elements/assets/sass']})).on('error', sass.logError)
+			'src/govuk_elements/assets/sass',
+      'src/govuk-frontend']})).on('error', sass.logError)
 	.pipe(gulp.dest(config.destPath))
 })
 
@@ -37,6 +39,8 @@ gulp.task('copy', function() {
     .pipe(gulp.dest(config.destPath));
   gulp.src('src/govuk_elements/assets/images/*.png')
     .pipe(gulp.dest(config.imgDestPath));
+  gulp.src('src/govuk-frontend/assets/**/*')
+    .pipe(gulp.dest(config.govukAssetPath));
 });
 
 // Set watch as default task
