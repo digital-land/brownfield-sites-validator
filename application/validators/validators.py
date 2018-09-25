@@ -11,13 +11,19 @@ import requests
 from io import StringIO
 from collections import defaultdict
 from enum import Enum
+
+from bng_to_latlon import OSGB36toWGS84
 from requests.exceptions import InvalidSchema, HTTPError, MissingSchema
+from sqlalchemy import func, and_
+
+from application.models import Feature
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
 class ValidationError(Enum):
+
     INVALID_URL = 'An invalid URL was found in the file'
     INVALID_DATE = 'Date format should be YYYY-MM-DD'
     NO_LINE_BREAK = 'No line breaks allowed'
@@ -25,17 +31,18 @@ class ValidationError(Enum):
     INVALID_FLOAT = 'This field must contain a floating point number'
     INVALID_CSV_HEADERS = 'This file does not contain the expected headers'
     INVALID_CONTENT = 'This field does not contain expected content'
-    INVALID_LOCATION = 'This point is not within expected area'
 
     def to_dict(self):
         return {'type': self.name, 'message': self.value}
 
 
 class ValidationWarning(Enum):
+
     HTTP_WARNING = 'There was a problem fetching data from a URL in the file'
     DATE_WARNING = 'The date is in the future. Please check'
     CONTENT_TYPE_WARNING = 'Set Content-Type to test/csv;charset-utf8'
     FILE_ENCODING_WARNING = 'File should be encoded as utf-8'
+    LOCATION_WARNING = 'Site location is not within expected area'
 
     def to_dict(self):
         return {'type': self.name, 'message': self.value}
@@ -60,7 +67,7 @@ class BaseFieldValidator:
     def __init__(self, allow_empty=False):
         self.allow_empty = allow_empty
 
-    def validate(self, field, data, row):
+    def validate(self, field, row):
         raise NotImplementedError
 
 
@@ -72,10 +79,11 @@ class URLValidator(BaseFieldValidator):
         super(URLValidator, self).__init__(**kwargs)
         self.checked = set([])
 
-    def validate(self, field, data, row):
+    def validate(self, field, row):
         errors = []
         warnings = []
-        if (data or not self.allow_empty) and data not in self.checked:
+        data = row.get(field)
+        if data is not None and not self.allow_empty and data not in self.checked:
             try:
                 resp = requests.head(data)
                 resp.raise_for_status()
@@ -97,10 +105,11 @@ class StringNoLineBreaksValidator(BaseFieldValidator):
     def __init__(self, **kwargs):
         super(StringNoLineBreaksValidator, self).__init__(**kwargs)
 
-    def validate(self, field, data, row):
+    def validate(self, field, row):
         errors = []
         warnings = []
-        if (data or not self.allow_empty) and ('\r\n' in data or '\n' in data):
+        data = row.get(field)
+        if data is not None and ('\r\n' in data or '\n' in data):
             errors.append({'data': data, 'error': ValidationError.NO_LINE_BREAK.to_dict()})
             logger.info('Found error with', data)
         return errors, warnings
@@ -113,11 +122,12 @@ class ISO8601DateValidator(BaseFieldValidator):
     def __init__(self, **kwargs):
         super(ISO8601DateValidator, self).__init__(**kwargs)
 
-    def validate(self, field, data, row):
+    def validate(self, field, row):
         import datetime
         errors = []
         warnings = []
-        if data or not self.allow_empty:
+        data = row.get(field)
+        if data is not None and not self.allow_empty:
             try:
                 datetime.datetime.strptime(data, '%Y-%m-%d')
             except ValueError as e:
@@ -134,10 +144,11 @@ class NotEmptyValidator(BaseFieldValidator):
     def __init__(self, **kwargs):
         super(NotEmptyValidator, self).__init__(**kwargs)
 
-    def validate(self, field, data, row):
+    def validate(self, field, row):
         errors = []
         warnings = []
-        if data.strip() == '':
+        data = row.get(field)
+        if data is not None and data.strip() == '':
             errors.append({'data': data, 'error': ValidationError.REQUIRED_FIELD.to_dict()})
             logger.info('Found error with', data)
         return errors, warnings
@@ -148,11 +159,12 @@ class FloatValidator(BaseFieldValidator):
     def __init__(self, **kwargs):
         super(FloatValidator, self).__init__(**kwargs)
 
-    def validate(self, field, data, row):
+    def validate(self, field, row):
         errors = []
         warnings = []
+        data = row.get(field)
         try:
-            if data or not self.allow_empty:
+            if data is not None:
                 float(data)
         except ValueError as e:
             errors.append({'data': data, 'error': ValidationError.INVALID_FLOAT.to_dict()})
@@ -160,29 +172,39 @@ class FloatValidator(BaseFieldValidator):
         return errors, warnings
 
 
-class CrossFieldValidator(BaseFieldValidator):
+class GeoXYFieldValidator(BaseFieldValidator):
 
-    ''' Checks field against another field in row '''
+    ''' Checks geo point field in conjunction with another field in this row '''
 
-    def __init__(self, validate_against_fields=[], **kwargs):
-        super(CrossFieldValidator, self).__init__(**kwargs)
-        self.validate_against_fields = validate_against_fields
+    def __init__(self, organisation, **kwargs):
+        super(GeoXYFieldValidator, self).__init__(**kwargs)
+        self.organisation = organisation
 
-    def validate(self, field, data, row):
+    def validate(self, field, row):
+        # data = row.get('field')
         # TODO need to work out location of borough to check in co-ordinates
         # are in the borough - maybe this validator is a geovalidator that is a subclass
         # of a crossfield validator?
         errors = []
         warnings = []
-        try:
-            if data or not self.allow_empty:
-                # TODO the actual checking
-                print('Field data:', field, data, 'check against')
-                for to_check_against in self.validate_against_fields:
-                    print('field', to_check_against, row[to_check_against])
-        except ValueError as e:
-            errors.append({'data': data, 'error': ValidationError.INVALID_FLOAT.to_dict()})
-            logger.info('Found error with', data)
+        if isinstance(field, tuple):
+            try:
+                geoX = float(row[field[0]])
+                geoY = float(row[field[1]])
+
+                if row['CoordinateReferenceSystem'] == 'OSGB36':
+                    lat, lng = OSGB36toWGS84(geoX, geoY)
+
+                elif row['CoordinateReferenceSystem'] == 'WGS84':
+                    lat, lng = geoX, geoY
+
+                point = func.ST_SetSRID(func.ST_MakePoint(lng,lat), 4326)
+                f = Feature.query.filter(and_(Feature.geometry.ST_Contains(point), Feature.feature==self.organisation.feature.feature)).first()
+                if f is None:
+                    raise ValueError('Point is not within borough')
+            except ValueError as e:
+                warnings.append({'data': field, 'warning': ValidationWarning.LOCATION_WARNING.to_dict()})
+                print('Found warning with', field, e)
 
         return errors, warnings
 
@@ -195,9 +217,10 @@ class RegexValidator(BaseFieldValidator):
         pattern = r'(?i)(%s)' % '|'.join(self.expected)
         self.regex = re.compile(pattern)
 
-    def validate(self, field, data, row):
+    def validate(self, field, row):
         errors = []
         warnings = []
+        data = row.get(field)
         if data or not self.allow_empty:
             if self.regex.match(data) is None:
                 message = 'Content should be one of: %s' % ','.join(self.expected)
@@ -206,9 +229,9 @@ class RegexValidator(BaseFieldValidator):
         return errors, warnings
 
 
-class RegisterValidator:
+class ValidationRunner:
 
-    def __init__(self, source, file_warnings, line_count, validators={}, delimiter=None):
+    def __init__(self, source, file_warnings, line_count, organisation, validators={}, delimiter=None):
 
         self.source = source
         self.file_warnings = file_warnings
@@ -222,6 +245,7 @@ class RegisterValidator:
         self.delimiter = delimiter or getattr(self, 'delimiter', ',')
         self.rows_analysed = 0
         self.report = {}
+        self.organisation = organisation
 
     def to_dict(self):
         return {'errors': self.errors,
@@ -235,7 +259,8 @@ class RegisterValidator:
                 'report': self.report}
 
     @classmethod
-    def from_dict(cls, datadict):
+    def from_dict(cls, site):
+        datadict = site.validation_result
         validator = cls(None, file_warnings=datadict['file_warnings'], line_count=datadict['line_count'])
         validator.errors = datadict['errors']
         validator.warnings = datadict['warnings']
@@ -243,16 +268,25 @@ class RegisterValidator:
         validator.unknown = datadict['unknown']
         validator.rows_analysed = datadict['rows_analysed']
         validator.report = datadict['report']
+        validator.organisation = site.organisation
         return validator
 
     def validate(self):
 
         reader = csv.DictReader(self.source.open(), delimiter=self.delimiter)
-        self.missing = set(self.validators) - set(reader.fieldnames)
-        self.unknown = set(reader.fieldnames) - set(self.validators)
 
-        # if this happens, then file headers are completely broken and not point
-        # carrying on
+        validator_fields = []
+        for key, val in self.validators.items():
+            if isinstance(key, tuple):
+                for k in key:
+                    validator_fields.append(k)
+            else:
+                validator_fields.append(key)
+
+        self.missing = set(validator_fields) - set(reader.fieldnames)
+        self.unknown = set(reader.fieldnames) - set(validator_fields)
+
+        # if this happens, then file headers are completely broken and no point carrying on
         if self.missing == set(self.validators):
             self.file_errors = {'data': 'file', 'error': ValidationError.INVALID_CSV_HEADERS.to_dict()}
             self.unknown = set(reader.fieldnames)
@@ -260,14 +294,13 @@ class RegisterValidator:
 
         for line, row in enumerate(reader):
             self.rows_analysed += 1
-            for field, data in row.items():
-                if field in self.validators:
-                    for validator in self.validators[field]:
-                        errors, warnings = validator.validate(field, data, row)
-                        if errors:
-                            self.errors[field][line].extend(errors)
-                        if warnings:
-                            self.warnings[field][line].extend(warnings)
+            for field, validators in self.validators.items():
+                for validator in validators:
+                    errors, warnings = validator.validate(field, row)
+                    if errors:
+                        self.errors[field][line].extend(errors)
+                    if warnings:
+                        self.warnings[field][line].extend(warnings)
 
         self._gather_results()
 
@@ -298,96 +331,97 @@ class RegisterValidator:
             self.report[field] = {'warnings': warning_type_count}
 
 
-class BrownfieldSiteValidator(RegisterValidator):
+class BrownfieldSiteValidationRunner(ValidationRunner):
 
-    valid_coordinate_reference_system = ['WGS84', 'OSGB36', 'ETRS89']
-    valid_ownership_status = ['owned by a public authority', 'not owned by a public authority', 'unknown ownership|mixed ownership']
-    valid_planning_status = ['permissioned', 'not permissioned', 'pending decision']
-    valid_permission_type = ['full planning permission',
-                             'outline planning permission',
-                             'reserved matters approval',
-                             'permission in principle',
-                             'technical details consent',
-                             'planning permission granted under an order',
-                             'other']
+    def __init__(self, source, file_warnings, line_count, organisation):
 
-    validators = {
-        'OrganisationURI' : [
-            NotEmptyValidator(),
-            URLValidator()
-        ],
-        'OrganisationLabel' : [
-            NotEmptyValidator(),
-            StringNoLineBreaksValidator()
-        ],
-        'SiteReference': [
-            NotEmptyValidator(),
-            StringNoLineBreaksValidator()
-        ],
-        'PreviouslyPartOf': [
-            StringNoLineBreaksValidator(allow_empty=True)
-        ],
-        'SiteNameAddress': [
-            NotEmptyValidator(),
-            StringNoLineBreaksValidator()
-        ],
-        'SiteplanURL': [
-            NotEmptyValidator(),
-            URLValidator()
-        ],
-        'CoordinateReferenceSystem': [
-            NotEmptyValidator(),
-            RegexValidator(expected=valid_coordinate_reference_system)
-        ],
-        'GeoX': [
-            NotEmptyValidator(),
-            FloatValidator()
-        ],
-        'GeoY': [
-            NotEmptyValidator(),
-            FloatValidator(),
-            CrossFieldValidator(validate_against_fields=['GeoX'])
-        ],
-        'Hectares': [
-            NotEmptyValidator(),
-            FloatValidator()
-        ],
-        'OwnershipStatus': [
-            NotEmptyValidator(),
-            RegexValidator(expected=valid_ownership_status)
-        ],
-        'Deliverable': [],
-        'PlanningStatus': [
-            NotEmptyValidator(),
-            RegexValidator(expected=valid_planning_status)
-        ],
-        'PermissionType': [
-            RegexValidator(expected=valid_permission_type, allow_empty=True)
-        ],
-        'PermissionDate': [
-            ISO8601DateValidator(allow_empty=True)
-        ],
-        'PlanningHistory': [
-            URLValidator(allow_empty=True)
-        ],
-        'ProposedForPIP': [],
-        'MinNetDwellings': [
-            NotEmptyValidator()
-        ],
-        'DevelopmentDescription': [],
-        'NonHousingDevelopment': [],
-        'Part2': [],
-        'NetDwellingsRangeFrom': [],
-        'NetDwellingsRangeTo': [],
-        'HazardousSubstances': [],
-        'SiteInformation': [
-            URLValidator(allow_empty=True)
-        ],
-        'Notes': [],
-        'FirstAddedDate': [
-            ISO8601DateValidator(),
-        ],
-        'LastUpdatedDate': [
-            ISO8601DateValidator()
-        ]
-    }
+        super(BrownfieldSiteValidationRunner, self).__init__(source, file_warnings, line_count, organisation)
+
+        valid_coordinate_reference_system = ['WGS84', 'OSGB36', 'ETRS89']
+        valid_ownership_status = ['owned by a public authority', 'not owned by a public authority',
+                                  'unknown ownership|mixed ownership']
+        valid_planning_status = ['permissioned', 'not permissioned', 'pending decision']
+        valid_permission_type = ['full planning permission',
+                                 'outline planning permission',
+                                 'reserved matters approval',
+                                 'permission in principle',
+                                 'technical details consent',
+                                 'planning permission granted under an order',
+                                 'other']
+
+        self.validators = {
+            'OrganisationURI': [
+                NotEmptyValidator(),
+                URLValidator()
+            ],
+            'OrganisationLabel': [
+                NotEmptyValidator(),
+                StringNoLineBreaksValidator()
+            ],
+            'SiteReference': [
+                NotEmptyValidator(),
+                StringNoLineBreaksValidator()
+            ],
+            'PreviouslyPartOf': [
+                StringNoLineBreaksValidator(allow_empty=True)
+            ],
+            'SiteNameAddress': [
+                NotEmptyValidator(),
+                StringNoLineBreaksValidator()
+            ],
+            'SiteplanURL': [
+                NotEmptyValidator(),
+                URLValidator()
+            ],
+            'CoordinateReferenceSystem': [
+                NotEmptyValidator(),
+                RegexValidator(expected=valid_coordinate_reference_system),
+            ],
+            ('GeoX', 'GeoY'): [
+                NotEmptyValidator(),
+                FloatValidator(),
+                GeoXYFieldValidator(self.organisation)
+            ],
+            'Hectares': [
+                NotEmptyValidator(),
+                FloatValidator()
+            ],
+            'OwnershipStatus': [
+                NotEmptyValidator(),
+                RegexValidator(expected=valid_ownership_status)
+            ],
+            'Deliverable': [],
+            'PlanningStatus': [
+                NotEmptyValidator(),
+                RegexValidator(expected=valid_planning_status)
+            ],
+            'PermissionType': [
+                RegexValidator(expected=valid_permission_type, allow_empty=True)
+            ],
+            'PermissionDate': [
+                ISO8601DateValidator(allow_empty=True)
+            ],
+            'PlanningHistory': [
+                URLValidator(allow_empty=True)
+            ],
+            'ProposedForPIP': [],
+            'MinNetDwellings': [
+                NotEmptyValidator()
+            ],
+            'DevelopmentDescription': [],
+            'NonHousingDevelopment': [],
+            'Part2': [],
+            'NetDwellingsRangeFrom': [],
+            'NetDwellingsRangeTo': [],
+            'HazardousSubstances': [],
+            'SiteInformation': [
+                URLValidator(allow_empty=True)
+            ],
+            'Notes': [],
+            'FirstAddedDate': [
+                ISO8601DateValidator(),
+            ],
+            'LastUpdatedDate': [
+                ISO8601DateValidator()
+            ]
+        }

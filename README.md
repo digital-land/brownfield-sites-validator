@@ -35,7 +35,7 @@ Run database migrations
 
 Load data
 
-    python -m flask load
+        python -m flask load
 
 Run the application
 

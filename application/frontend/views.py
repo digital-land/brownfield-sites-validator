@@ -9,27 +9,31 @@ from flask import (
 
 from application.frontend.forms import BrownfieldSiteURLForm
 from application.validators.validators import (
-    BrownfieldSiteValidator,
+    BrownfieldSiteValidationRunner,
     StringInput,
     ValidationWarning
 )
 
-from application.models import BrownfieldSitePublication
+from application.models import BrownfieldSitePublication, Organisation
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
+
 
 @frontend.route('/')
 def index():
     return render_template('index.html')
+
 
 @frontend.route('/results')
 def validate_results():
     pubs = BrownfieldSitePublication.query.order_by(BrownfieldSitePublication.organisation).all()
     return render_template('results.html', registers=pubs)
 
+
 @frontend.route('/start')
 def start():
     return render_template('start.html')
+
 
 @frontend.route('/validate')
 def validate():
@@ -70,9 +74,9 @@ def _get_data_and_validate(url, cached=False):
     # db record and only use if quite fresh, otherwise fetch and update
     # stored one. Or maybe not do this at all? Just store for index page,
     # but fetch fresh each time validate view method called?
-    site_in_db = BrownfieldSitePublication.query.filter_by(data_url=url).first()
-    if site_in_db is not None and site_in_db.validation_result is not None and cached:
-        return BrownfieldSiteValidator.from_dict(site_in_db.validation_result)
+    site = BrownfieldSitePublication.query.filter_by(data_url=url).first()
+    if site is not None and site.validation_result is not None and cached:
+        return BrownfieldSiteValidationRunner.from_dict(site)
     else:
         file_warnings = []
         resp = requests.get(url)
@@ -88,5 +92,6 @@ def _get_data_and_validate(url, cached=False):
         content = resp.content.decode(encoding)
         line_count = len(content.splitlines())
 
-        validator = BrownfieldSiteValidator(source=StringInput(string_input=content), file_warnings=file_warnings, line_count=line_count)
+        publication = BrownfieldSitePublication.query.filter_by(data_url=url).first()
+        validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count, publication.organisation)
         return validator.validate()

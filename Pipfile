@@ -17,6 +17,9 @@ flask-migrate = "*"
 python-frontmatter = "*"
 "psycopg2-binary" = "*"
 "psycopg2" = "*"
+"geoalchemy2" = "*"
+ijson = "*"
+bng-latlon = "*"
 
 [dev-packages]
 pytest = "*"

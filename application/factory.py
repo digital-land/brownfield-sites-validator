@@ -46,9 +46,10 @@ def register_extensions(app):
 
 
 def register_commands(app):
-    from application.commands import load, validate
+    from application.commands import load, validate, clear
     app.cli.add_command(load, name='load')
     app.cli.add_command(validate, name='validate')
+    app.cli.add_command(clear, name='clear')
 
 
 def register_filters(app):
