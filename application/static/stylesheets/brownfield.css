@@ -5454,3 +5454,8 @@
 .govuk-inset-text--warning {
   border-color: #ffbf47;
 }
+
+.govuk-panel--error {
+  border: 10px solid #b10e1e;
+  background: #dee0e2;
+}

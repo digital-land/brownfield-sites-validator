@@ -81,3 +81,8 @@ $govuk-images-path: '/static/govuk-frontend/assets/images/';
 .govuk-inset-text--warning {
   border-color: govuk-colour("yellow");
 }
+
+.govuk-panel--error {
+  border: 10px solid govuk-colour("red");
+  background: $govuk-canvas-background-colour;
+}
