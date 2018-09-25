@@ -26,6 +26,7 @@ class Feature(db.Model):
     geometry = db.Column(Geometry(srid=4326))
     name = db.Column(db.Text)
     publication = db.Column(db.String(64))
+    geojson = db.Column(JSONB)
 
 
 class BrownfieldSitePublication(db.Model):
@@ -33,6 +34,6 @@ class BrownfieldSitePublication(db.Model):
     publication = db.Column(db.String(64), primary_key=True)
     organisation_id = db.Column(db.String(64), ForeignKey('organisation.organisation',
                                                           name='brownfield_publication_organisation_fkey'))
-    data_url = db.Column(db.Text)
     geojson = db.Column(JSONB)
+    data_url = db.Column(db.Text)
     validation_result = db.Column(JSONB)

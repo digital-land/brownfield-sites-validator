@@ -136,10 +136,14 @@ def load_features(features_url, org_feature_mappings):
             if Feature.query.get(feature_id) is None:
                 try:
                     org = Organisation.query.get(org_feature_mappings[feature_id])
-                    geo = json.dumps(feature['geometry'])
-                    geometry = db.session.execute(json_to_geo_query % geo).fetchone()[0]
+                    geojson = json.dumps(feature['geometry'])
+                    geometry = db.session.execute(json_to_geo_query % geojson).fetchone()[0]
 
-                    feature = Feature(feature=feature_id, item=item, publication=publication, geometry=geometry)
+                    feature = Feature(feature=feature_id,
+                                      item=item,
+                                      publication=publication,
+                                      geometry=geometry,
+                                      geojson=geojson)
 
                     org.feature_id = feature_id
 

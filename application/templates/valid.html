@@ -39,54 +39,53 @@
 
 {% block content %}
 
-          {% if result.file_warnings or result.warnings %}
-              <div class="govuk-grid-row">
-                  <div class="govuk-grid-column-full">
-                      <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
-                           alt="file warnings" style="padding-top: 20px">
-                      <ul class="govuk-list govuk-list--bullet">
-                          {% for w in result.file_warnings %}
-                              <li>{{ w.data }} {{ w.warning.name }} {{ w.warning.message }}.</li>
-                          {% endfor %}
-                          {% for field in result.warnings %}
-                          <li>
-                              <h3 class="govuk-heading-s">{{ field }}</h3>
-                              {% set warning_count = result.report[field]['warnings']| count %}
-                              <p class="no-margin">{{ warning_count }} type{% if warning_count > 1 %}(s){% endif %} of
-                                  error:</p>
-                              <ul class="govuk-list list-bullet-coloured list-bullet-coloured--warning">
-                                  {% for warning in result.report[field]['warnings'] %}
-                                      <li>{{ warning | format_warning }}</li>
-                                  {% endfor %}
-                              </ul>
-                              <p>Across <span class="row-value">{{ result.warnings[field] | count }} rows</span>.</p>
-                              <p><a href="#">Fix these errors</a>.</p>
-                          </li>
-                      {% endfor %}
-                      </ul>
-                  </div>
-              </div>
-        {% endif %}
-
-          <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-              <div class="govuk-panel govuk-panel--confirmation">
-                <h2 class="govuk-panel__title">
-                  Validation complete
-                </h2>
-                <div class="govuk-panel__body">
-                  URL<br><strong class="url">{{ url }}</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+    {% if result.file_warnings or result.warnings %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <div id="map" style="height: 600px; width: 900px"></div>
+                <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
+                     alt="file warnings" style="padding-top: 20px">
+                <ul class="govuk-list govuk-list--bullet">
+                    {% for w in result.file_warnings %}
+                        <li>{{ w.data }} {{ w.warning.name }} {{ w.warning.message }}.</li>
+                    {% endfor %}
+                    {% for field in result.warnings %}
+                        <li>
+                            <h3 class="govuk-heading-s">{{ field }}</h3>
+                            {% set warning_count = result.report[field]['warnings']| count %}
+                            <p class="no-margin">{{ warning_count }} type{% if warning_count > 1 %}(s){% endif %} of
+                                error:</p>
+                            <ul class="govuk-list list-bullet-coloured list-bullet-coloured--warning">
+                                {% for warning in result.report[field]['warnings'] %}
+                                    <li>{{ warning | format_warning }}</li>
+                                {% endfor %}
+                            </ul>
+                            <p>Across <span class="row-value">{{ result.warnings[field] | count }} rows</span>.</p>
+                            <p><a href="#">Fix these errors</a>.</p>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
+    {% endif %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div class="govuk-panel govuk-panel--confirmation">
+                <h2 class="govuk-panel__title">
+                    Validation complete
+                </h2>
+                <div class="govuk-panel__body">
+                    URL<br><strong class="url">{{ url }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div id="map" style="height: 600px; width: 900px"></div>
+        </div>
+    </div>
 
 {% endblock %}
 
