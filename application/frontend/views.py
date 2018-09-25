@@ -26,8 +26,8 @@ def index():
 
 @frontend.route('/results')
 def validate_results():
-    pubs = BrownfieldSitePublication.query.order_by(BrownfieldSitePublication.organisation).all()
-    return render_template('results.html', registers=pubs)
+    publications = BrownfieldSitePublication.query.all()
+    return render_template('results.html', publications=publications)
 
 
 @frontend.route('/start')
@@ -83,12 +83,12 @@ def _get_data_and_validate(url, cached=False):
         file_warnings = []
         resp = requests.get(url)
         content_type = resp.headers.get('Content-type')
-        if content_type is not None and content_type != 'text/csv':
+        if content_type is not None and content_type.lower() not in ['text/csv', 'text/csv;charset=utf-8']:
             file_warnings.append({'data': 'Content-Type:%s' % content_type, 'warning': ValidationWarning.CONTENT_TYPE_WARNING.to_dict()})
 
         dammit = UnicodeDammit(resp.content)
         encoding = dammit.original_encoding
-        if encoding != 'utf-8':
+        if encoding.lower() != 'utf-8':
             file_warnings.append({'data': 'File encoding: %s' % encoding, 'warning': ValidationWarning.FILE_ENCODING_WARNING.to_dict()})
 
         content = resp.content.decode(encoding)

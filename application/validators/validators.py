@@ -194,9 +194,8 @@ class GeoXYFieldValidator(BaseFieldValidator):
 
                 if row['CoordinateReferenceSystem'] == 'OSGB36':
                     lat, lng = OSGB36toWGS84(geoX, geoY)
-
-                elif row['CoordinateReferenceSystem'] == 'WGS84':
-                    lat, lng = geoX, geoY
+                else:
+                    lng, lat = geoX, geoY
 
                 point = func.ST_SetSRID(func.ST_MakePoint(lng,lat), 4326)
                 f = Feature.query.filter(and_(Feature.geometry.ST_Contains(point), Feature.feature==self.organisation.feature.feature)).first()
@@ -338,8 +337,9 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
         super(BrownfieldSiteValidationRunner, self).__init__(source, file_warnings, line_count, organisation)
 
         valid_coordinate_reference_system = ['WGS84', 'OSGB36', 'ETRS89']
-        valid_ownership_status = ['owned by a public authority', 'not owned by a public authority',
-                                  'unknown ownership|mixed ownership']
+        valid_ownership_status = ['owned by a public authority',
+                                  'not owned by a public authority',
+                                  'unknown ownership','mixed ownership']
         valid_planning_status = ['permissioned', 'not permissioned', 'pending decision']
         valid_permission_type = ['full planning permission',
                                  'outline planning permission',

@@ -51,35 +51,35 @@
               </tr>
             </thead>
             <tbody class="govuk-table__body">
-              {% for register in registers %}
+              {% for publication in publications %}
               <tr class="govuk-table__row validation-result-row">
-                <td class="govuk-table__cell" colspan="2">{{ register.organisation }}
-                  <a class="full-results-link" href="{{ url_for('frontend.validate', url=register.data_url, cached=True)}}">See full results</a>
+                <td class="govuk-table__cell" colspan="2">{{ publication.organisation.name }}
+                  <a class="full-results-link" href="{{ url_for('frontend.validate', url=publication.data_url, cached=True)}}">See full results</a>
                 </td>
-                {% if register.validation_result is not none -%}
+                {% if publication.validation_result is not none -%}
 
-                <td class="govuk-table__cell validation-result-numeric-cell">{{ register.validation_result.line_count - 1 }}</td>
+                <td class="govuk-table__cell validation-result-numeric-cell">{{ publication.validation_result.line_count - 1 }}</td>
                 <td class=" 
-                {%- if register.validation_result.rows_analysed == register.validation_result.line_count - 1 %}successful{% else %}unsuccessful{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- register.validation_result.rows_analysed }}</td>
+                {%- if publication.validation_result.rows_analysed == publication.validation_result.line_count - 1 %}successful{% else %}unsuccessful{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- publication.validation_result.rows_analysed }}</td>
                 <td class="
-                {%- if register.validation_result.missing|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- register.validation_result.missing | length }}</td>
+                {%- if publication.validation_result.missing|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- publication.validation_result.missing | length }}</td>
                 <td class=" 
-                {%- if register.validation_result.unknown|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- register.validation_result.unknown | length }}</td>
+                {%- if publication.validation_result.unknown|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- publication.validation_result.unknown | length }}</td>
                 <td class="
-                {%- if register.validation_result.errors|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- register.validation_result.errors | length }}</td>
+                {%- if publication.validation_result.errors|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- publication.validation_result.errors | length }}</td>
                 <td class=" 
-                {%- if register.validation_result.warnings|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- register.validation_result.warnings | length }}</td>
+                {%- if publication.validation_result.warnings|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- publication.validation_result.warnings | length }}</td>
                 <td class="
-                {%- if register.validation_result.file_errors|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- register.validation_result.file_errors | length }}</td>
+                {%- if publication.validation_result.file_errors|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- publication.validation_result.file_errors | length }}</td>
                 <td class=" 
-                {%- if register.validation_result.file_warnings|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- register.validation_result.file_warnings | length }}</td>
+                {%- if publication.validation_result.file_warnings|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- publication.validation_result.file_warnings | length }}</td>
 
                 {%- else -%}
 
