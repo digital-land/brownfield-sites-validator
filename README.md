@@ -70,6 +70,12 @@ how those value are retrieved in the application. If you need to add configurati
 seems that updates are destructive, so please recreate all the values, do not just add the
 new ones.
 
+Useful commands
+---------------
+
+Use the following to copy all GOVUK design system components to templates folder. You'll need to be in `src/govuk-frontend` dir.
+
+    find . -name '*.njk' | cpio -pdm ../../application/templates/
 
 # Licence
 
