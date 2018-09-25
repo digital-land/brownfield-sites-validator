@@ -1,10 +1,10 @@
-{% extends "base.html" %}
+{% extends "default.html" %}
 
 {% from "macros/forms.html" import render_input_field %}
 
 {% block title %}{{ url }} validation result{% endblock %}
 
-{% block end_head %}
+{% block headEnd %}
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
    integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
@@ -18,26 +18,22 @@
 
 {% block content %}
 
-    <main id="content" role="main">
-
-      <div class="govuk-main-wrapper">
-
           {% if result.file_warnings or result.warnings %}
-              <div class="grid-row">
-                  <div class="column-full">
+              <div class="govuk-grid-row">
+                  <div class="govuk-grid-column-full">
                       <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
                            alt="file warnings" style="padding-top: 20px">
-                      <ul class="list list-bullet">
+                      <ul class="govuk-list govuk-list--bullet">
                           {% for w in result.file_warnings %}
                               <li>{{ w.data }} {{ w.warning.name }} {{ w.warning.message }}.</li>
                           {% endfor %}
                           {% for field in result.warnings %}
                           <li>
-                              <h3 class="heading-small">{{ field }}</h3>
+                              <h3 class="govuk-heading-s">{{ field }}</h3>
                               {% set warning_count = result.report[field]['warnings']| count %}
                               <p class="no-margin">{{ warning_count }} type{% if warning_count > 1 %}(s){% endif %} of
                                   error:</p>
-                              <ul class="list-bullet-coloured list-bullet-coloured--error">
+                              <ul class="govuk-list list-bullet-coloured list-bullet-coloured--warning">
                                   {% for warning in result.report[field]['warnings'] %}
                                       <li>{{ warning | format_warning }}</li>
                                   {% endfor %}
@@ -51,8 +47,8 @@
               </div>
         {% endif %}
 
-          <div class="grid-row">
-            <div class="column-full">
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
               <div class="govuk-panel govuk-panel--confirmation">
                 <h2 class="govuk-panel__title">
                   Validation complete
@@ -65,16 +61,15 @@
           </div>
         </div>
 
-        <div class="grid-row">
-            <div class="column-full">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
                 <div id="map" style="height: 600px; width: 900px"></div>
             </div>
         </div>
-    </main>
 
 {% endblock %}
 
-{% block end_body %}
+{% block bodyEnd %}
 
     <script>
 

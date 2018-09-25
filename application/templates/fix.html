@@ -49,7 +49,7 @@
                               <h3 class="govuk-heading-s">{{ field }}</h3>
                               {%  set error_count = result.report[field]['errors'] | count   %}
                               <p class="no-margin">{{ error_count }} type{% if error_count > 1 %}(s){% endif %} of error:</p>
-                              <ul class="list-bullet-coloured list-bullet-coloured--error">
+                              <ul class="govuk-list list-bullet-coloured list-bullet-coloured--error">
                                   {% for error in result.report[field]['errors'] %}
                                       <li>{{ error | format_error }}</li>
                                   {% endfor %}
@@ -97,7 +97,7 @@
                           {% set warning_count = result.report[field]['warnings']| count %}
                           <p class="no-margin">{{ warning_count }} type{% if warning_count > 1 %}(s){% endif %} of
                               error:</p>
-                          <ul class="list-bullet-coloured list-bullet-coloured--error">
+                          <ul class="govuk-list list-bullet-coloured list-bullet-coloured--error">
                               {% for warning in result.report[field]['warnings'] %}
                                   <li>{{ warning | format_warning }}</li>
                               {% endfor %}
