@@ -44,12 +44,13 @@ def validate():
             cached = True
         else:
             cached = False
-        result = _get_data_and_validate(form.url.data, cached=cached)
+        url = form.url.data.strip()
+        result = _get_data_and_validate(url, cached=cached)
         if (result.file_warnings and result.errors) or result.file_errors:
-            return render_template('fix.html', url=form.url.data, result=result)
+            return render_template('fix.html', url=url, result=result)
         else:
-            brownfield_site = BrownfieldSitePublication.query.filter_by(data_url=form.url.data).one()
-            return render_template('valid.html', url=form.url.data, feature=brownfield_site.geojson, result=result)
+            brownfield_site = BrownfieldSitePublication.query.filter_by(data_url=url).one()
+            return render_template('valid.html', url=url, feature=brownfield_site.geojson, result=result)
 
     return render_template('validate.html', form=form)
 
