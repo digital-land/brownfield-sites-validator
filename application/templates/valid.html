@@ -110,7 +110,11 @@
             onEachFeature: onEachFeature
         });
 
+        laBoundary =  L.geoJSON({{ la_boundary | tojson }});
+
         geojsonLayer.addTo(map);
+        laBoundary.addTo(map);
+
         map.fitBounds(geojsonLayer.getBounds());
 
     </script>

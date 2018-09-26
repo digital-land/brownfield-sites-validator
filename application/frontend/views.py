@@ -51,7 +51,13 @@ def validate():
             return render_template('fix.html', url=url, result=result)
         else:
             brownfield_site = BrownfieldSitePublication.query.filter_by(data_url=url).one()
-            return render_template('valid.html', url=url, feature=brownfield_site.geojson, result=result)
+            la_boundary=brownfield_site.organisation.feature.geojson
+
+            return render_template('valid.html',
+                                   url=url,
+                                   feature=brownfield_site.geojson,
+                                   result=result,
+                                   la_boundary=la_boundary)
 
     return render_template('validate.html', form=form)
 
