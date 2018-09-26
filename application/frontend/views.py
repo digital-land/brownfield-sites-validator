@@ -4,8 +4,8 @@ from bs4 import UnicodeDammit
 from flask import (
     Blueprint,
     render_template,
-    request
-)
+    request,
+    json)
 
 from application.frontend.forms import BrownfieldSiteURLForm
 from application.validators.validators import (
@@ -15,6 +15,7 @@ from application.validators.validators import (
 )
 
 from application.models import BrownfieldSitePublication, Organisation
+from application.extensions import db
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
 
@@ -78,7 +79,7 @@ def _get_data_and_validate(url, cached=False):
     # but fetch fresh each time validate view method called?
     site = BrownfieldSitePublication.query.filter_by(data_url=url).first()
     if site is not None and site.validation_result is not None and cached:
-        return BrownfieldSiteValidationRunner.from_dict(site)
+        return BrownfieldSiteValidationRunner.from_site(site)
     else:
         file_warnings = []
         resp = requests.get(url)
@@ -96,4 +97,10 @@ def _get_data_and_validate(url, cached=False):
 
         publication = BrownfieldSitePublication.query.filter_by(data_url=url).first()
         validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count, publication.organisation)
-        return validator.validate()
+        validator.validate()
+
+        publication.validation_result = validator.to_dict()
+        db.session.add(publication)
+        db.session.commit()
+
+        return validator

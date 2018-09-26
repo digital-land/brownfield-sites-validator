@@ -4,12 +4,12 @@
 """
 
 import csv
+import json
 import logging
 import re
 import requests
 
 from io import StringIO
-from collections import defaultdict
 from enum import Enum
 
 from bng_to_latlon import OSGB36toWGS84
@@ -172,38 +172,35 @@ class FloatValidator(BaseFieldValidator):
         return errors, warnings
 
 
-class GeoXYFieldValidator(BaseFieldValidator):
+class GeoXFieldValidator(BaseFieldValidator):
 
-    ''' Checks geo point field in conjunction with another field in this row '''
+    ''' Checks location of GeoX in conjunction GeoY '''
 
-    def __init__(self, organisation, **kwargs):
-        super(GeoXYFieldValidator, self).__init__(**kwargs)
+    def __init__(self, organisation, check_against, **kwargs):
+        super(GeoXFieldValidator, self).__init__(**kwargs)
         self.organisation = organisation
+        self.check_against = check_against
 
     def validate(self, field, row):
-        # data = row.get('field')
-        # TODO need to work out location of borough to check in co-ordinates
-        # are in the borough - maybe this validator is a geovalidator that is a subclass
-        # of a crossfield validator?
         errors = []
         warnings = []
-        if isinstance(field, tuple):
-            try:
-                geoX = float(row[field[0]])
-                geoY = float(row[field[1]])
+        try:
+            geoX = float(field)
+            geoY = float([self.check_against])
 
-                if row['CoordinateReferenceSystem'] == 'OSGB36':
-                    lat, lng = OSGB36toWGS84(geoX, geoY)
-                else:
-                    lng, lat = geoX, geoY
+            if row['CoordinateReferenceSystem'] == 'OSGB36':
+                lat, lng = OSGB36toWGS84(geoX, geoY)
+            else:
+                lng, lat = geoX, geoY
 
-                point = func.ST_SetSRID(func.ST_MakePoint(lng,lat), 4326)
-                f = Feature.query.filter(and_(Feature.geometry.ST_Contains(point), Feature.feature==self.organisation.feature.feature)).first()
-                if f is None:
-                    raise ValueError('Point is not within borough')
-            except ValueError as e:
-                warnings.append({'data': field, 'warning': ValidationWarning.LOCATION_WARNING.to_dict()})
-                print('Found warning with', field, e)
+            point = func.ST_SetSRID(func.ST_MakePoint(lng,lat), 4326)
+            f = Feature.query.filter(and_(Feature.geometry.ST_Contains(point), Feature.feature==self.organisation.feature.feature)).first()
+            if f is None:
+                raise ValueError('Point is not within borough')
+        except ValueError as e:
+            message = 'This field was validated in conjunction with %s' % self.check_against
+            warnings.append({'data': field, 'warning': ValidationWarning.LOCATION_WARNING.to_dict(), 'message': message})
+            print('Found warning with', field, e)
 
         return errors, warnings
 
@@ -236,8 +233,8 @@ class ValidationRunner:
         self.file_warnings = file_warnings
         self.file_errors = []
         self.line_count = line_count
-        self.errors = defaultdict(lambda: defaultdict(list))
-        self.warnings = defaultdict(lambda: defaultdict(list))
+        self.errors = {}
+        self.warnings = {}
         self.missing = []
         self.unknown = []
         self.validators = validators or getattr(self, 'validators', {})
@@ -245,6 +242,7 @@ class ValidationRunner:
         self.rows_analysed = 0
         self.report = {}
         self.organisation = organisation
+        self.empty_lines = 0
 
     def to_dict(self):
         return {'errors': self.errors,
@@ -255,19 +253,20 @@ class ValidationRunner:
                 'unknown': list(self.unknown),
                 'line_count': self.line_count,
                 'rows_analysed': self.rows_analysed,
-                'report': self.report}
+                'report': self.report,
+                'empty_lines': self.empty_lines}
 
     @classmethod
-    def from_dict(cls, site):
+    def from_site(cls, site):
         datadict = site.validation_result
-        validator = cls(None, file_warnings=datadict['file_warnings'], line_count=datadict['line_count'])
+        validator = cls(None, file_warnings=datadict['file_warnings'], line_count=datadict['line_count'], organisation=site.organisation)
         validator.errors = datadict['errors']
         validator.warnings = datadict['warnings']
         validator.missing = datadict['missing']
         validator.unknown = datadict['unknown']
         validator.rows_analysed = datadict['rows_analysed']
         validator.report = datadict['report']
-        validator.organisation = site.organisation
+        validator.empty_lines = datadict['empty_lines']
         return validator
 
     def validate(self):
@@ -282,28 +281,41 @@ class ValidationRunner:
             else:
                 validator_fields.append(key)
 
-        self.missing = set(validator_fields) - set(reader.fieldnames)
-        self.unknown = set(reader.fieldnames) - set(validator_fields)
+        expected_fields = set(validator_fields)
+        optional_additional_fields = ['Northing', 'NORTHING', 'Easting', 'EASTING']
+
+        self.missing = list(expected_fields - set(reader.fieldnames))
+        self.unknown = list(set(reader.fieldnames) - expected_fields)
+        self.unknown = list(set(self.unknown) - set(optional_additional_fields))
 
         # if this happens, then file headers are completely broken and no point carrying on
         if self.missing == set(self.validators):
             self.file_errors = {'data': 'file', 'error': ValidationError.INVALID_CSV_HEADERS.to_dict()}
             self.unknown = set(reader.fieldnames)
-            return self
+            return None
 
         for line, row in enumerate(reader):
+            if all(v.strip() == '' for v in row.values()):
+                self.empty_lines += 1
+                continue
             self.rows_analysed += 1
             for field, validators in self.validators.items():
                 for validator in validators:
                     errors, warnings = validator.validate(field, row)
                     if errors:
+                        if self.errors.get(field) is None:
+                            self.errors[field] = {}
+                        if self.errors[field].get(line) is None:
+                            self.errors[field][line] = []
                         self.errors[field][line].extend(errors)
                     if warnings:
+                        if self.warnings.get(field) is None:
+                            self.warnings[field] = {}
+                        if self.warnings[field].get(line) is None:
+                            self.warnings[field][line] = []
                         self.warnings[field][line].extend(warnings)
 
         self._gather_results()
-
-        return self
 
     def _gather_results(self):
 
@@ -377,10 +389,14 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                 NotEmptyValidator(),
                 RegexValidator(expected=valid_coordinate_reference_system),
             ],
-            ('GeoX', 'GeoY'): [
+            'GeoX': [
                 NotEmptyValidator(),
                 FloatValidator(),
-                GeoXYFieldValidator(self.organisation)
+                GeoXFieldValidator(self.organisation, check_against='GeoY')
+            ],
+            'GeoY': [
+                NotEmptyValidator(),
+                FloatValidator()
             ],
             'Hectares': [
                 NotEmptyValidator(),

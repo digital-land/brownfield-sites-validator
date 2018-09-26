@@ -143,7 +143,7 @@ def load_features(features_url, org_feature_mappings):
                                       item=item,
                                       publication=publication,
                                       geometry=geometry,
-                                      geojson=geojson)
+                                      geojson=feature['geometry'])
 
                     org.feature_id = feature_id
 
