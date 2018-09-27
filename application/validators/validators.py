@@ -292,10 +292,10 @@ class ValidationRunner:
         self.unknown = list(set(self.unknown) - set(optional_additional_fields))
 
         # if this happens, then file headers are completely broken and no point carrying on
-        if self.missing == set(self.validators):
+        if set(self.missing) == set(self.validators):
             self.file_errors = {'data': 'file', 'error': ValidationError.INVALID_CSV_HEADERS.to_dict()}
             self.unknown = set(reader.fieldnames)
-            return None
+            return self
 
         for line, row in enumerate(reader):
             if all(v.strip() == '' for v in row.values()):
