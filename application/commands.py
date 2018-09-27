@@ -14,8 +14,7 @@ from flask.cli import with_appcontext
 
 from application.extensions import db
 from application.frontend.views import _get_data_and_validate
-from application.models import BrownfieldSitePublication, Organisation, Feature
-
+from application.models import BrownfieldSitePublication, Organisation, Feature, ValidationResult
 
 json_to_geo_query = "SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326);"
 
@@ -102,13 +101,17 @@ def load():
 def validate():
     sites = BrownfieldSitePublication.query.all()
     for site in sites:
-        print('Validating', site.data_url)
         try:
-            validation = _get_data_and_validate(site.data_url)
-            site.validation_result = validation.to_dict()
-            db.session.add(site)
-            db.session.commit()
-            print('Added data from', site.data_url)
+            # For the moment skip non csv files
+            if site.data_url.endswith('.csv'):
+                print('Validating', site.data_url)
+                validation = _get_data_and_validate(site.data_url)
+                site.validation_result = validation.to_dict()
+                db.session.add(site)
+                db.session.commit()
+                print('Added data from', site.data_url)
+            else:
+                print('Not validating non csv files yet:', site.data_url)
         except Exception as e:
             print('error', e)
 
@@ -164,10 +167,10 @@ def load_features(features_url, org_feature_mappings):
             pass
 
 
-
 @click.command()
 @with_appcontext
 def clear():
+    db.session.query(ValidationResult).delete()
     db.session.query(BrownfieldSitePublication).delete()
     db.session.query(Organisation).delete()
     db.session.query(Feature).delete()

@@ -16,7 +16,8 @@ from bng_to_latlon import OSGB36toWGS84
 from requests.exceptions import InvalidSchema, HTTPError, MissingSchema
 from sqlalchemy import func, and_
 
-from application.models import Feature
+from application.models import Feature, ValidationResult
+from application.extensions import db
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -109,7 +110,7 @@ class StringNoLineBreaksValidator(BaseFieldValidator):
         errors = []
         warnings = []
         data = row.get(field)
-        if data is not None and ('\r\n' in data or '\n' in data):
+        if data is not None and not self.allow_empty and ('\r\n' in data or '\n' in data):
             errors.append({'data': data, 'error': ValidationError.NO_LINE_BREAK.to_dict()})
             logger.info('Found error with', data)
         return errors, warnings
@@ -137,21 +138,22 @@ class ISO8601DateValidator(BaseFieldValidator):
         return errors, warnings
 
 
-class NotEmptyValidator(BaseFieldValidator):
-
-    ''' Field cannot be empty '''
-
-    def __init__(self, **kwargs):
-        super(NotEmptyValidator, self).__init__(**kwargs)
-
-    def validate(self, field, row):
-        errors = []
-        warnings = []
-        data = row.get(field)
-        if data is not None and data.strip() == '':
-            errors.append({'data': data, 'error': ValidationError.REQUIRED_FIELD.to_dict()})
-            logger.info('Found error with', data)
-        return errors, warnings
+# TODO not sure this should exist, just use the allow emtpy flag?
+# class NotEmptyValidator(BaseFieldValidator):
+#
+#     ''' Field cannot be empty '''
+#
+#     def __init__(self, **kwargs):
+#         super(NotEmptyValidator, self).__init__(**kwargs)
+#
+#     def validate(self, field, row):
+#         errors = []
+#         warnings = []
+#         data = row.get(field)
+#         if data is None or data.strip() == '':
+#             errors.append({'data': data, 'error': ValidationError.REQUIRED_FIELD.to_dict()})
+#             logger.info('Found error with', data)
+#         return errors, warnings
 
 
 class FloatValidator(BaseFieldValidator):
@@ -164,7 +166,7 @@ class FloatValidator(BaseFieldValidator):
         warnings = []
         data = row.get(field)
         try:
-            if data is not None:
+            if data is not None and not self.allow_empty :
                 float(data)
         except ValueError as e:
             errors.append({'data': data, 'error': ValidationError.INVALID_FLOAT.to_dict()})
@@ -185,8 +187,8 @@ class GeoXFieldValidator(BaseFieldValidator):
         errors = []
         warnings = []
         try:
-            geoX = float(field)
-            geoY = float([self.check_against])
+            geoX = float(row[field])
+            geoY = float(row[self.check_against])
 
             if row['CoordinateReferenceSystem'] == 'OSGB36':
                 lat, lng = OSGB36toWGS84(geoX, geoY)
@@ -217,7 +219,7 @@ class RegexValidator(BaseFieldValidator):
         errors = []
         warnings = []
         data = row.get(field)
-        if data or not self.allow_empty:
+        if data is not None and not self.allow_empty:
             if self.regex.match(data) is None:
                 message = 'Content should be one of: %s' % ','.join(self.expected)
                 errors.append({'data': data, 'error': ValidationError.INVALID_CONTENT.to_dict(), 'message' : message})
@@ -227,7 +229,7 @@ class RegexValidator(BaseFieldValidator):
 
 class ValidationRunner:
 
-    def __init__(self, source, file_warnings, line_count, organisation, validators={}, delimiter=None):
+    def __init__(self, source, file_warnings, line_count, publication, validators={}, delimiter=None):
 
         self.source = source
         self.file_warnings = file_warnings
@@ -241,8 +243,9 @@ class ValidationRunner:
         self.delimiter = delimiter or getattr(self, 'delimiter', ',')
         self.rows_analysed = 0
         self.report = {}
-        self.organisation = organisation
+        self.publication = publication
         self.empty_lines = 0
+        self.data_rows = []
 
     def to_dict(self):
         return {'errors': self.errors,
@@ -257,9 +260,9 @@ class ValidationRunner:
                 'empty_lines': self.empty_lines}
 
     @classmethod
-    def from_site(cls, site):
-        datadict = site.validation_result
-        validator = cls(None, file_warnings=datadict['file_warnings'], line_count=datadict['line_count'], organisation=site.organisation)
+    def from_publication(cls, publication):
+        datadict = publication.validation.result
+        validator = cls(None, datadict['file_warnings'], datadict['line_count'], publication)
         validator.errors = datadict['errors']
         validator.warnings = datadict['warnings']
         validator.missing = datadict['missing']
@@ -299,6 +302,7 @@ class ValidationRunner:
                 self.empty_lines += 1
                 continue
             self.rows_analysed += 1
+            self.data_rows.append(row)
             for field, validators in self.validators.items():
                 for validator in validators:
                     errors, warnings = validator.validate(field, row)
@@ -316,6 +320,12 @@ class ValidationRunner:
                         self.warnings[field][line].extend(warnings)
 
         self._gather_results()
+
+        self.publication.validation_results.append(ValidationResult(result=self.to_dict(), data=self.data_rows))
+        db.session.add(self.publication)
+        db.session.commit()
+
+        return self
 
     def _gather_results(self):
 
@@ -363,52 +373,41 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
 
         self.validators = {
             'OrganisationURI': [
-                NotEmptyValidator(),
                 URLValidator()
             ],
             'OrganisationLabel': [
-                NotEmptyValidator(),
                 StringNoLineBreaksValidator()
             ],
             'SiteReference': [
-                NotEmptyValidator(),
                 StringNoLineBreaksValidator()
             ],
             'PreviouslyPartOf': [
                 StringNoLineBreaksValidator(allow_empty=True)
             ],
             'SiteNameAddress': [
-                NotEmptyValidator(),
                 StringNoLineBreaksValidator()
             ],
             'SiteplanURL': [
-                NotEmptyValidator(),
                 URLValidator()
             ],
             'CoordinateReferenceSystem': [
-                NotEmptyValidator(),
                 RegexValidator(expected=valid_coordinate_reference_system),
             ],
             'GeoX': [
-                NotEmptyValidator(),
                 FloatValidator(),
-                GeoXFieldValidator(self.organisation, check_against='GeoY')
+                GeoXFieldValidator(self.publication.organisation, check_against='GeoY')
             ],
             'GeoY': [
-                NotEmptyValidator(),
                 FloatValidator()
             ],
             'Hectares': [
-                NotEmptyValidator(),
                 FloatValidator()
             ],
             'OwnershipStatus': [
-                NotEmptyValidator(),
                 RegexValidator(expected=valid_ownership_status)
             ],
             'Deliverable': [],
             'PlanningStatus': [
-                NotEmptyValidator(),
                 RegexValidator(expected=valid_planning_status)
             ],
             'PermissionType': [
@@ -422,7 +421,6 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
             ],
             'ProposedForPIP': [],
             'MinNetDwellings': [
-                NotEmptyValidator()
             ],
             'DevelopmentDescription': [],
             'NonHousingDevelopment': [],

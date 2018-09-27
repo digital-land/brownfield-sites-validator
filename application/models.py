@@ -1,7 +1,9 @@
+import datetime
+
 from geoalchemy2 import Geometry
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
-
+from sqlalchemy.orm import relationship
 
 from application.extensions import db
 
@@ -36,4 +38,23 @@ class BrownfieldSitePublication(db.Model):
                                                           name='brownfield_publication_organisation_fkey'))
     geojson = db.Column(JSONB)
     data_url = db.Column(db.Text)
-    validation_result = db.Column(JSONB)
+
+    # Check this - not sure it's the right thing?
+    validation_results = relationship('ValidationResult', order_by='ValidationResult.created_date')
+
+    @property
+    def validation(self):
+        if self.validation_results:
+            return self.validation_results[0]
+        else:
+            return None
+
+
+class ValidationResult(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    result = db.Column(JSONB)
+    data = db.Column(JSONB)
+    created_date = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
+
+    brownfield_site_publication_id = db.Column(db.String(64), ForeignKey('brownfield_site_publication.publication'))

@@ -6,6 +6,7 @@ from flask import (
     render_template,
     request,
     json)
+from sqlalchemy import asc
 
 from application.frontend.forms import BrownfieldSiteURLForm
 from application.validators.validators import (
@@ -14,7 +15,7 @@ from application.validators.validators import (
     ValidationWarning
 )
 
-from application.models import BrownfieldSitePublication, Organisation
+from application.models import BrownfieldSitePublication, Organisation, ValidationResult
 from application.extensions import db
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
@@ -27,7 +28,7 @@ def index():
 
 @frontend.route('/results')
 def validate_results():
-    publications = BrownfieldSitePublication.query.all()
+    publications = BrownfieldSitePublication.query.join(Organisation).order_by(asc(Organisation.name))
     return render_template('results.html', publications=publications)
 
 
@@ -36,15 +37,20 @@ def start():
     return render_template('start.html')
 
 
+def _to_boolean(value):
+    if str(value).lower() in ['1', 't', 'true', 'y', 'yes', 'on']:
+        return True
+    return False
+
+
 @frontend.route('/validate')
 def validate():
     form = BrownfieldSiteURLForm(request.args)
 
     if form.url.data and form.validate():
-        if request.args.get('cached') is not None:
-            cached = True
-        else:
-            cached = False
+
+        cached = _to_boolean(request.args.get('cached', False))
+
         url = form.url.data.strip()
         result = _get_data_and_validate(url, cached=cached)
         if (result.file_warnings and result.errors) or result.file_errors:
@@ -83,9 +89,9 @@ def _get_data_and_validate(url, cached=False):
     # db record and only use if quite fresh, otherwise fetch and update
     # stored one. Or maybe not do this at all? Just store for index page,
     # but fetch fresh each time validate view method called?
-    site = BrownfieldSitePublication.query.filter_by(data_url=url).first()
-    if site is not None and site.validation_result is not None and cached:
-        return BrownfieldSiteValidationRunner.from_site(site)
+    publication = BrownfieldSitePublication.query.filter_by(data_url=url).first()
+    if publication is not None and publication.validation is not None and cached:
+        return BrownfieldSiteValidationRunner.from_publication(publication)
     else:
         file_warnings = []
         resp = requests.get(url)
@@ -102,11 +108,5 @@ def _get_data_and_validate(url, cached=False):
         line_count = len(content.splitlines())
 
         publication = BrownfieldSitePublication.query.filter_by(data_url=url).first()
-        validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count, publication.organisation)
-        validator.validate()
-
-        publication.validation_result = validator.to_dict()
-        db.session.add(publication)
-        db.session.commit()
-
-        return validator
+        validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count, publication)
+        return validator.validate()
