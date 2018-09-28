@@ -5,7 +5,7 @@ from flask import (
     Blueprint,
     render_template,
     request,
-    json)
+    json, redirect, url_for)
 from sqlalchemy import asc
 
 from application.frontend.forms import BrownfieldSiteURLForm
@@ -45,13 +45,14 @@ def _to_boolean(value):
 
 @frontend.route('/validate')
 def validate():
-    form = BrownfieldSiteURLForm(request.args)
-
-    if form.url.data and form.validate():
-
+    if request.args.get('url') is not None:
         cached = _to_boolean(request.args.get('cached', False))
+        url = request.args.get('url').strip()
 
-        url = form.url.data.strip()
+        # This doesn't handle non csv files yet
+        if not url.endswith('.csv'):
+            return redirect(url_for('frontend.validate'))
+
         result = _get_data_and_validate(url, cached=cached)
         if (result.file_warnings and result.errors) or result.file_errors:
             return render_template('fix.html', url=url, result=result)
@@ -65,7 +66,8 @@ def validate():
                                    result=result,
                                    la_boundary=la_boundary)
 
-    return render_template('validate.html', form=form)
+    return render_template('validate.html')
+
 
 
 @frontend.route('/error')

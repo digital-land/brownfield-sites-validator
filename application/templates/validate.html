@@ -18,11 +18,15 @@
 
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
-        <form class="govuk-form" method="GET" action="{{ url_for('frontend.validate')}}">
-          {{ render_input_field(form.url, hint='e.g. http://data.bassetlaw.gov.uk/media/751005/BrownfieldLandRegister2017.csv')}}
-          <button class="govuk-button button-validate" type="submit">Validate</button>
-          {{ form.csrf_token }}
-        </form>
+          <form class="govuk-form" method="GET" action="{{ url_for('frontend.validate') }}">
+              <div class="govuk-form-group">
+                  <label class="govuk-form-label-bold" for="url">URL</label>
+                  <span class="govuk-hint govuk-body">e.g. http://data.bassetlaw.gov.uk/media/751005/BrownfieldLandRegister2017.csv</span>
+
+                  <input class="govuk-input" id="url" name="url" required="" value="" type="url">
+              </div>
+              <button class="govuk-button button-validate" type="submit">Validate</button>
+          </form>
       </div>
     </div>
 
