@@ -41,7 +41,7 @@ class ValidationWarning(Enum):
 
     HTTP_WARNING = 'There was a problem fetching data from a URL in the file'
     DATE_WARNING = 'The date is in the future. Please check'
-    CONTENT_TYPE_WARNING = 'Set Content-Type to test/csv;charset-utf8'
+    CONTENT_TYPE_WARNING = 'Set Content-Type to text/csv;charset-utf8'
     FILE_ENCODING_WARNING = 'File should be encoded as utf-8'
     LOCATION_WARNING = 'Site location is not within expected area'
 
