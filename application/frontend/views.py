@@ -143,16 +143,16 @@ def _get_data_and_validate(url, cached=False):
         content_type = resp.headers.get('Content-type')
         if content_type is not None and content_type.lower() not in ['text/csv', 'text/csv;charset=utf-8']:
             file_warnings.append({'data': 'Content-Type:%s' % content_type, 'warning': ValidationWarning.CONTENT_TYPE_WARNING.to_dict()})
-            resource =  furl(url).path.segments[-1]
-            if resource.endswith('.csv'):
-                dammit = UnicodeDammit(resp.content)
-                encoding = dammit.original_encoding
-                if encoding.lower() != 'utf-8':
-                    file_warnings.append({'data': 'File encoding: %s' % encoding, 'warning': ValidationWarning.FILE_ENCODING_WARNING.to_dict()})
-                content = resp.content.decode(encoding)
-                line_count = len(content.splitlines())
-            else:
-                content, line_count = _try_converting_to_csv(resource, resp.content)
+        resource =  furl(url).path.segments[-1]
+        if resource.endswith('.csv'):
+            dammit = UnicodeDammit(resp.content)
+            encoding = dammit.original_encoding
+            if encoding.lower() != 'utf-8':
+                file_warnings.append({'data': 'File encoding: %s' % encoding, 'warning': ValidationWarning.FILE_ENCODING_WARNING.to_dict()})
+            content = resp.content.decode(encoding)
+            line_count = len(content.splitlines())
+        else:
+            content, line_count = _try_converting_to_csv(resource, resp.content)
 
         publication = BrownfieldSitePublication.query.filter_by(data_url=url).first()
         validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count, publication)

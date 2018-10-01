@@ -18,3 +18,7 @@ def healthcheck(validation_dict):
         return 'Needs minor improvement'
     if validation_dict.get('errors'):
         return 'Needs major improvement'
+
+
+def format_date_time(date_time):
+    return date_time.strftime('%d %b %Y %-H:%M')

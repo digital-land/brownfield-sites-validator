@@ -56,7 +56,7 @@
                 <td class="govuk-table__cell" colspan="2">{{ publication.organisation.name }}
                   <a class="full-results-link" href="{{ url_for('frontend.validate', url=publication.data_url, cached=True)}}">See full results</a>
                     {% if publication.validation %}
-                        <p>Date validated {{ publication.validation.created_date }}</p>
+                        <p>Last validated - {{ publication.validation.created_date | format_date_time }}</p>
                     {% endif %}
                 </td>
                 {% if publication.validation is not none -%}
