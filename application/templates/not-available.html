@@ -25,7 +25,7 @@
               Unable to retrieve
             </h2>
             <div class="govuk-panel__body">
-              <strong class="url">http://data.bassetlaw.gov.uk/media/751005/BrownfieldLandRegister2017.csv</strong>
+              <strong class="url">{{ url }}</strong>
             </div>
           </div>
         </div>
@@ -37,10 +37,9 @@
                    alt="csv valid">
               <h3 class="govuk-heading-m">What you should do next</h3>
 
-              <p class="govuk-body">We were unable to retrieve the csv fill. This could be because of the following reasons:</p>
+              <p class="govuk-body">We were unable to handle this file. It could be because of the following reasons:</p>
              <ul class="govuk-list govuk-list--bullet">
-               <li>Try this</li>
-               <li>Try that</li>
+               <li>{{ message }}</li>
              </ul>
 
              <p class="govuk-body">Once you have confirmed the file is at the url please try again.</p>

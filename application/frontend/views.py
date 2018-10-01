@@ -1,22 +1,27 @@
 import requests
+
+from tempfile import NamedTemporaryFile
 from bs4 import UnicodeDammit
 
 from flask import (
     Blueprint,
     render_template,
     request,
-    json, redirect, url_for)
+    current_app,
+    abort
+)
+from furl import furl
+
 from sqlalchemy import asc
 
-from application.frontend.forms import BrownfieldSiteURLForm
 from application.validators.validators import (
     BrownfieldSiteValidationRunner,
     StringInput,
     ValidationWarning
 )
 
-from application.models import BrownfieldSitePublication, Organisation, ValidationResult
-from application.extensions import db
+from application.models import BrownfieldSitePublication, Organisation
+
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
 
@@ -48,12 +53,14 @@ def validate():
     if request.args.get('url') is not None:
         cached = _to_boolean(request.args.get('cached', False))
         url = request.args.get('url').strip()
+        try:
+            result = _get_data_and_validate(url, cached=cached)
+        except FileTypeException as e:
+            current_app.logger.exception(e)
+            return render_template('not-available.html',
+                                   url=url,
+                                   message=e.message)
 
-        # This doesn't handle non csv files yet
-        if not url.endswith('.csv'):
-            return redirect(url_for('frontend.validate'))
-
-        result = _get_data_and_validate(url, cached=cached)
         if (result.file_warnings and result.errors) or result.file_errors:
             return render_template('fix.html', url=url, result=result)
         else:
@@ -67,7 +74,6 @@ def validate():
                                    la_boundary=la_boundary)
 
     return render_template('validate.html')
-
 
 
 @frontend.route('/error')
@@ -85,6 +91,43 @@ def asset_path_context_processor():
     return {'assetPath': '/static/govuk-frontend/assets'}
 
 
+class FileTypeException(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+
+def _try_converting_to_csv(path, content):
+    import subprocess
+    with NamedTemporaryFile(delete=False) as file:
+        file.write(content)
+        file_name = file.name
+
+    csv_file = '%s.csv' % file_name
+
+    try:
+
+        if path.endswith('.xls') or path.endswith('.xlsx'):
+            with open(csv_file, 'wb') as out:
+                subprocess.check_call(['in2csv', file_name], stdout=out)
+
+        elif path.endswith('.xlsm'):
+            with open(csv_file, 'wb') as out:
+                subprocess.check_call(['xlsx2csv', file_name], stdout=out)
+
+        else:
+            msg = 'Not sure how to convert the file %s' % path
+            raise FileTypeException(msg)
+
+        with open(csv_file, 'r') as file:
+            content = file.readlines()
+
+        return '\n'.join(content), len(content)
+
+    except Exception as e:
+        msg = 'Could not convert %s into csv' % path
+        raise FileTypeException(msg)
+
 def _get_data_and_validate(url, cached=False):
 
     # quick hack to use stored validation result. but maybe put timestamp on
@@ -100,14 +143,16 @@ def _get_data_and_validate(url, cached=False):
         content_type = resp.headers.get('Content-type')
         if content_type is not None and content_type.lower() not in ['text/csv', 'text/csv;charset=utf-8']:
             file_warnings.append({'data': 'Content-Type:%s' % content_type, 'warning': ValidationWarning.CONTENT_TYPE_WARNING.to_dict()})
-
-        dammit = UnicodeDammit(resp.content)
-        encoding = dammit.original_encoding
-        if encoding.lower() != 'utf-8':
-            file_warnings.append({'data': 'File encoding: %s' % encoding, 'warning': ValidationWarning.FILE_ENCODING_WARNING.to_dict()})
-
-        content = resp.content.decode(encoding)
-        line_count = len(content.splitlines())
+            resource =  furl(url).path.segments[-1]
+            if resource.endswith('.csv'):
+                dammit = UnicodeDammit(resp.content)
+                encoding = dammit.original_encoding
+                if encoding.lower() != 'utf-8':
+                    file_warnings.append({'data': 'File encoding: %s' % encoding, 'warning': ValidationWarning.FILE_ENCODING_WARNING.to_dict()})
+                content = resp.content.decode(encoding)
+                line_count = len(content.splitlines())
+            else:
+                content, line_count = _try_converting_to_csv(resource, resp.content)
 
         publication = BrownfieldSitePublication.query.filter_by(data_url=url).first()
         validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count, publication)

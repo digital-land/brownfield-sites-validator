@@ -20,6 +20,9 @@ python-frontmatter = "*"
 "geoalchemy2" = "*"
 ijson = "*"
 bng-latlon = "*"
+"xlsx2csv" = "*"
+csvkit = "*"
+furl = "*"
 
 [dev-packages]
 pytest = "*"

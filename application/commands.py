@@ -102,16 +102,13 @@ def validate():
     sites = BrownfieldSitePublication.query.all()
     for site in sites:
         try:
-            # For the moment skip non csv files
-            if site.data_url.endswith('.csv'):
-                print('Validating', site.data_url)
-                validation = _get_data_and_validate(site.data_url)
-                site.validation_result = validation.to_dict()
-                db.session.add(site)
-                db.session.commit()
-                print('Added data from', site.data_url)
-            else:
-                print('Not validating non csv files yet:', site.data_url)
+            print('Validating', site.data_url)
+            validation = _get_data_and_validate(site.data_url)
+            site.validation_result = validation.to_dict()
+            db.session.add(site)
+            db.session.commit()
+            print('Added data from', site.data_url)
+
         except Exception as e:
             print('error', e)
 
