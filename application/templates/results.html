@@ -1,5 +1,27 @@
 {% extends "default.html" %}
 
+{% block header %}
+  {{ govukHeader({
+      "serviceName": "Brownfield sites",
+      "navigation": [
+      {
+        "href": "https://www.gov.uk/government/publications/brownfield-land-registers-data-standard",
+        "text": "Guidance"
+      },
+      {
+        "href": url_for('frontend.start'),
+        "text": "Validator"
+      },
+      {
+        "href": url_for('frontend.validate_results'),
+        "text": "Results",
+        "active": true
+      }
+      ]
+    }) 
+  }}
+{% endblock %}
+
 {% block beforeContent %}
  {{ super() }}
 
