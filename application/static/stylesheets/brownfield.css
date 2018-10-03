@@ -5309,6 +5309,7 @@
 .validation-result-row .full-results-link {
   display: inline-block;
   font-size: 0.84211em;
+  margin-bottom: 0;
 }
 
 .validation-result-row .validation-result-numeric-cell,

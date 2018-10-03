@@ -54,10 +54,9 @@
               {% for publication in publications %}
               <tr class="govuk-table__row validation-result-row">
                 <td class="govuk-table__cell" colspan="2">{{ publication.organisation.name }}
-                  <a class="full-results-link" href="{{ url_for('frontend.validate', url=publication.data_url, cached=True)}}">See full results</a>
-                    {% if publication.validation %}
-                        <p>Last validated - {{ publication.validation.created_date | format_date_time }}</p>
-                    {% endif %}
+                  {% if publication.validation %}
+                    <p class="full-results-link">Last validated - {{ publication.validation.created_date | format_date_time }}. <a href="{{ url_for('frontend.validate', url=publication.data_url, cached=True)}}">See full results</a></p>
+                  {% endif %}
                 </td>
                 {% if publication.validation is not none -%}
 

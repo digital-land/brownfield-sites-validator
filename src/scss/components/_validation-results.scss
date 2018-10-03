@@ -16,6 +16,7 @@ $govuk-green-colour: 	#006435;
   .full-results-link {
     display: inline-block;
     font-size: govuk-em(16, 19);
+    margin-bottom: 0;
   }
 
   .validation-result-numeric-cell,
