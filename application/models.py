@@ -58,3 +58,24 @@ class ValidationResult(db.Model):
     created_date = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
 
     brownfield_site_publication_id = db.Column(db.String(64), ForeignKey('brownfield_site_publication.publication'))
+
+    def geojson(self):
+        data = {'features': [], 'type': 'FeatureCollection'}
+        for d in self.data:
+            feature = {
+                'geometry': {
+                    'coordinates': [
+                        float(d['GeoX']),
+                        float(d['GeoY'])
+                    ],
+                    'type': 'Point'
+                },
+                'properties': {
+                    'SiteNameAddress': d['SiteNameAddress']
+                },
+                'type': 'Feature'
+            }
+
+            data['features'].append(feature)
+
+        return data

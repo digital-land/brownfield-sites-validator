@@ -61,12 +61,12 @@ def validate():
                                    url=url,
                                    message=e.message)
 
-        if (result.file_warnings and result.errors) or result.file_errors:
-            return render_template('fix.html', url=url, result=result)
-        else:
-            brownfield_site = BrownfieldSitePublication.query.filter_by(data_url=url).one()
-            la_boundary=brownfield_site.organisation.feature.geojson
+        brownfield_site = BrownfieldSitePublication.query.filter_by(data_url=url).one()
 
+        if (result.file_warnings and result.errors) or result.file_errors:
+            return render_template('fix.html', url=url, result=result, brownfield_site=brownfield_site)
+        else:
+            la_boundary=brownfield_site.organisation.feature.geojson
             return render_template('valid.html',
                                    url=url,
                                    feature=brownfield_site.geojson,
@@ -74,6 +74,12 @@ def validate():
                                    la_boundary=la_boundary)
 
     return render_template('validate.html')
+
+
+@frontend.route('/fix-up/<brownfield_site_publication_id>/geography')
+def fix_up_geography(brownfield_site_publication_id):
+    publication = BrownfieldSitePublication.query.get(brownfield_site_publication_id)
+    return render_template('fix-up-geography.html', brownfield_site_publication=publication)
 
 
 @frontend.route('/error')
