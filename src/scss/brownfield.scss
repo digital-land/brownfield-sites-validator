@@ -29,6 +29,12 @@ $govuk-images-path: '/static/govuk-frontend/assets/images/';
 	font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
 }
 
+// default link style should
+// match govuk link style
+a {
+  @extend .govuk-link;
+}
+
 .url {
   word-break: break-word;
 }
