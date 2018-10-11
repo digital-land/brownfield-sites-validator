@@ -1,0 +1,44 @@
+{% extends "default.html" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-xl">Fix register</span>
+      <h1 class="govuk-heading-xl">
+        Fix columns
+      </h1>
+
+      <p class="govuk-body-l">There are a number of issues with the columns in the supplied register.</p>
+      
+      <h3 class="govuk-heading-m">Expected columns</h3>
+      <p class="govuk-body">The standard specifies these columns</p>
+      <div class="list-of-columns"></div>
+      
+      <h3 class="govuk-heading-m">Missing columns</h3>
+      <p class="govuk-body">The processed register was missing these columns</p>
+      <div class="list-of-columns list-of-columns--error"></div>
+      
+      <h3 class="govuk-heading-m">Unexpected columns</h3>
+      <p class="govuk-body">The processed register included these unexpected columns</p>
+      <div class="list-of-columns list-of-columns--warning"></div>
+
+      <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+      <h2 class="govuk-heading-l">Fix online now</h2>
+      
+      <form action="" class="govuk-form">
+        <div class="govuk-form-group">
+          <button type="submit" class="govuk-button">
+            Save changes
+          </button>
+        </div>
+      </form>
+
+      <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+      <h2 class="govuk-heading-l">Download and fix</h2>
+
+  </div>
+</div>
+
+{% endblock %}

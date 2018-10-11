@@ -137,3 +137,16 @@ li.fix-a-row {
     width: 10em;
   }
 }
+
+.list-of-columns {
+  background: $govuk-canvas-background-colour;
+  margin-bottom: $govuk-gutter;
+  // temporary
+  height: 60px;
+  &--error {
+    border: 4px solid govuk-colour("red");
+  }
+  &--warning {
+    border: 4px solid govuk-colour("yellow");
+  }
+}
