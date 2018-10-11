@@ -15,6 +15,7 @@ $govuk-images-path: '/static/govuk-frontend/assets/images/';
 // project imports
 // ===============
 @import "components/hero";
+@import "components/task-list";
 @import "components/validation-results";
 @import "common/buttons";
 @import "common/forms";
@@ -85,4 +86,12 @@ $govuk-images-path: '/static/govuk-frontend/assets/images/';
 .govuk-panel--error {
   border: 10px solid govuk-colour("red");
   background: $govuk-canvas-background-colour;
+}
+
+.govuk-tag--error {
+  background-color: govuk-colour("red");
+}
+
+.govuk-tag--warning {
+  background-color: govuk-colour("yellow");
 }
