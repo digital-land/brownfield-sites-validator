@@ -94,6 +94,12 @@ a {
   background: $govuk-canvas-background-colour;
 }
 
+// tweak .govuk-tag
+// required if using helvetica, not NTA
+.govuk-tag {
+  padding: 3px 8px 2px;
+}
+
 .govuk-tag--error {
   background-color: govuk-colour("red");
 }
