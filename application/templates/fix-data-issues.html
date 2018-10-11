@@ -1,0 +1,51 @@
+{% extends "default.html" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-xl">Fix register</span>
+      <h1 class="govuk-heading-xl">
+        Fix dates
+      </h1>
+
+      <p class="govuk-body-l">There are incorrect date formats in X columns.</p>
+
+      <section class="column-fix-container">
+        <h2 class="govuk-heading-m">PermissionDate</h2>
+
+        <p class="standard-extract">
+          A valid date in the form <strong>yyyy-mm-dd</strong>.
+        </p>
+
+        <h3 class="govuk-heading-s">Rows to fix</h3>
+        <ol class="govuk-list">
+          <li class="fix-a-row">
+            <span>Row 1:</span>
+            <span class="current-value">"2nd May 2017"</span>
+            <span>to</span>
+            <span><input type="text" class="govuk-input govuk-input-inline" value="2017-05-02" /></span>
+          </li>
+          <li class="fix-a-row">
+            <span>Row 6:</span>
+            <span class="current-value">"14th July 2015"</span>
+            <span>to</span>
+            <span><input type="text" class="govuk-input govuk-input-inline" value="2015-07-14" /></span>
+          </li>
+        </ol>
+      </section>
+
+      <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+      <form action="" class="govuk-form">
+        <div class="govuk-form-group">
+          <button type="submit" class="govuk-button">
+            Save and continue
+          </button>
+          <a href="" class="govuk-link skip-btn">Skip</a>
+        </div>
+      </form>
+
+  </div>
+</div>
+
+{% endblock %}

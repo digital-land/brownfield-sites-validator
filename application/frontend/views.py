@@ -80,6 +80,11 @@ def validate():
 def task_list():
     return render_template('fix-task-list.html')
 
+#@frontend.route('/fix-up/<brownfield_site_publication_id>/fix-dates')
+@frontend.route('/fix-up/task-list/fix-dates')
+def fix_dates():
+    return render_template('fix-data-issues.html')
+
 @frontend.route('/fix-up/<brownfield_site_publication_id>/geography')
 def fix_up_geography(brownfield_site_publication_id):
     publication = BrownfieldSitePublication.query.get(brownfield_site_publication_id)

@@ -107,3 +107,33 @@ a {
 .govuk-tag--warning {
   background-color: govuk-colour("yellow");
 }
+
+.standard-extract {
+  background: $govuk-canvas-background-colour;
+  border-left: 4px solid govuk-colour('blue');
+  padding: $govuk-gutter-half;
+  margin-bottom: $govuk-gutter;
+}
+
+.skip-btn {
+  padding: 14px $govuk-gutter-half;
+  display: inline-block;
+  line-height: 1;
+}
+
+li.fix-a-row {
+  @include govuk-responsive-margin(3, "bottom");
+  span {
+    padding: 0 5px;
+    &:first-child {
+      padding-left: 0;
+    }
+  }
+  .current-value {
+    font-weight: bolder;
+  }
+  .govuk-input-inline {
+    display: inline;
+    width: 10em;
+  }
+}

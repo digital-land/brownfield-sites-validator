@@ -5611,3 +5611,43 @@
 .govuk-tag--warning {
   background-color: #ffbf47;
 }
+
+.standard-extract {
+  background: #dee0e2;
+  border-left: 4px solid #005ea5;
+  padding: 15px;
+  margin-bottom: 30px;
+}
+
+.skip-btn {
+  padding: 14px 15px;
+  display: inline-block;
+  line-height: 1;
+}
+
+li.fix-a-row {
+  margin-bottom: 15px;
+}
+
+@media (min-width: 40.0625em) {
+  li.fix-a-row {
+    margin-bottom: 15px;
+  }
+}
+
+li.fix-a-row span {
+  padding: 0 5px;
+}
+
+li.fix-a-row span:first-child {
+  padding-left: 0;
+}
+
+li.fix-a-row .current-value {
+  font-weight: bolder;
+}
+
+li.fix-a-row .govuk-input-inline {
+  display: inline;
+  width: 10em;
+}
