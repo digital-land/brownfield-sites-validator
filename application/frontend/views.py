@@ -20,7 +20,7 @@ from application.validators.validators import (
     ValidationWarning
 )
 
-from application.models import BrownfieldSitePublication, Organisation
+from application.models import BrownfieldSitePublication, Organisation, Feature
 
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
@@ -36,6 +36,38 @@ def validate_results():
     publications = BrownfieldSitePublication.query.join(Organisation).order_by(asc(Organisation.name))
     return render_template('results.html', publications=publications)
 
+@frontend.route('/results/map')
+def all_results_map():
+    publications = BrownfieldSitePublication.query.join(Organisation).order_by(asc(Organisation.name))
+    features = Feature.query.all()
+    featureGeoJson = []
+    for feature in features:
+        featureGeoJson.append(feature.geojson)
+    data = getAllBoundariesAndResults()
+    return render_template('results-map.html', featureGeoJson=featureGeoJson, resultdata=data)
+
+
+def getAllBoundariesAndResults():
+    organisations = Organisation.query.all()
+    data = []
+    for org in organisations:
+        data.append( getBoundaryAndResult(org) )
+    return data
+
+def getBoundaryAndResult(org):
+    package = {}
+    package['org_id'] = org.organisation
+    package['org_name'] = org.name
+    if org.feature and org.feature.geojson:
+        package['feature'] = org.feature.geojson
+    if org.publication and org.publication.validation and org.publication.validation.result:
+        package['csv_url'] = org.publication.data_url
+        publication = BrownfieldSitePublication.query.filter_by(organisation_id=org.organisation).one()
+        package['results'] = publication.validation.result
+    else:
+        package['results'] = "No results available"
+
+    return package
 
 @frontend.route('/start')
 def start():
