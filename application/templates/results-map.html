@@ -1,0 +1,163 @@
+{% extends "default.html" %}
+
+{% block headEnd %}
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+   integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+   crossorigin=""/>
+
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+   integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+   crossorigin=""></script>
+
+{% endblock %}
+
+{% block header %}
+  {{ govukHeader({
+      "serviceName": "Brownfield sites",
+      "serviceUrl": url_for('frontend.index'),
+      "navigation": [
+      {
+        "href": "https://www.gov.uk/government/publications/brownfield-land-registers-data-standard",
+        "text": "Guidance"
+      },
+      {
+        "href": url_for('frontend.start'),
+        "text": "Validator"
+      },
+      {
+        "href": url_for('frontend.validate_results'),
+        "text": "Results",
+        "active": true
+      }
+      ]
+    }) 
+  }}
+{% endblock %}
+
+{% block beforeContent %}
+ {{ super() }}
+
+ {{ govukBreadcrumbs({
+   "items": [
+     {
+       "text": "Brownfield site data",
+       "href": url_for("frontend.index")
+     },
+     {
+       "text": "All results"
+     }
+   ]
+ }) }}
+
+{% endblock %}
+
+{% block content %}
+
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          <span class="govuk-caption-xl">Brownfield sites</span>
+          <h1 class="govuk-heading-xl">Validation results</h1>
+          <p class="govuk-body-l">Each Planning Authority is expected to publish a brownfield site register that complies with the standard.</p>
+          <p class="govuk-body">Below are the results when each register is run through a validator.</p>
+          <p class="govuk-body"><a href="{{ url_for('frontend.validate_results' ) }}">See results in a table</a>.</p>
+        </div>
+      </div>
+
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+
+          <div id="map-container">
+            
+          </div>
+
+        </div>
+      </div>
+
+{%  endblock %}
+
+{% block bodyEnd %}
+<script>
+  const map = L.map("map-container", {});
+
+  L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ config.MAPBOX_TOKEN }}', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox.streets',
+      accessToken: '{{ config.MAPBOX_TOKEN }}'
+  }).addTo(map);
+
+  function setMapHeight(mapConatiner, ratio) {
+    var ratio = ratio || (2/3);
+    var width = mapConatiner.offsetWidth;
+    mapConatiner.style.height = `${width * ratio}px`;
+  }
+
+  setMapHeight(map._container, 3/2);
+
+  map.setView(new L.LatLng(54.00366, -2.547855), 6);
+
+  const featureGeoJson = {{ featureGeoJson | tojson }};
+  //const laBoundaries =  L.geoJSON( featureGeoJson );
+  //laBoundaries.addTo(map);
+  
+  const orgjson = {{ resultdata | tojson }};
+
+  var boundariesLayer = new L.FeatureGroup();
+  map.addLayer(boundariesLayer);
+
+  const disableStyle = {
+    color: "#bfc1c3",
+    fillColor: "#bfc1c3",
+    fillOpacity: 0.3,
+  };
+
+  const validStyle = {
+    color: "#006435",
+    fillColor: "#006435",
+    fillOpacity: 0.3,
+  };
+
+  const errorStyle = {
+    color: "#b10e1e",
+    fillColor: "#b10e1e",
+    fillOpacity: 0.3,
+  };
+
+  const warningStyle = {
+    color: "#ffbf47",
+    fillColor: "#ffbf47",
+    fillOpacity: 0.3,
+  };
+
+  orgjson.forEach(function(org) {
+    const boundary = L.geoJSON( org.feature );
+
+    if( org.results === "No results available") {
+      boundary.setStyle(disableStyle);
+    } else {
+      if (Object.keys(org.results.errors).length > 0) {
+        boundary.setStyle(errorStyle);
+      } else if (Object.keys(org.results.warnings).length > 0) {
+        boundary.setStyle(warningStyle);
+      } else {
+        boundary.setStyle(validStyle);
+      }
+    }
+    
+    boundariesLayer.addLayer( boundary );
+    setupPopup(boundary, org);
+  });
+
+  function setupPopup(boundary, org) {
+    if( org.results === "No results available") {
+      boundary.bindPopup(`<p>${org.org_name}</p><p>No results available</p>`);
+    } else {
+      const url = `/validate?url=${encodeURIComponent(org.csv_url)}`;
+      boundary.bindPopup(`<p>${org.org_name}</p><p>${org.results.line_count - 1} rows<br />${Object.keys(org.results.warnings).length} Warnings<br />${Object.keys(org.results.errors).length} Errors</p><p><a href="${url}">See full results</a></p>`);
+    }
+  }
+
+  map.fitBounds(boundariesLayer.getBounds());
+</script>
+{%  endblock %}
