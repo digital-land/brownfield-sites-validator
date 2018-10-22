@@ -144,9 +144,12 @@
         boundary.setStyle(validStyle);
       }
     }
-    
-    boundariesLayer.addLayer( boundary );
-    setupPopup(boundary, org);
+    // speeds up page render by reducing js blocking time
+    // might be quicker to do a timeout for each forEach call
+    setTimeout(function() {
+      boundariesLayer.addLayer( boundary );
+      setupPopup(boundary, org);
+    }, 0);
   });
 
   function setupPopup(boundary, org) {
