@@ -95,7 +95,7 @@
 
   setMapHeight(map._container, 3/2);
 
-  map.setView(new L.LatLng(54.00366, -2.547855), 6);
+  map.setView(new L.LatLng(54.00366, -2.547855), 7);
 
   const featureGeoJson = {{ featureGeoJson | tojson }};
   //const laBoundaries =  L.geoJSON( featureGeoJson );
@@ -103,8 +103,17 @@
   
   const orgjson = {{ resultdata | tojson }};
 
-  var boundariesLayer = new L.FeatureGroup();
-  map.addLayer(boundariesLayer);
+  function makeAndAddLayer(layerGroup) {
+    const newLayer = new L.FeatureGroup();
+    layerGroup.addLayer(newLayer);
+    return newLayer;
+  }
+
+  var boundariesLayer = makeAndAddLayer(map);
+  var missingDataLayer = makeAndAddLayer(boundariesLayer);
+  var warningDataLayer = makeAndAddLayer(boundariesLayer);
+  var errorDataLayer = makeAndAddLayer(boundariesLayer);
+  var validDataLayer = makeAndAddLayer(boundariesLayer);
 
   const disableStyle = {
     color: "#bfc1c3",
@@ -130,27 +139,49 @@
     fillOpacity: 0.3,
   };
 
+  var itemsProcessed = 0;
+  function addLayerToABoundariesLayer(laBoundary, data, layerGroup, style) {
+    laBoundary.setStyle(style);
+    // speeds up page render by reducing js blocking time
+    // might be quicker to do a timeout for each forEach call
+    setTimeout(function() {
+      itemsProcessed++;
+      layerGroup.addLayer( laBoundary );
+      setupPopup(laBoundary, data);
+      if(itemsProcessed === orgjson.length) {
+        orderBoundaryLayers();
+      }
+    }, 0);
+  }
+
   orgjson.forEach(function(org) {
     const boundary = L.geoJSON( org.feature );
 
     if( org.results === "No results available") {
-      boundary.setStyle(disableStyle);
+      const styleSetting = disableStyle;
+      addLayerToABoundariesLayer(boundary, org, missingDataLayer, disableStyle);
     } else {
       if (Object.keys(org.results.errors).length > 0) {
-        boundary.setStyle(errorStyle);
+        const styleSetting = errorStyle;
+        addLayerToABoundariesLayer(boundary, org, errorDataLayer, errorStyle);
       } else if (Object.keys(org.results.warnings).length > 0) {
-        boundary.setStyle(warningStyle);
+        const styleSetting = warningStyle;
+        addLayerToABoundariesLayer(boundary, org, warningDataLayer, warningStyle);
       } else {
-        boundary.setStyle(validStyle);
+        const styleSetting = validStyle;
+        addLayerToABoundariesLayer(boundary, org, validDataLayer, validStyle);
       }
     }
-    // speeds up page render by reducing js blocking time
-    // might be quicker to do a timeout for each forEach call
-    setTimeout(function() {
-      boundariesLayer.addLayer( boundary );
-      setupPopup(boundary, org);
-    }, 0);
+    
   });
+
+  function orderBoundaryLayers() {
+    map.fitBounds(boundariesLayer.getBounds());
+    missingDataLayer.bringToFront();
+    warningDataLayer.bringToFront();
+    errorDataLayer.bringToFront();
+    validDataLayer.bringToFront();
+  }
 
   function setupPopup(boundary, org) {
     if( org.results === "No results available") {
@@ -161,6 +192,5 @@
     }
   }
 
-  map.fitBounds(boundariesLayer.getBounds());
 </script>
 {%  endblock %}
