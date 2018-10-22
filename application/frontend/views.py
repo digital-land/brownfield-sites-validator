@@ -39,12 +39,7 @@ def validate_results():
 @frontend.route('/results/map')
 def all_results_map():
     publications = BrownfieldSitePublication.query.join(Organisation).order_by(asc(Organisation.name))
-    features = Feature.query.all()
-    featureGeoJson = []
-    for feature in features:
-        featureGeoJson.append(feature.geojson)
-    data = getAllBoundariesAndResults()
-    return render_template('results-map.html', featureGeoJson=featureGeoJson, resultdata=data)
+    return render_template('results-map.html', resultdata=getAllBoundariesAndResults())
 
 
 def getAllBoundariesAndResults():

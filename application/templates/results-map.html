@@ -96,10 +96,6 @@
   setMapHeight(map._container, 3/2);
 
   map.setView(new L.LatLng(54.00366, -2.547855), 7);
-
-  const featureGeoJson = {{ featureGeoJson | tojson }};
-  //const laBoundaries =  L.geoJSON( featureGeoJson );
-  //laBoundaries.addTo(map);
   
   const orgjson = {{ resultdata | tojson }};
 
