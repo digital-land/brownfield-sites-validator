@@ -85,7 +85,17 @@
         <div class="govuk-grid-column-full">
             <div id="map" style="height: 600px;"></div>
         </div>
+
+        <div class="govuk-grid-column-two-thirds">
+          <h3 class="govuk-heading-medium">What next</h3>
+          <p class="govuk-body">This brownfild site data is valid. It can be downloaded as GeoJSON and used in other applications.</p>
+          <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', url=request.args.get('url'))}}">Download geojson</a>
+        </div>
     </div>
+
+
+    
+    
 
 {% endblock %}
 

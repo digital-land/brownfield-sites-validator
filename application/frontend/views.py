@@ -1,4 +1,5 @@
 import requests
+import json
 
 from tempfile import NamedTemporaryFile
 from bs4 import UnicodeDammit
@@ -8,7 +9,8 @@ from flask import (
     render_template,
     request,
     current_app,
-    abort
+    abort,
+    Response
 )
 from furl import furl
 
@@ -101,6 +103,18 @@ def validate():
                                    la_boundary=la_boundary)
 
     return render_template('validate.html')
+
+@frontend.route('/geojson-download')
+def geojson_download():
+    if request.args.get('url') is not None:
+        url = request.args.get('url').strip()
+        brownfield_site = BrownfieldSitePublication.query.filter_by(data_url=url).one()
+        filename = '%s.json' % brownfield_site.organisation.organisation
+        return Response(
+                json.dumps(brownfield_site.geojson),
+                mimetype="application/json",
+                headers={"Content-disposition":
+                         "attachment; filename="+filename})
 
 #@frontend.route('/fix-up/<brownfield_site_publication_id>')
 @frontend.route('/fix-up/task-list')
