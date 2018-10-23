@@ -42,28 +42,38 @@
     {% if result.file_warnings or result.warnings %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
-                     alt="file warnings" style="padding-top: 20px">
-                <ul class="govuk-list govuk-list--bullet">
-                    {% for w in result.file_warnings %}
-                        <li>{{ w.data }} {{ w.warning.name }} {{ w.warning.message }}.</li>
-                    {% endfor %}
-                    {% for field in result.warnings %}
-                        <li>
-                            <h3 class="govuk-heading-s">{{ field }}</h3>
-                            {% set warning_count = result.report[field]['warnings']| count %}
-                            <p class="no-margin">{{ warning_count }} type{% if warning_count > 1 %}(s){% endif %} of
-                                error:</p>
-                            <ul class="govuk-list list-bullet-coloured list-bullet-coloured--warning">
-                                {% for warning in result.report[field]['warnings'] %}
-                                    <li>{{ warning | format_warning }}</li>
-                                {% endfor %}
-                            </ul>
-                            <p>Across <span class="row-value">{{ result.warnings[field] | count }} rows</span>.</p>
-                            <p><a href="#">Fix these errors</a>.</p>
-                        </li>
-                    {% endfor %}
-                </ul>
+              <details class="govuk-details">
+                <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">
+                      <h2 class="govuk-heading-m">There are file warnings</h2>
+                    </span>
+                  </summary>
+                  <div class="govuk-details__text">
+                    <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
+                         alt="file warnings" style="padding-top: 20px">
+                    <ul class="govuk-list govuk-list--bullet">
+                        {% for w in result.file_warnings %}
+                            <li>{{ w.data }} {{ w.warning.name }} {{ w.warning.message }}.</li>
+                        {% endfor %}
+                        {% for field in result.warnings %}
+                            <li>
+                                <h3 class="govuk-heading-s">{{ field }}</h3>
+                                {% set warning_count = result.report[field]['warnings']| count %}
+                                <p class="no-margin">{{ warning_count }} type{% if warning_count > 1 %}(s){% endif %} of
+                                    error:</p>
+                                <ul class="govuk-list list-bullet-coloured list-bullet-coloured--warning">
+                                    {% for warning in result.report[field]['warnings'] %}
+                                        <li>{{ warning | format_warning }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <p>Across <span class="row-value">{{ result.warnings[field] | count }} rows</span>.</p>
+                                <p><a href="#">Fix these errors</a>.</p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                  </div>
+              </details>
+
             </div>
         </div>
     {% endif %}
@@ -84,18 +94,15 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <div id="map" style="height: 600px;"></div>
+            <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
         </div>
 
         <div class="govuk-grid-column-two-thirds">
-          <h3 class="govuk-heading-medium">What next</h3>
+          <h3 class="govuk-heading-m">What next</h3>
           <p class="govuk-body">This brownfild site data is valid. It can be downloaded as GeoJSON and used in other applications.</p>
           <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', url=request.args.get('url'))}}">Download geojson</a>
         </div>
     </div>
-
-
-    
-    
 
 {% endblock %}
 
