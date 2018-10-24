@@ -70,7 +70,7 @@ def getBoundaryAndResult(org):
 def start():
     return render_template('start.html')
 
-@frontend.route('/local-authority')
+@frontend.route('/local-authority', methods=['GET','POST'])
 def local_authority():
     organisations = Organisation.query.order_by("name").all()
     return render_template('select-la.html', organisations=organisations)
