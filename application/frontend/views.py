@@ -70,6 +70,11 @@ def getBoundaryAndResult(org):
 def start():
     return render_template('start.html')
 
+@frontend.route('/local-authority')
+def local_authority():
+    organisations = Organisation.query.all()
+    return render_template('select-la.html', organisations=organisations)
+
 
 def _to_boolean(value):
     if str(value).lower() in ['1', 't', 'true', 'y', 'yes', 'on']:

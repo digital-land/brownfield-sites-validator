@@ -1,0 +1,19 @@
+<div class="govuk-form-group">
+  <label class="govuk-label" for="{{ id }}">
+    {{ label }}
+  </label>
+  <select class="govuk-select {% if kwargs and kwargs['classes'] %}{{ kwargs['classes'] }}{% endif %}" id="{{ id }}" name="{{ name }}">
+    {% if items %}
+    {% if kwargs and kwargs['selected'] %}
+      {% set selected = kwargs['selected'] %}
+    {% endif %}
+    {% for item in items %}
+      {%- if item.id %}
+      <option value="{{ item.id }}">{{ item.name }}</option>
+      {% else %}
+      <option value="{{ item }}"{% if item==selected %} selected {% endif %} >{{ item }}</option>
+      {% endif -%}
+    {% endfor %}
+    {% endif %}
+  </select>
+</div>
