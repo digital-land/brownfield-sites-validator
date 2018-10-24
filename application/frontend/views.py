@@ -72,7 +72,7 @@ def start():
 
 @frontend.route('/local-authority')
 def local_authority():
-    organisations = Organisation.query.all()
+    organisations = Organisation.query.order_by("name").all()
     return render_template('select-la.html', organisations=organisations)
 
 
