@@ -77,6 +77,7 @@
 {%  endblock %}
 
 {% block bodyEnd %}
+<script src="/static/javascripts/leaflet-hover-effects.js"></script>
 <script>
   const map = L.map("map-container", {});
 
@@ -98,43 +99,6 @@
   map.setView(new L.LatLng(54.00366, -2.547855), 7);
   
   const orgjson = {{ resultdata | tojson }};
-
-  L.GeoJSON.include({
-    _addHoverHandlers: function() {
-      const self = this;
-      // check _defaultStyle has been set
-      if ( !Object.prototype.hasOwnProperty.call(self.options, "_defaultStyle") ) {
-        // fail silently
-        return self;
-      }
-      // set event listeners
-      self.on('mouseover', function(e) {
-        self.setStyle( self.options._hoverStyle );
-      });
-      self.on('mouseout', function(e) {
-        self.setStyle( self.options._defaultStyle );
-      });
-      
-      return self;
-    },
-    _setDefaultStyles: function(style, hoverS) {
-      this.options._defaultStyle = style;
-      const hoverStyle = hoverS || {
-        color: this._shadeColour(style.color, -0.25),
-        fillColor: this._shadeColour(style.fillColor, -0.25),
-        fillOpacity: style.fillOpacity + 0.1
-      };
-      this.options._hoverStyle = hoverStyle;
-      // set the inital style
-      this.setStyle( style );
-      return this;
-    },
-    // should this be in this class?
-    _shadeColour: function(color, percent) {   
-      var f=parseInt(color.slice(1),16),t=percent<0?0:255,p=percent<0?percent*-1:percent,R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
-      return "#"+(0x1000000+(Math.round((t-R)*p)+R)*0x10000+(Math.round((t-G)*p)+G)*0x100+(Math.round((t-B)*p)+B)).toString(16).slice(1);
-    }
-  });
 
   function makeAndAddLayer(layerGroup) {
     const newLayer = new L.FeatureGroup();
