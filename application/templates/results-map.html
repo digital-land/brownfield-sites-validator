@@ -186,7 +186,7 @@
     if( org.results === "No results available") {
       boundary.bindPopup(`<p class="govuk-!-font-weight-bold">${org.org_name}</p><p>No results available</p>`);
     } else {
-      const url = `/validate?url=${encodeURIComponent(org.csv_url)}`;
+      const url =  `/local-authority/` + org.org_id + `/validate?url=${encodeURIComponent(org.csv_url)}`;
       boundary.bindPopup(`<p class="govuk-!-font-weight-bold">${org.org_name}</p><p>${org.results.line_count - 1} rows<br />${Object.keys(org.results.warnings).length} Warnings<br />${Object.keys(org.results.errors).length} Errors</p><p><a href="${url}">See full results</a></p>`);
     }
   }
