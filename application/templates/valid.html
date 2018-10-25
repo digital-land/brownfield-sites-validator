@@ -93,7 +93,7 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <div id="map" style="height: 600px;"></div>
+            <div id="map" style="height: 555px;"></div>
             <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
         </div>
 
@@ -107,32 +107,27 @@
 {% endblock %}
 
 {% block bodyEnd %}
-
+    <script src="/static/javascripts/mhclg-maps.js"></script>
     <script>
 
-        var map = L.map("map", {});
+      // initialise MHCLGMaps with mapbox access token
+      const mhclgMaps = new MHCLGMaps({mapbox_token: '{{ config.MAPBOX_TOKEN }}'});
+      const map = mhclgMaps.createMap("map");
 
-        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ config.MAPBOX_TOKEN }}', {
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            maxZoom: 18,
-            id: 'mapbox.streets',
-            accessToken: '{{ config.MAPBOX_TOKEN }}'
-        }).addTo(map);
+      var onEachFeature = function(feature, layer) {
+          layer.bindTooltip(feature.properties.SiteNameAddress);
+      };
 
-        var onEachFeature = function(feature, layer) {
-            layer.bindTooltip(feature.properties.SiteNameAddress);
-        };
+      geojsonLayer = L.geoJSON({{ feature | tojson }}, {
+          onEachFeature: onEachFeature
+      });
 
-        geojsonLayer = L.geoJSON({{ feature | tojson }}, {
-            onEachFeature: onEachFeature
-        });
+      laBoundary =  L.geoJSON({{ la_boundary | tojson }});
 
-        laBoundary =  L.geoJSON({{ la_boundary | tojson }});
+      geojsonLayer.addTo(map);
+      laBoundary.addTo(map);
 
-        geojsonLayer.addTo(map);
-        laBoundary.addTo(map);
-
-        map.fitBounds(geojsonLayer.getBounds());
+      map.fitBounds(geojsonLayer.getBounds());
 
     </script>
 
