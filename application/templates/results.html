@@ -79,7 +79,7 @@
               <tr class="govuk-table__row validation-result-row">
                 <td class="govuk-table__cell" colspan="2">{{ organisation.name }}
                   {% if organisation.validation %}
-                    <p class="full-results-link">Last validated - {{ organisation.validation.created_date | format_date_time }}. <a href="{{ url_for('frontend.validate', url=organisation.brownfield_register_url, cached=True)}}">See full results</a></p>
+                    <p class="full-results-link">Last validated - {{ organisation.validation.created_date | format_date_time }}. <a href="{{ url_for('frontend.validate', local_authority=organisation.organisation, url=organisation.brownfield_register_url, cached=True)}}">See full results</a></p>
                   {% endif %}
                 </td>
                 {% if organisation.validation is not none -%}

@@ -10,7 +10,8 @@ from flask import (
     request,
     Response,
     redirect,
-    url_for
+    url_for,
+    current_app
 )
 
 from furl import furl
@@ -49,7 +50,6 @@ def validate_results():
 
 @frontend.route('/results/map')
 def all_results_map():
-    publications = BrownfieldSiteValidation.query.join(Organisation).order_by(asc(Organisation.name))
     return render_template('results-map.html', resultdata=getAllBoundariesAndResults())
 
 
@@ -80,49 +80,50 @@ def getBoundaryAndResult(org):
 def start():
     return render_template('start.html')
 
+
 @frontend.route('/local-authority', methods=['GET','POST'])
 def local_authority():
-    organisations = Organisation.query.order_by("name").all()
-    return render_template('select-la.html', organisations=organisations)
+    if request.method == 'GET':
+        organisations = Organisation.query.order_by("name").all()
+        return render_template('select-la.html', organisations=organisations)
+    else:
+        return redirect(url_for('frontend.validate', local_authority=request.form['local-authority-selector']))
 
 
-@frontend.route('/validate')
-def validate():
-    return redirect(url_for('frontend.index'))
-    # if request.args.get('url') is not None:
-    #     cached = _to_boolean(request.args.get('cached', False))
-    #     url = request.args.get('url').strip()
-    #     try:
-    #         result = get_data_and_validate(url, cached=cached)
-    #     except FileTypeException as e:
-    #         current_app.logger.exception(e)
-    #         return render_template('not-available.html',
-    #                                url=url,
-    #                                message=e.message)
-    #
-    #     brownfield_site = BrownfieldSiteValidation.query.filter_by(data_url=url).one()
-    #
-    #     if (result.file_warnings and result.errors) or result.file_errors:
-    #         return render_template('fix.html', url=url, result=result, brownfield_site=brownfield_site)
-    #     else:
-    #         la_boundary=brownfield_site.organisation.feature.geojson
-    #         return render_template('valid.html',
-    #                                url=url,
-    #                                feature=brownfield_site.geojson,
-    #                                result=result,
-    #                                la_boundary=la_boundary)
-    #
-    # return render_template('validate.html')
+@frontend.route('/local-authority/<local_authority>/validate')
+def validate(local_authority):
+    if request.args.get('url') is not None:
+        cached = _to_boolean(request.args.get('cached', False))
+        url = request.args.get('url').strip()
+        try:
+            local_authority = Organisation.query.get(local_authority)
+            result = get_data_and_validate(local_authority, url, cached=cached)
+        except FileTypeException as e:
+            current_app.logger.exception(e)
+            return render_template('not-available.html',
+                                   url=url,
+                                   message=e.message)
+
+        if (result.file_warnings and result.errors) or result.file_errors:
+            return render_template('fix.html', url=url, result=result)
+        else:
+            return render_template('valid.html',
+                                   url=url,
+                                   feature=local_authority.validation.geojson(),
+                                   result=result,
+                                   la_boundary=local_authority.geojson)
+
+    return render_template('validate.html', local_authority=local_authority)
 
 
 @frontend.route('/geojson-download')
 def geojson_download():
     if request.args.get('url') is not None:
         url = request.args.get('url').strip()
-        brownfield_site = BrownfieldSiteValidation.query.filter_by(data_url=url).one()
+        brownfield_site = BrownfieldSiteValidation.query.filter_by(data_source=url).one()
         filename = '%s.json' % brownfield_site.organisation.organisation
         return Response(
-                json.dumps(brownfield_site.geojson),
+                json.dumps(brownfield_site.geojson()),
                 mimetype="application/json",
                 headers={"Content-disposition":
                          "attachment; filename="+filename})
@@ -202,6 +203,7 @@ def _try_converting_to_csv(path, content):
     except Exception as e:
         msg = 'Could not convert %s into csv' % path
         raise FileTypeException(msg)
+
 
 def get_data_and_validate(organisation, url, cached=False):
 

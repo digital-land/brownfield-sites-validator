@@ -106,9 +106,6 @@
                               {% endfor %}
                           </ul>
                           <p>Across <span class="row-value">{{ result.warnings[field] | count }} rows</span>.</p>
-                            {% if field == 'GeoX' %}
-                                <p><a href="{{ url_for('frontend.fix_up_geography', brownfield_site_publication_id=brownfield_site.publication) }}">Fix these errors</a>.</p>
-                            {% endif %}
                       </li>
                   {% endfor %}
               </ol>
