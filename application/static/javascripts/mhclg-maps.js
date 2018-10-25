@@ -36,11 +36,17 @@
 
     setMapContainerHeight: function(map, value, isRatio) {
       var ratio = value || (2/3);
+      // set a default value if none provided are height
+      // not set with CSS
+      if( !value && !map._container.style.height) {
+        map._container.style.height = this.options.mapHeight;
+      }
       if( isRatio ) {
         var width = map._container.offsetWidth;
         map._container.style.height = `${width * ratio}px`;
       } else {
-        map._container.style.height = this.options.mapHeight;
+        // should I check it is a string?
+        map._container.style.height = value;
       }
     }
   });
