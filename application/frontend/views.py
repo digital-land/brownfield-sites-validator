@@ -8,12 +8,12 @@ from flask import (
     Blueprint,
     render_template,
     request,
-    current_app,
-    abort,
-    Response
+    Response,
+    redirect,
+    url_for
 )
-from furl import furl
 
+from furl import furl
 from sqlalchemy import asc
 
 from application.validators.validators import (
@@ -22,10 +22,18 @@ from application.validators.validators import (
     ValidationWarning
 )
 
-from application.models import BrownfieldSitePublication, Organisation, Feature
-
+from application.models import (
+    Organisation,
+    BrownfieldSiteValidation
+)
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
+
+
+def _to_boolean(value):
+    if str(value).lower() in ['1', 't', 'true', 'y', 'yes', 'on']:
+        return True
+    return False
 
 
 @frontend.route('/')
@@ -35,12 +43,13 @@ def index():
 
 @frontend.route('/results')
 def validate_results():
-    publications = BrownfieldSitePublication.query.join(Organisation).order_by(asc(Organisation.name))
-    return render_template('results.html', publications=publications)
+    organisations = Organisation.query.order_by(asc(Organisation.name)).all()
+    return render_template('results.html', organisations=organisations)
+
 
 @frontend.route('/results/map')
 def all_results_map():
-    publications = BrownfieldSitePublication.query.join(Organisation).order_by(asc(Organisation.name))
+    publications = BrownfieldSiteValidation.query.join(Organisation).order_by(asc(Organisation.name))
     return render_template('results-map.html', resultdata=getAllBoundariesAndResults())
 
 
@@ -51,20 +60,21 @@ def getAllBoundariesAndResults():
         data.append( getBoundaryAndResult(org) )
     return data
 
+
 def getBoundaryAndResult(org):
     package = {}
     package['org_id'] = org.organisation
     package['org_name'] = org.name
-    if org.feature and org.feature.geojson:
-        package['feature'] = org.feature.geojson
-    if org.publication and org.publication.validation and org.publication.validation.result:
-        package['csv_url'] = org.publication.data_url
-        publication = BrownfieldSitePublication.query.filter_by(organisation_id=org.organisation).one()
-        package['results'] = publication.validation.result
+    if org.geojson:
+        package['feature'] = org.geojson
+    if org.validation and org.validation.result:
+        package['csv_url'] = org.brownfield_register_url
+        package['results'] = org.validation.result
     else:
         package['results'] = "No results available"
 
     return package
+
 
 @frontend.route('/start')
 def start():
@@ -76,44 +86,40 @@ def local_authority():
     return render_template('select-la.html', organisations=organisations)
 
 
-def _to_boolean(value):
-    if str(value).lower() in ['1', 't', 'true', 'y', 'yes', 'on']:
-        return True
-    return False
-
-
 @frontend.route('/validate')
 def validate():
-    if request.args.get('url') is not None:
-        cached = _to_boolean(request.args.get('cached', False))
-        url = request.args.get('url').strip()
-        try:
-            result = _get_data_and_validate(url, cached=cached)
-        except FileTypeException as e:
-            current_app.logger.exception(e)
-            return render_template('not-available.html',
-                                   url=url,
-                                   message=e.message)
+    return redirect(url_for('frontend.index'))
+    # if request.args.get('url') is not None:
+    #     cached = _to_boolean(request.args.get('cached', False))
+    #     url = request.args.get('url').strip()
+    #     try:
+    #         result = get_data_and_validate(url, cached=cached)
+    #     except FileTypeException as e:
+    #         current_app.logger.exception(e)
+    #         return render_template('not-available.html',
+    #                                url=url,
+    #                                message=e.message)
+    #
+    #     brownfield_site = BrownfieldSiteValidation.query.filter_by(data_url=url).one()
+    #
+    #     if (result.file_warnings and result.errors) or result.file_errors:
+    #         return render_template('fix.html', url=url, result=result, brownfield_site=brownfield_site)
+    #     else:
+    #         la_boundary=brownfield_site.organisation.feature.geojson
+    #         return render_template('valid.html',
+    #                                url=url,
+    #                                feature=brownfield_site.geojson,
+    #                                result=result,
+    #                                la_boundary=la_boundary)
+    #
+    # return render_template('validate.html')
 
-        brownfield_site = BrownfieldSitePublication.query.filter_by(data_url=url).one()
-
-        if (result.file_warnings and result.errors) or result.file_errors:
-            return render_template('fix.html', url=url, result=result, brownfield_site=brownfield_site)
-        else:
-            la_boundary=brownfield_site.organisation.feature.geojson
-            return render_template('valid.html',
-                                   url=url,
-                                   feature=brownfield_site.geojson,
-                                   result=result,
-                                   la_boundary=la_boundary)
-
-    return render_template('validate.html')
 
 @frontend.route('/geojson-download')
 def geojson_download():
     if request.args.get('url') is not None:
         url = request.args.get('url').strip()
-        brownfield_site = BrownfieldSitePublication.query.filter_by(data_url=url).one()
+        brownfield_site = BrownfieldSiteValidation.query.filter_by(data_url=url).one()
         filename = '%s.json' % brownfield_site.organisation.organisation
         return Response(
                 json.dumps(brownfield_site.geojson),
@@ -126,19 +132,22 @@ def geojson_download():
 def task_list():
     return render_template('fix-task-list.html')
 
+
 #@frontend.route('/fix-up/<brownfield_site_publication_id>/fix-columns')
 @frontend.route('/fix-up/task-list/fix-columns')
 def fix_columns():
     return render_template('fix-column-issues.html')
+
 
 #@frontend.route('/fix-up/<brownfield_site_publication_id>/fix-dates')
 @frontend.route('/fix-up/task-list/fix-dates')
 def fix_dates():
     return render_template('fix-data-issues.html')
 
+
 @frontend.route('/fix-up/<brownfield_site_publication_id>/geography')
 def fix_up_geography(brownfield_site_publication_id):
-    publication = BrownfieldSitePublication.query.get(brownfield_site_publication_id)
+    publication = BrownfieldSiteValidation.query.get(brownfield_site_publication_id)
     return render_template('fix-up-geography.html', brownfield_site_publication=publication)
 
 
@@ -194,15 +203,15 @@ def _try_converting_to_csv(path, content):
         msg = 'Could not convert %s into csv' % path
         raise FileTypeException(msg)
 
-def _get_data_and_validate(url, cached=False):
+def get_data_and_validate(organisation, url, cached=False):
 
     # quick hack to use stored validation result. but maybe put timestamp on
     # db record and only use if quite fresh, otherwise fetch and update
     # stored one. Or maybe not do this at all? Just store for index page,
     # but fetch fresh each time validate view method called?
-    publication = BrownfieldSitePublication.query.filter_by(data_url=url).first()
-    if publication is not None and publication.validation is not None and cached:
-        return BrownfieldSiteValidationRunner.from_publication(publication)
+    validation = BrownfieldSiteValidation.query.filter_by(data_source=url).first()
+    if validation is not None and cached:
+        return BrownfieldSiteValidationRunner.from_validation(validation)
     else:
         file_warnings = []
         resp = requests.get(url)
@@ -219,7 +228,5 @@ def _get_data_and_validate(url, cached=False):
             line_count = len(content.splitlines())
         else:
             content, line_count = _try_converting_to_csv(resource, resp.content)
-
-        publication = BrownfieldSitePublication.query.filter_by(data_url=url).first()
-        validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count, publication)
+        validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count, organisation)
         return validator.validate()

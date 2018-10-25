@@ -7,6 +7,8 @@ import csv
 import json
 import logging
 import re
+import uuid
+
 import requests
 
 from io import StringIO
@@ -16,7 +18,7 @@ from bng_to_latlon import OSGB36toWGS84
 from requests.exceptions import InvalidSchema, HTTPError, MissingSchema
 from sqlalchemy import func, and_
 
-from application.models import Feature, ValidationResult
+from application.models import BrownfieldSiteValidation
 from application.extensions import db
 
 logger = logging.getLogger(__name__)
@@ -196,7 +198,8 @@ class GeoXFieldValidator(BaseFieldValidator):
                 lng, lat = geoX, geoY
 
             point = func.ST_SetSRID(func.ST_MakePoint(lng,lat), 4326)
-            f = Feature.query.filter(and_(Feature.geometry.ST_Contains(point), Feature.feature==self.organisation.feature.feature)).first()
+            # f = Feature.query.filter(and_(Feature.geometry.ST_Contains(point), Feature.feature==self.organisation.feature.feature)).first()
+            f = 'None'
             if f is None:
                 raise ValueError('Point is not within borough')
         except ValueError as e:
@@ -229,7 +232,7 @@ class RegexValidator(BaseFieldValidator):
 
 class ValidationRunner:
 
-    def __init__(self, source, file_warnings, line_count, publication, validators={}, delimiter=None):
+    def __init__(self, source, file_warnings, line_count, organisation, validators={}, delimiter=None):
 
         self.source = source
         self.file_warnings = file_warnings
@@ -243,9 +246,9 @@ class ValidationRunner:
         self.delimiter = delimiter or getattr(self, 'delimiter', ',')
         self.rows_analysed = 0
         self.report = {}
-        self.publication = publication
         self.empty_lines = 0
         self.data_rows = []
+        self.organisation = organisation
 
     def to_dict(self):
         return {'errors': self.errors,
@@ -260,9 +263,9 @@ class ValidationRunner:
                 'empty_lines': self.empty_lines}
 
     @classmethod
-    def from_publication(cls, publication):
-        datadict = publication.validation.result
-        validator = cls(None, datadict['file_warnings'], datadict['line_count'], publication)
+    def from_validation(cls, validation):
+        datadict = validation.result
+        validator = cls(None, datadict['file_warnings'], datadict['line_count'], validation.organisation)
         validator.errors = datadict['errors']
         validator.warnings = datadict['warnings']
         validator.missing = datadict['missing']
@@ -321,8 +324,16 @@ class ValidationRunner:
 
         self._gather_results()
 
-        self.publication.validation_results.append(ValidationResult(result=self.to_dict(), data=self.data_rows))
-        db.session.add(self.publication)
+        url = self.organisation.brownfield_register_url if self.organisation.brownfield_register_url else None
+
+        validation = BrownfieldSiteValidation(id=uuid.uuid4(),
+                                              data_source=url,
+                                              result=self.to_dict(),
+                                              data=self.data_rows)
+
+        self.organisation.validation_results.append(validation)
+
+        db.session.add(self.organisation)
         db.session.commit()
 
         return self
@@ -395,7 +406,7 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
             ],
             'GeoX': [
                 FloatValidator(),
-                GeoXFieldValidator(self.publication.organisation, check_against='GeoY')
+                GeoXFieldValidator(self.organisation, check_against='GeoY')
             ],
             'GeoY': [
                 FloatValidator()

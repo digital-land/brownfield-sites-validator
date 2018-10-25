@@ -2,7 +2,7 @@ import datetime
 
 from geoalchemy2 import Geometry
 from sqlalchemy import ForeignKey
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 
 from application.extensions import db
@@ -13,34 +13,19 @@ class Organisation(db.Model):
     organisation = db.Column(db.String(64), primary_key=True)
     name = db.Column(db.String(256))
     website = db.Column(db.String(256))
-
-    feature_id = db.Column(db.String(256), ForeignKey('feature.feature', name='organisation_feature_fkey'))
-    feature = db.relationship('Feature', uselist=False)
-
-    publication = db.relationship('BrownfieldSitePublication', backref='organisation', uselist=False)
-
-
-class Feature(db.Model):
-
-    feature = db.Column(db.String(256), primary_key=True)
-    item = db.Column(db.String(256))
-    data = db.Column(JSONB)
     geometry = db.Column(Geometry(srid=4326))
-    name = db.Column(db.Text)
-    publication = db.Column(db.String(64))
     geojson = db.Column(JSONB)
 
+    brownfield_register_publication = db.Column(db.String(64))
+    brownfield_register_url = db.Column(db.Text)
+    brownfield_register_copyright = db.Column(db.String(64))
+    brownfield_register_licence = db.Column(db.String(64))
+    brownfield_register_suffix = db.Column(db.String(64))
+    brownfield_register_geojson = db.Column(JSONB)
 
-class BrownfieldSitePublication(db.Model):
-
-    publication = db.Column(db.String(64), primary_key=True)
-    organisation_id = db.Column(db.String(64), ForeignKey('organisation.organisation',
-                                                          name='brownfield_publication_organisation_fkey'))
-    geojson = db.Column(JSONB)
-    data_url = db.Column(db.Text)
-
-    # Check this - not sure it's the right thing?
-    validation_results = relationship('ValidationResult', order_by='ValidationResult.created_date')
+    validation_results = db.relationship('BrownfieldSiteValidation',
+                                          back_populates='organisation',
+                                          order_by='BrownfieldSiteValidation.created_date')
 
     @property
     def validation(self):
@@ -50,17 +35,19 @@ class BrownfieldSitePublication(db.Model):
             return None
 
 
-class ValidationResult(db.Model):
+class BrownfieldSiteValidation(db.Model):
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(UUID(as_uuid=True), primary_key=True)
+    data_source = db.Column(db.Text)
     result = db.Column(JSONB)
     data = db.Column(JSONB)
     created_date = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
 
-    brownfield_site_publication_id = db.Column(db.String(64), ForeignKey('brownfield_site_publication.publication'))
+    organisation_id = db.Column(db.String(64), ForeignKey('organisation.organisation'))
+    organisation = relationship('Organisation', back_populates="validation_results")
 
     def geojson(self):
-        data = {'features': [], 'type': 'FeatureCollection'}
+        geo = {'features': [], 'type': 'FeatureCollection'}
         for d in self.data:
             feature = {
                 'geometry': {
@@ -75,7 +62,5 @@ class ValidationResult(db.Model):
                 },
                 'type': 'Feature'
             }
-
-            data['features'].append(feature)
-
-        return data
+            geo['features'].append(feature)
+        return geo
