@@ -77,24 +77,15 @@
 {%  endblock %}
 
 {% block bodyEnd %}
+<script src="/static/javascripts/mhclg-maps.js"></script>
 <script src="/static/javascripts/leaflet-hover-effects.js"></script>
 <script>
-  const map = L.map("map-container", {});
 
-  L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={{ config.MAPBOX_TOKEN }}', {
-      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-      maxZoom: 18,
-      id: 'mapbox.streets',
-      accessToken: '{{ config.MAPBOX_TOKEN }}'
-  }).addTo(map);
-
-  function setMapHeight(mapConatiner, ratio) {
-    var ratio = ratio || (2/3);
-    var width = mapConatiner.offsetWidth;
-    mapConatiner.style.height = `${width * ratio}px`;
-  }
-
-  setMapHeight(map._container, 3/2);
+  // initialise MHCLGMaps with mapbox access token
+  const mhclgMaps = new MHCLGMaps({mapbox_token: '{{ config.MAPBOX_TOKEN }}'});
+  
+  const map = mhclgMaps.createMap("map-container");
+  mhclgMaps.setMapContainerHeight(map, 3/2, true);
 
   map.setView(new L.LatLng(54.00366, -2.547855), 7);
   
