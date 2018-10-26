@@ -174,12 +174,35 @@
     validDataLayer.bringToFront();
   }
 
+  const noresultsTemplate = 
+    '<p class="govuk-!-font-weight-bold">{org_name}</p>' +
+    '<p>No results available</p>';
+
+  const resultsTemplate =
+    '<h3 class="govuk-heading-s">{org_name}</h3>' +
+    '<ul class="govuk-list">' +
+      '<li>{line_count} rows</li>' +
+      '<li>{rows_analysed} analysed</li>' +
+      '<li>{warning_count} warnings</li>' +
+      '<li>{error_count} errors</li>' +
+    '</ul>' +
+    '<p class="govuk-body"><a class="govuk-link" href="{url}">See full results</a></p>';
+
   function setupPopup(boundary, org) {
     if( org.results === "No results available") {
-      boundary.bindPopup(`<p class="govuk-!-font-weight-bold">${org.org_name}</p><p>No results available</p>`);
+      boundary.bindPopup( L.Util.template(noresultsTemplate, { org_name: org.org_name }) );
     } else {
       const url =  `/local-authority/` + org.org_id + `/validate?url=${encodeURIComponent(org.csv_url)}`;
-      boundary.bindPopup(`<p class="govuk-!-font-weight-bold">${org.org_name}</p><p>${org.results.line_count - 1} rows<br />${Object.keys(org.results.warnings).length} Warnings<br />${Object.keys(org.results.errors).length} Errors<br />${org.results.rows_analysed} rows analysed</p><p><a href="${url}">See full results</a></p>`);
+      const popupContent = L.Util.template(resultsTemplate,
+        {
+          org_name: org.org_name,
+          line_count: org.results.line_count - 1,
+          warning_count: Object.keys(org.results.warnings).length,
+          error_count: Object.keys(org.results.errors).length,
+          rows_analysed: org.results.rows_analysed,
+          url: url
+        })
+      boundary.bindPopup( popupContent );
     }
   }
 
