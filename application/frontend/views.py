@@ -221,7 +221,7 @@ def get_data_and_validate(organisation, url, cached=False):
         if content_type is not None and content_type.lower() not in ['text/csv', 'text/csv;charset=utf-8']:
             file_warnings.append({'data': 'Content-Type:%s' % content_type, 'warning': ValidationWarning.CONTENT_TYPE_WARNING.to_dict()})
         resource =  furl(url).path.segments[-1]
-        if resource.endswith('.csv'):
+        if 'text/csv' in content_type  or not resource.endswith('.csv'):
             dammit = UnicodeDammit(resp.content)
             encoding = dammit.original_encoding
             if encoding.lower() != 'utf-8':
