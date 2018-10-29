@@ -88,15 +88,15 @@ class URLValidator(BaseFieldValidator):
         data = row.get(field)
         if data is not None and not self.allow_empty and data not in self.checked:
             try:
-                resp = requests.head(data)
+                resp = requests.head(data, timeout=6)
                 resp.raise_for_status()
                 self.checked.add(data)
             except (InvalidSchema, MissingSchema) as e:
                 errors.append({'data': data, 'error': ValidationError.INVALID_URL.to_dict(), 'message' : str(e)})
-                logger.info('Found error with', data)
-            except HTTPError as e:
+                logger.debug('Found error with', data)
+            except (HTTPError, requests.exceptions.ConnectionError) as e:
                 warnings.append({'data': data, 'warning': ValidationWarning.HTTP_WARNING.to_dict(), 'message' : str(e)})
-                logger.info('Found warning with', data)
+                logger.debug('Found warning with', data)
 
         return errors, warnings
 
