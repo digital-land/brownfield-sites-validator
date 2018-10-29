@@ -163,8 +163,9 @@
       if (Object.keys(org.results.errors).length > 0) {
         const styleSetting = errorStyle;
         addLayerToABoundariesLayer(boundary, org, errorDataLayer, errorStyle);
-      } else if (Object.keys(org.results.warnings).length > 0) {
+      } else if (Object.keys(org.results.warnings).length > 0 || org.results.rows_analysed == 0) {
         const styleSetting = warningStyle;
+        console.log(org);
         addLayerToABoundariesLayer(boundary, org, warningDataLayer, warningStyle);
       } else {
         const styleSetting = validStyle;
@@ -187,7 +188,7 @@
       boundary.bindPopup(`<p class="govuk-!-font-weight-bold">${org.org_name}</p><p>No results available</p>`);
     } else {
       const url =  `/local-authority/` + org.org_id + `/validate?url=${encodeURIComponent(org.csv_url)}`;
-      boundary.bindPopup(`<p class="govuk-!-font-weight-bold">${org.org_name}</p><p>${org.results.line_count - 1} rows<br />${Object.keys(org.results.warnings).length} Warnings<br />${Object.keys(org.results.errors).length} Errors</p><p><a href="${url}">See full results</a></p>`);
+      boundary.bindPopup(`<p class="govuk-!-font-weight-bold">${org.org_name}</p><p>${org.results.line_count - 1} rows<br />${Object.keys(org.results.warnings).length} Warnings<br />${Object.keys(org.results.errors).length} Errors<br />${org.results.rows_analysed} rows analysed</p><p><a href="${url}">See full results</a></p>`);
     }
   }
 
