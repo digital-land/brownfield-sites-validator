@@ -298,29 +298,28 @@ class ValidationRunner:
         if set(self.missing) == set(self.validators):
             self.file_errors = {'data': 'file', 'error': ValidationError.INVALID_CSV_HEADERS.to_dict()}
             self.unknown = set(reader.fieldnames)
-            return self
-
-        for line, row in enumerate(reader):
-            if all(v.strip() == '' for v in row.values()):
-                self.empty_lines += 1
-                continue
-            self.rows_analysed += 1
-            self.data_rows.append(row)
-            for field, validators in self.validators.items():
-                for validator in validators:
-                    errors, warnings = validator.validate(field, row)
-                    if errors:
-                        if self.errors.get(field) is None:
-                            self.errors[field] = {}
-                        if self.errors[field].get(line) is None:
-                            self.errors[field][line] = []
-                        self.errors[field][line].extend(errors)
-                    if warnings:
-                        if self.warnings.get(field) is None:
-                            self.warnings[field] = {}
-                        if self.warnings[field].get(line) is None:
-                            self.warnings[field][line] = []
-                        self.warnings[field][line].extend(warnings)
+        else:
+            for line, row in enumerate(reader):
+                if all(v.strip() == '' for v in row.values()):
+                    self.empty_lines += 1
+                    continue
+                self.rows_analysed += 1
+                self.data_rows.append(row)
+                for field, validators in self.validators.items():
+                    for validator in validators:
+                        errors, warnings = validator.validate(field, row)
+                        if errors:
+                            if self.errors.get(field) is None:
+                                self.errors[field] = {}
+                            if self.errors[field].get(line) is None:
+                                self.errors[field][line] = []
+                            self.errors[field][line].extend(errors)
+                        if warnings:
+                            if self.warnings.get(field) is None:
+                                self.warnings[field] = {}
+                            if self.warnings[field].get(line) is None:
+                                self.warnings[field][line] = []
+                            self.warnings[field][line].extend(warnings)
 
         self._gather_results()
 
