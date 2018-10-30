@@ -23,6 +23,7 @@ bng-latlon = "*"
 "xlsx2csv" = "*"
 csvkit = "*"
 furl = "*"
+pyproj = "*"
 
 [dev-packages]
 pytest = "*"

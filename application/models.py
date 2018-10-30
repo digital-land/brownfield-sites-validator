@@ -1,5 +1,6 @@
 import datetime
 
+import pyproj
 from geoalchemy2 import Geometry
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -49,11 +50,19 @@ class BrownfieldSiteValidation(db.Model):
     def geojson(self):
         geo = {'features': [], 'type': 'FeatureCollection'}
         for d in self.data:
+            longitude = float(d['GeoX'].strip())
+            latitude = float(d['GeoY'].strip())
+
+            if d['CoordinateReferenceSystem'] == 'OSGB36' or longitude > 10000.0:
+                bng = pyproj.Proj(init='epsg:27700')
+                wgs84 = pyproj.Proj(init='epsg:4326')
+                longitude, latitude = pyproj.transform(bng, wgs84, longitude, latitude)
+
             feature = {
                 'geometry': {
                     'coordinates': [
-                        float(d['GeoX']),
-                        float(d['GeoY'])
+                        longitude,
+                        latitude
                     ],
                     'type': 'Point'
                 },
