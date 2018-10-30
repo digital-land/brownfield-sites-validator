@@ -30,6 +30,9 @@ $govuk-border-width: 4px;
 
   .govuk-panel__body {
     @include govuk-font($size: 36);
+    p:last-child {
+      margin-bottom: 0;
+    }
   }
 
   .govuk-panel__link,

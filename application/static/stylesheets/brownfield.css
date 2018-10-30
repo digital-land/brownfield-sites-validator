@@ -5646,6 +5646,10 @@
   }
 }
 
+.govuk-panel__body p:last-child {
+  margin-bottom: 0;
+}
+
 .govuk-panel__link,
 a.govuk-panel__link {
   font-family: "nta", Arial, sans-serif;
