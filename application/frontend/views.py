@@ -112,7 +112,7 @@ def validate(local_authority):
                                    url=url,
                                    feature=local_authority.validation.geojson(),
                                    result=result,
-                                   la_boundary=local_authority.geojson)
+                                   la=local_authority)
 
     return render_template('validate.html', local_authority=local_authority)
 
