@@ -1,3 +1,5 @@
+import csv
+
 import requests
 import json
 
@@ -221,15 +223,30 @@ def get_data_and_validate(organisation, url, cached=False):
         content_type = resp.headers.get('Content-type')
         if content_type is not None and content_type.lower() not in ['text/csv', 'text/csv;charset=utf-8']:
             file_warnings.append({'data': 'Content-Type:%s' % content_type, 'warning': ValidationWarning.CONTENT_TYPE_WARNING.to_dict()})
-        resource =  furl(url).path.segments[-1]
-        if 'text/csv' in content_type or resource.endswith('.csv'):
-            dammit = UnicodeDammit(resp.content)
-            encoding = dammit.original_encoding
+        dammit = UnicodeDammit(resp.content)
+        encoding = dammit.original_encoding
+        if _looks_like_csv(url, encoding, resp):
             if encoding.lower() != 'utf-8':
                 file_warnings.append({'data': 'File encoding: %s' % encoding, 'warning': ValidationWarning.FILE_ENCODING_WARNING.to_dict()})
             content = resp.content.decode(encoding)
             line_count = len(content.splitlines())
         else:
-            content, line_count = _try_converting_to_csv(resource, resp.content)
+            content, line_count = _try_converting_to_csv(furl(url).path.segments[-1], resp.content)
         validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count, organisation)
         return validator.validate()
+
+
+def _looks_like_csv(url, encoding, response):
+    try:
+        content = response.content.decode(encoding)
+        csv.Sniffer().sniff(content)
+        return True
+    except Exception as e:
+        return False
+
+    content_type = response.headers.get('Content-type')
+    resource = furl(url).path.segments[-1]
+    if 'text/csv' in content_type or resource.endswith('.csv'):
+        return True
+
+    return False
