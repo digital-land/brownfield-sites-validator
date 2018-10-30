@@ -18,7 +18,7 @@ from bng_to_latlon import OSGB36toWGS84
 from requests.exceptions import InvalidSchema, HTTPError, MissingSchema
 from sqlalchemy import func, and_
 
-from application.models import BrownfieldSiteValidation
+from application.models import BrownfieldSiteValidation, Organisation
 from application.extensions import db
 
 logger = logging.getLogger(__name__)
@@ -192,14 +192,13 @@ class GeoXFieldValidator(BaseFieldValidator):
             geoX = float(row[field])
             geoY = float(row[self.check_against])
 
-            if row['CoordinateReferenceSystem'] == 'OSGB36':
+            if row.get('CoordinateReferenceSystem') == 'OSGB36':
                 lat, lng = OSGB36toWGS84(geoX, geoY)
             else:
                 lng, lat = geoX, geoY
 
             point = func.ST_SetSRID(func.ST_MakePoint(lng,lat), 4326)
-            # f = Feature.query.filter(and_(Feature.geometry.ST_Contains(point), Feature.feature==self.organisation.feature.feature)).first()
-            f = 'None'
+            f = Organisation.query.filter(and_(Organisation.geometry.ST_Contains(point), Organisation.organisation==self.organisation.organisation)).first()
             if f is None:
                 raise ValueError('Point is not within borough')
         except ValueError as e:

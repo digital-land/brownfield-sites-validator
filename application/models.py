@@ -53,7 +53,7 @@ class BrownfieldSiteValidation(db.Model):
             longitude = float(d['GeoX'].strip())
             latitude = float(d['GeoY'].strip())
 
-            if d['CoordinateReferenceSystem'] == 'OSGB36' or longitude > 10000.0:
+            if d.get('CoordinateReferenceSystem') == 'OSGB36' or longitude > 10000.0:
                 bng = pyproj.Proj(init='epsg:27700')
                 wgs84 = pyproj.Proj(init='epsg:4326')
                 longitude, latitude = pyproj.transform(bng, wgs84, longitude, latitude)
