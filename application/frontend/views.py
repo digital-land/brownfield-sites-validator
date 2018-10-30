@@ -17,7 +17,7 @@ from flask import (
 )
 
 from furl import furl
-from sqlalchemy import asc
+from sqlalchemy import asc, desc
 
 from application.validators.validators import (
     BrownfieldSiteValidationRunner,
@@ -123,8 +123,8 @@ def validate(local_authority):
 def geojson_download():
     if request.args.get('url') is not None:
         url = request.args.get('url').strip()
-        brownfield_site = BrownfieldSiteValidation.query.filter_by(data_source=url).one()
-        filename = '%s.json' % brownfield_site.organisation.organisation
+        brownfield_site = BrownfieldSiteValidation.query.filter_by(data_source=url).order_by(desc(BrownfieldSiteValidation.created_date)).first()
+        filename = '%s.geojson' % brownfield_site.organisation.organisation
         return Response(
                 json.dumps(brownfield_site.geojson()),
                 mimetype="application/json",
