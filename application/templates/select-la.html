@@ -20,14 +20,15 @@
       <fieldset class="govuk-fieldset">
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
           <h1 class="govuk-fieldset__heading">
-            Which Local Authority?
+            Enter a Local Authority
           </h1>
         </legend>
 
         {% call govukSelectFlexible(
             id="local-authority",
-            label="Local Authority",
-            name="local-authority-selector") %}
+            label={"text":"Local Authority", "classes":"govuk-visually-hidden"},
+            name="local-authority-selector",
+            hint="E.g. Dacorum Borough Council") %}
 
             <option value="">-- Select a Local Authority --</option>
           {% for item in organisations %}
