@@ -12,37 +12,39 @@
 {% block content %}
 
     <div class="govuk-grid-row">
-      <div class="govuk-grid-column-full">
+      <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">Provide the Brownfield site data</h1>
+        <p class="govuk-body">You can provide the data by either uploading the CSV file or entering the URL for the CSV file if it is available online.</p>
       </div>
     </div>
+
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+          <form class="govuk-form" method="POST" action="{{ url_for('frontend.validate_file', local_authority=local_authority) }}"  enctype="multipart/form-data">
+              <div class="govuk-form-group">
+                  <label class="govuk-label govuk-label--s" for="file-upload-1">
+                    Upload a file
+                  </label>
+                  {{ form.upload(class='govuk-file-upload') }}
+                  {{ form.csrf_token }}
+              </div>
+              <button class="govuk-button button-validate" type="submit">Upload and validate</button>
+          </form>
+      </div>
+    </div>
+
+    <h4 class="govuk-heading-l">or</h4>
 
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
           <form class="govuk-form" method="GET" action="{{ url_for('frontend.validate', local_authority=local_authority) }}">
               <div class="govuk-form-group">
                   <label class="govuk-label govuk-label--s" for="url">URL</label>
-                  <span class="govuk-hint govuk-body">Where a user can access the Brownfield site register e.g. http://data.bassetlaw.gov.uk/media/751005/BrownfieldLandRegister2017.csv</span>
+                  <span class="govuk-hint govuk-body">Location of the Brownfield site data e.g. http://data.bassetlaw.gov.uk/media/751005/BrownfieldLandRegister2017.csv</span>
 
                   <input class="govuk-input" id="url" name="url" required="" value="" type="url">
               </div>
-              <button class="govuk-button button-validate" type="submit">Validate</button>
-          </form>
-      </div>
-    </div>
-
-
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-          <form class="govuk-form" method="POST" action="{{ url_for('frontend.validate_file', local_authority=local_authority) }}"  enctype="multipart/form-data">
-              <div class="govuk-form-group">
-                  <label class="govuk-label" for="file-upload-1">
-                    Upload a file
-                  </label>
-                  {{ form.upload(class='govuk-file-upload') }}
-                  {{ form.csrf_token }}
-              </div>
-              <button class="govuk-button button-validate" type="submit">Validate</button>
+              <button class="govuk-button button-validate" type="submit">Fetch and validate</button>
           </form>
       </div>
     </div>
