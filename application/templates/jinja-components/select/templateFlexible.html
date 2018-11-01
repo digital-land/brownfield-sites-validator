@@ -1,8 +1,15 @@
-{% macro govukSelectFlexible(id, name, label) %}
+{% macro govukSelectFlexible(id, name, label, hint) %}
 <div class="govuk-form-group">
-  <label class="govuk-label" for="{{ id }}">
-    {{ label }}
+  <label class="govuk-label {% if label and label['classes'] %}{{ label['classes'] }}{% endif %}" for="{{ id }}">
+    {%- if label and label['text'] -%}
+      {{ label['text'] }}
+    {%- else -%}
+      {{ label }}
+    {%- endif -%}
   </label>
+  {% if hint %}
+  <span class="govuk-hint govuk-body">{{ hint }}</span>
+  {% endif %}
   <select class="govuk-select {% if kwargs and kwargs['classes'] %}{{ kwargs['classes'] }}{% endif %}" id="{{ id }}" name="{{ name }}">
     {% if caller %}
       {{ caller() }}
