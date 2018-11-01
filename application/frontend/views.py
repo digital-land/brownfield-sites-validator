@@ -1,5 +1,4 @@
 import csv
-
 import requests
 import json
 
@@ -18,7 +17,9 @@ from flask import (
 
 from furl import furl
 from sqlalchemy import asc, desc
+from werkzeug.utils import secure_filename
 
+from application.frontend.forms import UploadForm
 from application.validators.validators import (
     BrownfieldSiteValidationRunner,
     StringInput,
@@ -52,18 +53,18 @@ def validate_results():
 
 @frontend.route('/results/map')
 def all_results_map():
-    return render_template('results-map.html', resultdata=getAllBoundariesAndResults())
+    return render_template('results-map.html', resultdata=get_all_boundaries_and_results())
 
 
-def getAllBoundariesAndResults():
+def get_all_boundaries_and_results():
     organisations = Organisation.query.all()
     data = []
     for org in organisations:
-        data.append( getBoundaryAndResult(org) )
+        data.append(get_boundary_and_result(org))
     return data
 
 
-def getBoundaryAndResult(org):
+def get_boundary_and_result(org):
     package = {}
     package['org_id'] = org.organisation
     package['org_name'] = org.name
@@ -98,25 +99,55 @@ def validate(local_authority):
         cached = _to_boolean(request.args.get('cached', False))
         url = request.args.get('url').strip()
         try:
-            local_authority = Organisation.query.get(local_authority)
-            result = get_data_and_validate(local_authority, url, cached=cached)
+            la = Organisation.query.get(local_authority)
+            result = get_data_and_validate(la, url, cached=cached)
         except FileTypeException as e:
             current_app.logger.exception(e)
             return render_template('not-available.html',
                                    url=url,
-                                   local_authority=local_authority,
+                                   local_authority=la,
                                    message=e.message)
 
         if (result.file_warnings and result.errors) or result.file_errors:
-            return render_template('fix.html', url=url, result=result)
+            context = {'url': url,
+                       'result': result,
+                       'la': la
+                       }
+            if la.validation is not None:
+                context['feature'] = la.validation.geojson()
+
+            return render_template('fix.html', **context)
         else:
             return render_template('valid.html',
                                    url=url,
-                                   feature=local_authority.validation.geojson(),
+                                   feature=la.validation.geojson(),
                                    result=result,
-                                   la=local_authority)
+                                   la=la)
 
-    return render_template('validate.html', local_authority=local_authority)
+    return render_template('validate.html', local_authority=local_authority, form=UploadForm())
+
+
+@frontend.route('/local-authority/<local_authority>/validate-file', methods=['POST'])
+def validate_file(local_authority):
+    form = UploadForm()
+    if form.validate_on_submit():
+        f = form.upload.data
+        la = Organisation.query.get(local_authority)
+        result = _validate_from_file(la, f)
+        if result.errors or result.file_errors:
+            context = {'url': f.filename,
+                       'result': result,
+                       'la': la
+                       }
+            if la.validation is not None:
+                context['feature'] = la.validation.geojson()
+            return render_template('fix.html', **context)
+        else:
+            return render_template('valid.html',
+                                   url=f.filename,
+                                   feature=la.validation.geojson(),
+                                   result=result,
+                                   la=la)
 
 
 @frontend.route('/geojson-download')
@@ -176,35 +207,40 @@ class FileTypeException(Exception):
         self.message = message
 
 
-def _try_converting_to_csv(path, content):
-    import subprocess
-    with NamedTemporaryFile(delete=False) as file:
-        file.write(content)
-        file_name = file.name
+def _convert_to_csv_if_needed(content, filename):
 
-    csv_file = '%s.csv' % file_name
+    import subprocess
+    if _looks_like_csv(content):
+        content = content.decode('utf-8')
+        return content, len(content.split('\n'))
+
+    with NamedTemporaryFile(delete=False) as f:
+        f.write(content)
+        file_name = f.name
+
+    csv_file = '%s.csv' % filename
 
     try:
 
-        if path.endswith('.xls') or path.endswith('.xlsx'):
+        if filename.endswith('.xls') or filename.endswith('.xlsx'):
             with open(csv_file, 'wb') as out:
                 subprocess.check_call(['in2csv', file_name], stdout=out)
 
-        elif path.endswith('.xlsm'):
+        elif filename.endswith('.xlsm'):
             with open(csv_file, 'wb') as out:
                 subprocess.check_call(['xlsx2csv', file_name], stdout=out)
 
         else:
-            msg = 'Not sure how to convert the file %s' % path
+            msg = 'Not sure how to convert the file %s' % filename
             raise FileTypeException(msg)
 
-        with open(csv_file, 'r') as file:
-            content = file.readlines()
+        with open(csv_file, 'r') as converted_file:
+            content = converted_file.readlines()
 
         return '\n'.join(content), len(content)
 
     except Exception as e:
-        msg = 'Could not convert %s into csv' % path
+        msg = 'Could not convert %s into csv' % filename
         raise FileTypeException(msg)
 
 
@@ -223,30 +259,33 @@ def get_data_and_validate(organisation, url, cached=False):
         content_type = resp.headers.get('Content-type')
         if content_type is not None and content_type.lower() not in ['text/csv', 'text/csv;charset=utf-8']:
             file_warnings.append({'data': 'Content-Type:%s' % content_type, 'warning': ValidationWarning.CONTENT_TYPE_WARNING.to_dict()})
+
         dammit = UnicodeDammit(resp.content)
         encoding = dammit.original_encoding
-        if _looks_like_csv(url, encoding, resp):
-            if encoding.lower() != 'utf-8':
-                file_warnings.append({'data': 'File encoding: %s' % encoding, 'warning': ValidationWarning.FILE_ENCODING_WARNING.to_dict()})
-            content = resp.content.decode(encoding)
-            line_count = len(content.splitlines())
-        else:
-            content, line_count = _try_converting_to_csv(furl(url).path.segments[-1], resp.content)
+
+        if encoding.lower() != 'utf-8':
+            file_warnings.append(
+                {'data': 'File encoding: %s' % encoding, 'warning': ValidationWarning.FILE_ENCODING_WARNING.to_dict()})
+
+        content, line_count = _convert_to_csv_if_needed(resp.content, furl(url).path.segments[-1])
+
         validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count, organisation)
         return validator.validate()
 
 
-def _looks_like_csv(url, encoding, response):
+def _validate_from_file(organisation, file):
+    file_warnings = []
+    content, line_count = _convert_to_csv_if_needed(file.read(), file.filename)
+    validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count,
+                                               organisation)
+    return validator.validate()
+
+
+def _looks_like_csv(content):
     try:
-        content = response.content.decode(encoding)
-        csv.Sniffer().sniff(content)
+        decoded = content.decode('utf-8')
+        csv.Sniffer().sniff(decoded)
         return True
     except Exception as e:
         return False
 
-    content_type = response.headers.get('Content-type')
-    resource = furl(url).path.segments[-1]
-    if 'text/csv' in content_type or resource.endswith('.csv'):
-        return True
-
-    return False

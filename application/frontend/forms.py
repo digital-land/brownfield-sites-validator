@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms.fields.html5 import URLField
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.validators import DataRequired, ValidationError
 
 
@@ -11,3 +12,11 @@ class BrownfieldSiteURLForm(FlaskForm):
     def validate_url(form, field):
         if not field.data.endswith('.csv'):
             raise ValidationError('Brownfield register must be a csv file')
+
+
+class UploadForm(FlaskForm):
+
+    upload = FileField('file', validators=[
+        FileRequired(),
+        FileAllowed(['csv', 'xls', 'xlsx', 'xlsm'], 'Only csv or excel files allowed')
+    ])
