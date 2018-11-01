@@ -2,6 +2,11 @@
 
 {% from "jinja-components/select/templateFlexible.html" import govukSelectFlexible %}
 
+{% block headEnd %}
+  {{ super() }}
+  <link rel="stylesheet" href="/static/stylesheets/vendor/govuk-accessible-autocomplete.min.css" />
+{% endblock %}
+
 {% block content %}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
@@ -19,6 +24,7 @@
             label="Local Authority",
             name="local-authority-selector") %}
 
+            <option value="">-- Select a Local Authority --</option>
           {% for item in organisations %}
             <option value="{{ item.organisation }}">{{ item.name }}</option>
           {% endfor %}
@@ -35,4 +41,15 @@
 
   </div>
 </div>
+{% endblock %}
+
+{% block bodyEnd %}
+<script src="/static/javascripts/vendor/govuk-accessible-autocomplete.min.js"></script>
+<script>
+  accessibleAutocomplete.enhanceSelectElement({
+    defaultValue: '',
+    confirmOnBlur: true,
+    selectElement: document.querySelector('#local-authority')
+  });
+</script>
 {% endblock %}

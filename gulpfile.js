@@ -19,7 +19,7 @@ gulp.task('clean-css', function () {
 });
 
 // compile scss to CSS
-gulp.task("scss", ['clean-css', 'copy'], function() {
+gulp.task("scss", ['copy'], function() {
 	return gulp.src( config.scssPath + '/*.scss')
 	.pipe(sass({outputStyle: 'expanded',
 		includePaths: [ 'src/govuk_frontend_toolkit/stylesheets',
@@ -34,13 +34,13 @@ gulp.task("watch", ["scss"], function () {
   gulp.watch("src/scss/**/*", ["scss"])
 });
 
-gulp.task('copy', function() {
-  gulp.src('src/vendor/css/*.css')
-    .pipe(gulp.dest(config.destPath));
+gulp.task('copy', ['clean-css'], function() {
   gulp.src('src/govuk_elements/assets/images/*.png')
     .pipe(gulp.dest(config.imgDestPath));
   gulp.src('src/govuk-frontend/assets/**/*')
     .pipe(gulp.dest(config.govukAssetPath));
+  gulp.src('src/stylesheets/**/*')
+    .pipe(gulp.dest(config.destPath));
 });
 
 // Set watch as default task
