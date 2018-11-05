@@ -107,22 +107,14 @@ def validate(local_authority):
                                    url=url,
                                    local_authority=la,
                                    message=e.message)
+        context = {'url': url,
+                   'result': result,
+                   'la': la
+                   }
+        if la.validation is not None:
+            context['feature'] = la.validation.geojson()
 
-        if (result.file_warnings and result.errors) or result.file_errors:
-            context = {'url': url,
-                       'result': result,
-                       'la': la
-                       }
-            if la.validation is not None:
-                context['feature'] = la.validation.geojson()
-
-            return render_template('fix.html', **context)
-        else:
-            return render_template('valid.html',
-                                   url=url,
-                                   feature=la.validation.geojson(),
-                                   result=result,
-                                   la=la)
+        return render_template('result.html', **context)
 
     return render_template('validate.html', local_authority=local_authority, form=UploadForm())
 
@@ -134,20 +126,13 @@ def validate_file(local_authority):
         f = form.upload.data
         la = Organisation.query.get(local_authority)
         result = _validate_from_file(la, f)
-        if result.errors or result.file_errors:
-            context = {'url': f.filename,
-                       'result': result,
-                       'la': la
-                       }
-            if la.validation is not None:
-                context['feature'] = la.validation.geojson()
-            return render_template('fix.html', **context)
-        else:
-            return render_template('valid.html',
-                                   url=f.filename,
-                                   feature=la.validation.geojson(),
-                                   result=result,
-                                   la=la)
+        context = {'url': f.filename,
+                   'result': result,
+                   'la': la
+                   }
+        if la.validation is not None:
+            context['feature'] = la.validation.geojson()
+        return render_template('result.html', **context)
 
 
 @frontend.route('/geojson-download')
@@ -207,11 +192,11 @@ class FileTypeException(Exception):
         self.message = message
 
 
-def _convert_to_csv_if_needed(content, filename):
+def _convert_to_csv_if_needed(content, filename, encoding='utf-8'):
 
     import subprocess
-    if _looks_like_csv(content):
-        content = content.decode('utf-8')
+    if _looks_like_csv(content, encoding):
+        content = content.decode(encoding)
         return content, len(content.split('\n'))
 
     with NamedTemporaryFile(delete=False) as f:
@@ -267,7 +252,7 @@ def get_data_and_validate(organisation, url, cached=False):
             file_warnings.append(
                 {'data': 'File encoding: %s' % encoding, 'warning': ValidationWarning.FILE_ENCODING_WARNING.to_dict()})
 
-        content, line_count = _convert_to_csv_if_needed(resp.content, furl(url).path.segments[-1])
+        content, line_count = _convert_to_csv_if_needed(resp.content, furl(url).path.segments[-1], encoding=encoding)
 
         validator = BrownfieldSiteValidationRunner(StringInput(string_input=content), file_warnings, line_count, organisation)
         return validator.validate()
@@ -281,9 +266,9 @@ def _validate_from_file(organisation, file):
     return validator.validate()
 
 
-def _looks_like_csv(content):
+def _looks_like_csv(content, encoding='utf-8'):
     try:
-        decoded = content.decode('utf-8')
+        decoded = content.decode(encoding)
         csv.Sniffer().sniff(decoded)
         return True
     except Exception as e:

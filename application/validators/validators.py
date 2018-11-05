@@ -4,11 +4,13 @@
 """
 
 import csv
+import datetime
 import json
 import logging
 import re
 import uuid
 
+import pyproj
 import requests
 
 from io import StringIO
@@ -83,8 +85,6 @@ class URLValidator(BaseFieldValidator):
         self.checked = set([])
 
     def validate(self, field, row):
-        errors = []
-        warnings = []
         data = row.get(field)
         if data is not None and not self.allow_empty and data not in self.checked:
             try:
@@ -92,13 +92,13 @@ class URLValidator(BaseFieldValidator):
                 resp.raise_for_status()
                 self.checked.add(data)
             except (InvalidSchema, MissingSchema) as e:
-                errors.append({'data': data, 'error': ValidationError.INVALID_URL.to_dict(), 'message' : str(e)})
                 logger.debug('Found error with', data)
+                return {'field': field, 'data': data, 'error': ValidationError.INVALID_URL.to_dict(), 'fix': None}
             except (HTTPError, requests.exceptions.ConnectionError) as e:
-                warnings.append({'data': data, 'warning': ValidationWarning.HTTP_WARNING.to_dict(), 'message' : str(e)})
                 logger.debug('Found warning with', data)
+                return {'field': field, 'data': data, 'error': ValidationWarning.HTTP_WARNING.to_dict(), 'fix': None}
 
-        return errors, warnings
+        return {'field': field, 'data': data, 'error': None, 'fix': None}
 
 
 class StringNoLineBreaksValidator(BaseFieldValidator):
@@ -109,13 +109,15 @@ class StringNoLineBreaksValidator(BaseFieldValidator):
         super(StringNoLineBreaksValidator, self).__init__(**kwargs)
 
     def validate(self, field, row):
-        errors = []
-        warnings = []
+
         data = row.get(field)
+
         if data is not None and not self.allow_empty and ('\r\n' in data or '\n' in data):
-            errors.append({'data': data, 'error': ValidationError.NO_LINE_BREAK.to_dict()})
+            fix = data.replace('\r\n',',').replace('\n', ',')
             logger.info('Found error with', data)
-        return errors, warnings
+            return {'field': field, 'data': data, 'error': ValidationError.NO_LINE_BREAK.to_dict(), 'fix': fix}
+
+        return {'field': field, 'data': data, 'error': None, 'fix': None}
 
 
 class ISO8601DateValidator(BaseFieldValidator):
@@ -126,18 +128,25 @@ class ISO8601DateValidator(BaseFieldValidator):
         super(ISO8601DateValidator, self).__init__(**kwargs)
 
     def validate(self, field, row):
-        import datetime
-        errors = []
-        warnings = []
-        data = row.get(field)
+
+        data = row.get(field).replace('"', '').replace("'", '')
         if data is not None and not self.allow_empty:
             try:
                 datetime.datetime.strptime(data, '%Y-%m-%d')
             except ValueError as e:
-                errors.append({'data': data, 'error': ValidationError.INVALID_DATE.to_dict()})
+                fix = self.try_to_fix_date(data)
                 logger.info('Found error with', data)
+                return {'field': field, 'data': data, 'error': ValidationError.INVALID_DATE.to_dict(), 'fix': fix}
 
-        return errors, warnings
+        return {'field': field, 'data': data, 'error': None, 'fix': None}
+
+    @staticmethod
+    def try_to_fix_date(data):
+        try:
+            d = datetime.datetime.strptime(data, '%d/%m/%Y')
+            return datetime.date.strftime(d, '%Y-%m-%d')
+        except ValueError:
+            logger.info('Found error with', data)
 
 
 # TODO not sure this should exist, just use the allow emtpy flag?
@@ -164,49 +173,55 @@ class FloatValidator(BaseFieldValidator):
         super(FloatValidator, self).__init__(**kwargs)
 
     def validate(self, field, row):
-        errors = []
-        warnings = []
         data = row.get(field)
         try:
             if data is not None and not self.allow_empty :
                 float(data)
         except ValueError as e:
-            errors.append({'data': data, 'error': ValidationError.INVALID_FLOAT.to_dict()})
             logger.info('Found error with', data)
-        return errors, warnings
+            return {'field': field, 'data': data, 'error': ValidationError.INVALID_FLOAT.to_dict()}
+
+        return {'field': field, 'data': data, 'error': None}
 
 
-class GeoXFieldValidator(BaseFieldValidator):
+class GeoFieldValidator(BaseFieldValidator):
 
     ''' Checks location of GeoX in conjunction GeoY '''
 
     def __init__(self, organisation, check_against, **kwargs):
-        super(GeoXFieldValidator, self).__init__(**kwargs)
+        super(GeoFieldValidator, self).__init__(**kwargs)
         self.organisation = organisation
         self.check_against = check_against
 
     def validate(self, field, row):
-        errors = []
-        warnings = []
         try:
-            geoX = float(row[field])
-            geoY = float(row[self.check_against])
+            if field == 'GeoX':
+                geoX = float(row[field].strip())
+                geoY = float(row[self.check_against].strip())
+            elif field == 'GeoY':
+                geoX = float(row[self.check_against].strip())
+                geoY = float(row[field].strip())
 
-            if row.get('CoordinateReferenceSystem') == 'OSGB36':
-                lat, lng = OSGB36toWGS84(geoX, geoY)
+            if row.get('CoordinateReferenceSystem') == 'OSGB36' or geoY > 10000.0:
+                bng = pyproj.Proj(init='epsg:27700')
+                wgs84 = pyproj.Proj(init='epsg:4326')
+                lng, lat = pyproj.transform(bng, wgs84, geoX, geoY)
             else:
                 lng, lat = geoX, geoY
 
             point = func.ST_SetSRID(func.ST_MakePoint(lng,lat), 4326)
-            f = Organisation.query.filter(and_(Organisation.geometry.ST_Contains(point), Organisation.organisation==self.organisation.organisation)).first()
+            f = Organisation.query.filter(and_(Organisation.geometry.ST_Contains(point),
+                                               Organisation.organisation==self.organisation.organisation)).first()
             if f is None:
                 raise ValueError('Point is not within borough')
-        except ValueError as e:
-            message = 'This field was validated in conjunction with %s' % self.check_against
-            warnings.append({'data': field, 'warning': ValidationWarning.LOCATION_WARNING.to_dict(), 'message': message})
-            print('Found warning with', field, e)
 
-        return errors, warnings
+        except ValueError as e:
+            if 49 < lng < 60:
+                # lat, lng have probably been flipped
+                fix = lat if field == 'GeoX' else lng
+                return {'field': field, 'data': row.get(field), 'warning': ValidationWarning.LOCATION_WARNING.to_dict(), 'fix': fix}
+
+        return {'field': field, 'data': row.get(field), 'error': None, 'fix': None}
 
 
 class RegexValidator(BaseFieldValidator):
@@ -224,9 +239,10 @@ class RegexValidator(BaseFieldValidator):
         if data is not None and not self.allow_empty:
             if self.regex.match(data) is None:
                 message = 'Content should be one of: %s' % ','.join(self.expected)
-                errors.append({'data': data, 'error': ValidationError.INVALID_CONTENT.to_dict(), 'message' : message})
+                errors.append({'data': data, 'error': ValidationError.INVALID_CONTENT.to_dict(), 'message': message})
                 logger.info('Found error with', data)
         return errors, warnings
+
 
 
 class ValidationRunner:
@@ -237,8 +253,8 @@ class ValidationRunner:
         self.file_warnings = file_warnings
         self.file_errors = []
         self.line_count = line_count
-        self.errors = {}
-        self.warnings = {}
+        self.errors = False
+        self.warnings = False
         self.missing = []
         self.unknown = []
         self.validators = validators or getattr(self, 'validators', {})
@@ -246,13 +262,11 @@ class ValidationRunner:
         self.rows_analysed = 0
         self.report = {}
         self.empty_lines = 0
-        self.data_rows = []
+        self.validated_rows = []
         self.organisation = organisation
 
     def to_dict(self):
-        return {'errors': self.errors,
-                'warnings': self.warnings,
-                'file_errors': self.file_errors,
+        return {'file_errors': self.file_errors,
                 'file_warnings': self.file_warnings,
                 'missing': list(self.missing),
                 'unknown': list(self.unknown),
@@ -265,8 +279,6 @@ class ValidationRunner:
     def from_validation(cls, validation):
         datadict = validation.result
         validator = cls(None, datadict['file_warnings'], datadict['line_count'], validation.organisation)
-        validator.errors = datadict['errors']
-        validator.warnings = datadict['warnings']
         validator.missing = datadict['missing']
         validator.unknown = datadict['unknown']
         validator.rows_analysed = datadict['rows_analysed']
@@ -303,31 +315,22 @@ class ValidationRunner:
                     self.empty_lines += 1
                     continue
                 self.rows_analysed += 1
-                self.data_rows.append(row)
+                validated = {'line': line, 'content': row, 'validation_result': []}
                 for field, validators in self.validators.items():
                     for validator in validators:
-                        errors, warnings = validator.validate(field, row)
-                        if errors:
-                            if self.errors.get(field) is None:
-                                self.errors[field] = {}
-                            if self.errors[field].get(line) is None:
-                                self.errors[field][line] = []
-                            self.errors[field][line].extend(errors)
-                        if warnings:
-                            if self.warnings.get(field) is None:
-                                self.warnings[field] = {}
-                            if self.warnings[field].get(line) is None:
-                                self.warnings[field][line] = []
-                            self.warnings[field][line].extend(warnings)
+                        result = validator.validate(field, row)
+                        validated['validation_result'].append(result)
 
-        self._gather_results()
+                self.validated_rows.append(validated)
+
+        self._gather_result_counts()
 
         url = self.organisation.brownfield_register_url if self.organisation.brownfield_register_url else None
 
         validation = BrownfieldSiteValidation(id=uuid.uuid4(),
                                               data_source=url,
                                               result=self.to_dict(),
-                                              data=self.data_rows)
+                                              data=self.validated_rows)
 
         self.organisation.validation_results.append(validation)
 
@@ -336,29 +339,29 @@ class ValidationRunner:
 
         return self
 
-    def _gather_results(self):
+    def _gather_result_counts(self):
 
-        for field, errors in self.errors.items():
-            error_type_count = {}
-            for line_number, errs in errors.items():
-                for err in errs:
-                    err_type = err['error']['type']
-                    if err_type not in error_type_count:
-                        error_type_count[err_type] = 1
+        for item in self.validated_rows:
+            for vr in item['validation_result']:
+                if vr.get('error') is not None:
+                    if self.report.get(vr['field']) is None:
+                        self.errors = True
+                        self.report[vr['field']] = {'errors': {}}
+                    err_type = vr['error']['type']
+                    if self.report[vr['field']]['errors'].get(err_type) is None:
+                        self.report[vr['field']]['errors'][err_type] = 1
                     else:
-                        error_type_count[err_type] = error_type_count[err_type] + 1
-            self.report[field] = {'errors' :  error_type_count}
+                        self.report[vr['field']]['errors'][err_type] += 1
 
-        for field, warnings in self.warnings.items():
-            warning_type_count = {}
-            for line_number, warns in warnings.items():
-                for warn in warns:
-                    warn_type = warn['warning']['type']
-                    if warn_type not in warning_type_count:
-                        warning_type_count[warn_type] = 1
+                if vr.get('warning') is not None:
+                    if self.report.get(vr['field']) is None:
+                        self.warnings = True
+                        self.report[vr['field']] = {'warnings': {}}
+                    warning_type = vr['warning']['type']
+                    if self.report[vr['field']]['warnings'].get(warning_type) is None:
+                        self.report[vr['field']]['warnings'][warning_type] = 1
                     else:
-                        warning_type_count[warn_type] = warning_type_count[warn_type] + 1
-            self.report[field] = {'warnings': warning_type_count}
+                        self.report[vr['field']]['warnings'][warning_type] += 1
 
 
 class BrownfieldSiteValidationRunner(ValidationRunner):
@@ -400,33 +403,32 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                 URLValidator()
             ],
             'CoordinateReferenceSystem': [
-                RegexValidator(expected=valid_coordinate_reference_system),
+                # RegexValidator(expected=valid_coordinate_reference_system),
             ],
             'GeoX': [
-                FloatValidator(),
-                GeoXFieldValidator(self.organisation, check_against='GeoY')
+                GeoFieldValidator(self.organisation, check_against='GeoY')
             ],
             'GeoY': [
-                FloatValidator()
+                GeoFieldValidator(self.organisation, check_against='GeoX')
             ],
             'Hectares': [
                 FloatValidator()
             ],
             'OwnershipStatus': [
-                RegexValidator(expected=valid_ownership_status)
+                # RegexValidator(expected=valid_ownership_status)
             ],
             'Deliverable': [],
             'PlanningStatus': [
-                RegexValidator(expected=valid_planning_status)
+                # RegexValidator(expected=valid_planning_status)
             ],
             'PermissionType': [
-                RegexValidator(expected=valid_permission_type, allow_empty=True)
+                # RegexValidator(expected=valid_permission_type, allow_empty=True)
             ],
             'PermissionDate': [
-                ISO8601DateValidator(allow_empty=True)
+                # ISO8601DateValidator(allow_empty=True)
             ],
             'PlanningHistory': [
-                URLValidator(allow_empty=True)
+                # URLValidator(allow_empty=True)
             ],
             'ProposedForPIP': [],
             'MinNetDwellings': [
@@ -438,7 +440,7 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
             'NetDwellingsRangeTo': [],
             'HazardousSubstances': [],
             'SiteInformation': [
-                URLValidator(allow_empty=True)
+                # URLValidator(allow_empty=True)
             ],
             'Notes': [],
             'FirstAddedDate': [
