@@ -28,24 +28,24 @@
             <tbody class="govuk-table__body">
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Local Authority</th>
-                <td class="govuk-table__cell"></td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ la.name }}</td>
               </tr>
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Type of register</th>
-                <td class="govuk-table__cell"><a class="govuk-link csv-url" href="{{ url }}">online</a></td>
+                <td class="govuk-table__cell govuk-table__cell--numeric"><a class="govuk-link csv-url" href="{{ url }}">online</a></td>
               </tr>
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Data rows in the register</th>
-                <td class="govuk-table__cell">{{ result.line_count -1 }}</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.line_count -1 }}</td>
               </tr>
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Rows we could analyse</th>
-                <td class="govuk-table__cell">{{ result.rows_analysed }}</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.rows_analysed }}</td>
               </tr>
               {% if result.empty_lines %}
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Empty rows in register</th>
-                <td class="govuk-table__cell">{{ result.empty_lines }}</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.empty_lines }}</td>
               </tr>
               {% endif %}
             </tbody>
@@ -210,6 +210,14 @@
         <div id="map" style="height: 555px;"></div>
         <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
       </div>
+
+      <div class="govuk-grid-column-two-thirds">
+        <h3 class="govuk-heading-m">Fix the register</h3>
+        <p class="govuk-body">A lot of the fixes can be automatically applied. Any remaining issues will have to be fixed manually.</p>
+        <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', url=request.args.get('url'))}}">Download fixed register</a>
+        <p class="govuk-body">Once downloaded and any manually fixes are made you can <a href="{{ url_for('frontend.validate', local_authority=la.organisation )}}">retry validating the register</a>.</p>
+      </div>
+      
     </div>
 
     {% endif %}
