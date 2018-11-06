@@ -8,6 +8,7 @@ import datetime
 import logging
 import re
 import uuid
+from urllib.parse import urlparse
 
 import pyproj
 import requests
@@ -72,23 +73,30 @@ class BaseFieldValidator:
 
 class URLValidator(BaseFieldValidator):
 
-    def __init__(self, **kwargs):
+    def __init__(self, check_exists=False, **kwargs):
         super(URLValidator, self).__init__(**kwargs)
         self.checked = set([])
+        self.check_exists = check_exists
 
     def validate(self, field, row):
         data = row.get(field)
-        if data is not None and not self.allow_empty and data not in self.checked:
-            try:
-                resp = requests.head(data, timeout=6)
-                resp.raise_for_status()
-                self.checked.add(data)
-            except (InvalidSchema, MissingSchema) as e:
-                logger.debug('Found error with', data)
+        if data != '' or (data and not self.allow_empty):
+            result = urlparse(data)
+            if all([result.scheme, result.netloc]):
+                return {'data': data}
+            else:
                 return {'data': data, 'error': ValidationError.INVALID_URL.to_dict()}
-            except (HTTPError, requests.exceptions.ConnectionError) as e:
-                logger.debug('Found warning with', data)
-                return {'data': data, 'warning': ValidationWarning.HTTP_WARNING.to_dict()}
+            if self.check_exists and data not in self.checked:
+                try:
+                    resp = requests.head(data, timeout=6)
+                    resp.raise_for_status()
+                    self.checked.add(data)
+                except (InvalidSchema, MissingSchema) as e:
+                    logger.debug('Found error with', data)
+                    return {'data': data, 'error': ValidationError.INVALID_URL.to_dict()}
+                except (HTTPError, requests.exceptions.ConnectionError) as e:
+                    logger.debug('Found warning with', data)
+                    return {'data': data, 'warning': ValidationWarning.HTTP_WARNING.to_dict()}
 
         return {'data': data}
 
@@ -234,7 +242,7 @@ class RegexValidator(BaseFieldValidator):
                         'fix': fix}
 
         result = {'data': data, 'fix': fix}
-        if data != fix:
+        if self.fixer is not None and data != fix:
             result['warning'] = ValidationWarning.CONTENT_WARNING.to_dict()
 
         return result
