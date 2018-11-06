@@ -5,7 +5,6 @@
 
 import csv
 import datetime
-import json
 import logging
 import re
 import uuid
@@ -55,16 +54,11 @@ class ValidationWarning(Enum):
 
 class StringInput():
 
-    ''' Read a file from a string '''
-
     def __init__(self, string_input=None, string_io=None):
         self.string_io = string_io if string_io else StringIO(string_input)
 
     def open(self):
         return self.string_io
-
-
-# TODO CrossfieldValidator, convert files if needed e.g. xls/xlsm -> csv then validate
 
 
 class BaseFieldValidator:
@@ -77,8 +71,6 @@ class BaseFieldValidator:
 
 
 class URLValidator(BaseFieldValidator):
-
-    ''' Field must be a valid url and reachable '''
 
     def __init__(self, **kwargs):
         super(URLValidator, self).__init__(**kwargs)
@@ -103,8 +95,6 @@ class URLValidator(BaseFieldValidator):
 
 class StringNoLineBreaksValidator(BaseFieldValidator):
 
-    ''' Field cannot contain line breaks '''
-
     def __init__(self, **kwargs):
         super(StringNoLineBreaksValidator, self).__init__(**kwargs)
 
@@ -121,8 +111,6 @@ class StringNoLineBreaksValidator(BaseFieldValidator):
 
 
 class ISO8601DateValidator(BaseFieldValidator):
-
-    ''' Field must be iso-8601 formatted date string '''
 
     def __init__(self, fixer, **kwargs):
         super(ISO8601DateValidator, self).__init__(**kwargs)
@@ -141,22 +129,19 @@ class ISO8601DateValidator(BaseFieldValidator):
 
         return {'data': data}
 
-# TODO not sure this should exist, just use the allow emtpy flag?
-# class NotEmptyValidator(BaseFieldValidator):
-#
-#     ''' Field cannot be empty '''
-#
-#     def __init__(self, **kwargs):
-#         super(NotEmptyValidator, self).__init__(**kwargs)
-#
-#     def validate(self, field, row):
-#         errors = []
-#         warnings = []
-#         data = row.get(field)
-#         if data is None or data.strip() == '':
-#             errors.append({'data': data, 'error': ValidationError.REQUIRED_FIELD.to_dict()})
-#             logger.info('Found error with', data)
-#         return errors, warnings
+
+class NotEmptyValidator(BaseFieldValidator):
+
+    def __init__(self, **kwargs):
+        super(NotEmptyValidator, self).__init__(**kwargs)
+
+    def validate(self, field, row):
+        errors = []
+        warnings = []
+        data = row.get(field)
+        if data is None or data.strip() == '':
+            return {'data': data, 'error': ValidationError.REQUIRED_FIELD.to_dict()}
+        return {'data': data}
 
 
 class FloatValidator(BaseFieldValidator):
@@ -317,7 +302,6 @@ class ValidationRunner:
         self.unknown = list(set(reader.fieldnames) - expected_fields)
         self.unknown = list(set(self.unknown) - set(optional_additional_fields))
 
-        # if this happens, then file headers are completely broken and no point carrying on
         if set(self.missing) == set(self.validators):
             self.file_errors = {'data': 'file', 'error': ValidationError.INVALID_CSV_HEADERS.to_dict()}
             self.unknown = set(reader.fieldnames)
@@ -373,7 +357,6 @@ class ValidationRunner:
                         self.report[field]['warnings'][warning_type] = 1
                     else:
                         self.report[field]['warnings'][warning_type] += 1
-
 
 
 class BrownfieldSiteValidationRunner(ValidationRunner):
@@ -439,20 +422,20 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                 FloatValidator()
             ],
             'OwnershipStatus': [
-                # RegexValidator(expected=valid_ownership_status)
+                RegexValidator(expected=valid_ownership_status)
             ],
             'Deliverable': [],
             'PlanningStatus': [
-                # RegexValidator(expected=valid_planning_status)
+                RegexValidator(expected=valid_planning_status)
             ],
             'PermissionType': [
-                # RegexValidator(expected=valid_permission_type, allow_empty=True)
+                RegexValidator(expected=valid_permission_type, allow_empty=True)
             ],
             'PermissionDate': [
-                # ISO8601DateValidator(allow_empty=True)
+                ISO8601DateValidator(allow_empty=True, fixer=date_fix)
             ],
             'PlanningHistory': [
-                # URLValidator(allow_empty=True)
+                URLValidator(allow_empty=True)
             ],
             'ProposedForPIP': [],
             'MinNetDwellings': [
@@ -464,7 +447,7 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
             'NetDwellingsRangeTo': [],
             'HazardousSubstances': [],
             'SiteInformation': [
-                # URLValidator(allow_empty=True)
+                URLValidator(allow_empty=True)
             ],
             'Notes': [],
             'FirstAddedDate': [
