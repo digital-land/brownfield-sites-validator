@@ -19,92 +19,166 @@
 {% block content %}
 
       <div class="govuk-grid-row">
-          <div class="govuk-grid-column-full">
-              <h1 class="govuk-heading-l">Validating</h1>
-              <p class="govuk-body-l"><a class="govuk-link csv-url" href="{{ url }}">{{ url }}</a></p>
-          </div>
+        <div class="govuk-grid-column-full">
+          <h1 class="govuk-heading-xl">Validation unsuccessful</h1>
+
+          <h2 class="govuk-heading-l">What we found</h2>
+
+          <table class="govuk-table">
+            <tbody class="govuk-table__body">
+              <tr class="govuk-table__row">
+                <th class="govuk-table__header" scope="row">Local Authority</th>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ la.name }}</td>
+              </tr>
+              <tr class="govuk-table__row">
+                <th class="govuk-table__header" scope="row">Type of register</th>
+                <td class="govuk-table__cell govuk-table__cell--numeric"><a class="govuk-link csv-url" href="{{ url }}">online</a></td>
+              </tr>
+              <tr class="govuk-table__row">
+                <th class="govuk-table__header" scope="row">Data rows in the register</th>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.line_count -1 }}</td>
+              </tr>
+              <tr class="govuk-table__row">
+                <th class="govuk-table__header" scope="row">Rows we could analyse</th>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.rows_analysed }}</td>
+              </tr>
+              {% if result.empty_lines %}
+              <tr class="govuk-table__row">
+                <th class="govuk-table__header" scope="row">Empty rows in register</th>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.empty_lines }}</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div class="govuk-grid-row">
-          <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Is the file served correctly?</h2>
-              {% if result.file_warnings %}
-                  <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
-                       alt="file warnings">
-                  <ul class="govuk-list govuk-list--bullet">
-                      {% for w in result.file_warnings %}
-                          <li>{{ w.data }}. {{ w.warning.message }}</li>
-                      {% endfor %}
-                  </ul>
-              {% endif %}
-          </div>
-      </div>
+    {% if result.file_warnings %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          <details class="govuk-details">
+            <summary class="govuk-details__summary">
+                <span class="govuk-details__summary-text">
+                  There are file warnings
+                </span>
+              </summary>
+              <div class="govuk-details__text">
+                <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
+                     alt="file warnings">
+                <ul class="govuk-list govuk-list--bullet">
+                {% for w in result.file_warnings %}
+                    <li>{{ w.data }} {{ w.warning.name }} {{ w.warning.message }}.</li>
+                {% endfor %}
+                </ul>
+              </div>
+              <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                  <span class="govuk-warning-text__assistive">Warning</span>
+                  The person that manages the server where this file is hosted will need to make the changes to fix these warnings.
+                </strong>
+              </div>
+          </details>
+        </div>
+    </div>
+    {% endif %}
 
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-          <h2 class="govuk-heading-m">What was found</h2>
-          <p class="govuk-body">{{ result.line_count }} rows in the file (including header)</p>
-          <p class="govuk-body">{{ result.rows_analysed }} rows analysed.</p>
-          {% if result.empty_lines %}
-              <p class="govuk-body">{{ result.empty_lines }} empty lines in this file.</p>
+          <h2 class="govuk-heading-l">Does it follow the standard?</h2>
+          {% if result.errors or result.missing %}
+          <p class="govuk-body">
+            <img src="https://img.shields.io/badge/schema-errors-red.svg?longCache=true&style=for-the-badge"
+              alt="schema errors">
+          </p>
           {% endif %}
+        </div>
+      </div>
+  
+      {% if result.missing or result.unknown %}
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+          <h3 class="govuk-heading-m">Fields</h3>
+          <p class="govuk-body">There are missing or unexpected fields in the data.</p>
         </div>
       </div>
 
       <div class="govuk-grid-row">
-          <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Does it follow the standard?</h2>
-              {% if result.errors %}
-                  <img src="https://img.shields.io/badge/schema-errors-red.svg?longCache=true&style=for-the-badge"
-                       alt="schema errors">
-                  <div class="govuk-inset-text govuk-inset-text--error"><p>{{ result.errors | count }} fields have errors.</p></div>
-                  <ol class="govuk-list govuk-list--number">
-                      {% for field in result.errors %}
-                          <li>
-                              <h3 class="govuk-heading-s">{{ field }}</h3>
-                              {%  set error_count = result.report[field]['errors'] | count   %}
-                              <p class="no-margin">{{ error_count }} type{% if error_count > 1 %}(s){% endif %} of error:</p>
-                              <ul class="govuk-list list-bullet-coloured list-bullet-coloured--error">
-                                  {% for error in result.report[field]['errors'] %}
-                                      <li>{{ error | format_error }}</li>
-                                  {% endfor %}
-                              </ul>
-                              <p>Across <span class="row-value">{{ result.errors[field] | count }} rows</span>.</p>
-                              <p><a href="#">Fix these errors</a>.</p>
-                          </li>
-                      {% endfor %}
-                  </ol>
-              {% endif %}
+        <div class="govuk-grid-column-one-half">
+          <h4 class="govuk-heading-s">Missing</h4>
+          <p class="govuk-body">The Standard contains the required fields. The following fields are missing from the analysed register.</p>
+          <div class="column-review column-review--missing">
+            <ul class="govuk-list">
+              {% for missing in result.missing %}
+              <li>{{ missing }}</li>
+              {% endfor %}
+            </ul>
           </div>
-      </div>
+        </div>
 
-      {% if result.missing or result.unknown %}
-          <div class="govuk-grid-row">
-              <div class="govuk-grid-column-half">
-                  <h2 class="govuk-heading-m">Missing fields</h2>
-                  <ul>
-                      {% for missing in result.missing %}
-                          <li>{{ missing }}</li>
-                      {% endfor %}
-                  </ul>
-              </div>
-              <div class="govuk-grid-column-half">
-                  <h2 class="govuk-heading-m">Unknown fields</h2>
-                  <ul>
-                      {% for unknown in result.unknown %}
-                          <li>{{ unknown }}</li>
-                      {% endfor %}
-                  </ul>
-              </div>
+        <div class="govuk-grid-column-one-half">
+          <h4 class="govuk-heading-s">Unknown</h4>
+          <p class="govuk-body">The following fields do not make up part of the Standard.</p>
+          <div class="column-review column-review--unknown">
+            <ul class="govuk-list">
+              {% for unknown in result.unknown %}
+              <li>{{ unknown }}</li>
+              {% endfor %}
+            </ul>
           </div>
+        </div>
+      </div>
       {% endif %}
 
-        <div class="govuk-grid-row">
-          <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-m">Does the data make sense?</h2>
-            <img src="https://img.shields.io/badge/data-warning-yellow.svg?longCache=true&style=for-the-badge"
-               alt="data warnings">
-            <div class="govuk-inset-text govuk-inset-text--warning"><p>{{ result.warnings | count }} fields have warnings.</p></div>
+      {% if result.errors %}
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          <h3 class="govuk-heading-m">Field content</h3>
+          <p class="govuk-body">Content errors occur when the data is not in the expected format as layed out in the brownfield site standard.</p>
+
+          <details class="govuk-details">
+            <summary class="govuk-details__summary">
+                <span class="govuk-details__summary-text">
+                  <h4 class="govuk-heading-s govuk-details__summary-heading">There are {{ result.errors | count }} fields will content errors.</h4>
+                </span>
+              </summary>
+              <div class="govuk-details__text">
+                <ul class="govuk-list govuk-list--bullet">
+                {% for field in result.errors %}
+                  <li>
+                    <h3 class="govuk-heading-s">{{ field }}</h3>
+                    {%  set error_count = result.report[field]['errors'] | count   %}
+                    <p class="no-margin">Error(s):</p>
+                    <ul class="govuk-list list-bullet-coloured list-bullet-coloured--error">
+                    {% for error in result.report[field]['errors'] %}
+                      <li>{{ error | format_error }}</li>
+                    {% endfor %}
+                    </ul>
+                    <p>Across <span class="row-value">{{ result.errors[field] | count }} rows</span>.</p>
+                  </li>
+                {% endfor %}
+                </ul>
+              </div>
+          </details>
+        </div>
+      </div>
+      {% endif %}
+          
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          <h2 class="govuk-heading-l">Does the data make sense?</h2>
+          <p class="govuk-body">The register was also checked for common issues that can occur with the data.</p>
+          {% if result.warnings %}
+          <img src="https://img.shields.io/badge/data-warning-yellow.svg?longCache=true&style=for-the-badge"
+             alt="data warnings">
+
+          <div class="govuk-inset-text govuk-inset-text--warning">
+            <p>{{ result.warnings | count }} fields have warnings.</p>
+          </div>
+          {% else %}
+          <p class="govuk-body">{{ result.warnings | count }} fields have warnings.</p>
+          {% endif %}
+            
               <ol class="govuk-list govuk-list--number">
                   {% for field in result.warnings %}
                       <li>
@@ -126,13 +200,25 @@
 
     {% if la.geojson %}
 
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <h2 class="govuk-heading-m">Brownfield site locations</h2>
-                <div id="map" style="height: 555px;"></div>
-                <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-            </div>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <h2 class="govuk-heading-m">Brownfield site locations</h2>
+        <p class="govuk-body govuk-text">Check the brownfield sites are in the right location on the map. If they are not there might be an issue with the geospatial data in the register.</p>
+        <div class="govuk-inset-text govuk-text">
+          You might see the points in the sea. If so zoom out to understand where they have been located.
         </div>
+        <div id="map" style="height: 555px;"></div>
+        <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+      </div>
+
+      <div class="govuk-grid-column-two-thirds">
+        <h3 class="govuk-heading-m">Fix the register</h3>
+        <p class="govuk-body">A lot of the fixes can be automatically applied. Any remaining issues will have to be fixed manually.</p>
+        <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', url=request.args.get('url'))}}">Download fixed register</a>
+        <p class="govuk-body">Once downloaded and any manually fixes are made you can <a href="{{ url_for('frontend.validate', local_authority=la.organisation )}}">retry validating the register</a>.</p>
+      </div>
+      
+    </div>
 
     {% endif %}
 
