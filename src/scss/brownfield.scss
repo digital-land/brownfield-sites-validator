@@ -1,6 +1,8 @@
 $govuk-fonts-path: '/static/govuk-frontend/assets/fonts/';
 $govuk-images-path: '/static/govuk-frontend/assets/images/';
 
+$using-helvetica: true;
+
 // govuk design system imports
 // ===========================
 @import "settings/all";
@@ -16,6 +18,7 @@ $govuk-images-path: '/static/govuk-frontend/assets/images/';
 // ===============
 @import "components/hero";
 @import "components/task-list";
+@import "components/govuk-tags";
 @import "components/validation-results";
 @import "common/buttons";
 @import "common/forms";
@@ -95,20 +98,6 @@ a {
   background: $govuk-canvas-background-colour;
 }
 
-// tweak .govuk-tag
-// required if using helvetica, not NTA
-.govuk-tag {
-  padding: 3px 8px 2px;
-}
-
-.govuk-tag--error {
-  background-color: govuk-colour("red");
-}
-
-.govuk-tag--warning {
-  background-color: govuk-colour("yellow");
-}
-
 .standard-extract {
   background: $govuk-canvas-background-colour;
   border-left: 4px solid govuk-colour('blue');
@@ -149,5 +138,17 @@ li.fix-a-row {
   }
   &--warning {
     border: 4px solid govuk-colour("yellow");
+  }
+}
+
+.govuk-details__summary-text .govuk-heading-m {
+  margin-bottom: 5px;
+}
+
+// tweak .govuk-tag
+// required if using helvetica, not NTA
+@if $using-helvetica == true {
+  .govuk-warning-text__icon {
+    line-height: 26px;
   }
 }
