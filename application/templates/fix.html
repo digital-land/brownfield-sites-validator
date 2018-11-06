@@ -43,7 +43,7 @@
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
           <h2 class="govuk-heading-m">What was found</h2>
-          <p class="govuk-body">{{ result.line_count }} rows in the file (including header)</p>
+          <p class="govuk-body">{{ result.line_count -1 }} data rows in the register.</p>
           <p class="govuk-body">{{ result.rows_analysed }} rows analysed.</p>
           {% if result.empty_lines %}
               <p class="govuk-body">{{ result.empty_lines }} empty lines in this file.</p>
