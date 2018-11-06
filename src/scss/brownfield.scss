@@ -39,6 +39,10 @@ a {
   @extend .govuk-link;
 }
 
+.govuk-text {
+  max-width: 30em;
+}
+
 .url {
   word-break: break-word;
 }
@@ -141,7 +145,8 @@ li.fix-a-row {
   }
 }
 
-.govuk-details__summary-text .govuk-heading-m {
+.govuk-details__summary-text .govuk-heading-m,
+.govuk-details__summary-heading {
   margin-bottom: 5px;
 }
 
@@ -156,6 +161,7 @@ li.fix-a-row {
 .column-review {
   background: $govuk-canvas-background-colour;
   padding-left: $govuk-gutter-half;
+  margin-bottom: $govuk-gutter;
   &--missing {
     border-left: 5px solid govuk-colour("red");
   }

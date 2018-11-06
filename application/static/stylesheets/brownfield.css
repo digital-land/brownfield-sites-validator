@@ -5710,6 +5710,10 @@ a.govuk-panel__link:visited {
   font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
 }
 
+.govuk-text {
+  max-width: 30em;
+}
+
 .url {
   word-break: break-word;
 }
@@ -5819,7 +5823,8 @@ li.fix-a-row .govuk-input-inline {
   border: 4px solid #ffbf47;
 }
 
-.govuk-details__summary-text .govuk-heading-m {
+.govuk-details__summary-text .govuk-heading-m,
+.govuk-details__summary-heading {
   margin-bottom: 5px;
 }
 
@@ -5830,6 +5835,7 @@ li.fix-a-row .govuk-input-inline {
 .column-review {
   background: #dee0e2;
   padding-left: 15px;
+  margin-bottom: 30px;
 }
 
 .column-review--missing {
