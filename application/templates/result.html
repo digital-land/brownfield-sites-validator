@@ -76,17 +76,19 @@
                       <div class="govuk-details__text">
                           <img src="https://img.shields.io/badge/schema-errors-red.svg?longCache=true&style=for-the-badge"
                                alt="schema errors" style="padding-top: 20px">
-                          <div class="govuk-inset-text govuk-inset-text--error"><p>{{ result.report.items()| count }}
+                          <div class="govuk-inset-text govuk-inset-text--error"><p>{{ result.report | count_fields_with_errors }}
                               fields have errors.</p></div>
                           <ol class="govuk-list govuk-list--number">
-                              {% for field, error in result.report.items() %}
-                                  <li>
+                              {% for field, report in result.report.items() %}
+                                  {% if report.errors %}
+                                     <li>
                                       <h3 class="govuk-heading-s">{{ field }}</h3>
-                                      {% for err, count in error.errors.items() %}
+                                      {% for err, count in report.errors.items() %}
                                           <p class="no-margin">{{ err | format_error }}</p>
                                           <p>Across <span class="row-value">{{ count }} rows</span>.</p>
                                       {% endfor %}
-                                  </li>
+                                    </li>
+                                  {% endif %}
                               {% endfor %}
                           </ol>
                       </div>
@@ -115,14 +117,16 @@
                         {% for w in result.file_warnings %}
                             <li>{{ w.data }} {{ w.warning.name }} {{ w.warning.message }}.</li>
                         {% endfor %}
-                         {% for field, warning in result.report.items() %}
-                          <li>
-                              <h3 class="govuk-heading-s">{{ field }}</h3>
-                              {% for warn, count in warning.warnings.items() %}
-                                <p class="no-margin">{{ warn | format_warning }}</p>
-                                <p>Across <span class="row-value">{{ count }} rows</span>.</p>
-                              {% endfor %}
-                          </li>
+                         {% for field, report in result.report.items() %}
+                             {% if report.warnings %}
+                              <li>
+                                  <h3 class="govuk-heading-s">{{ field }}</h3>
+                                  {% for warn, count in report.warnings.items() %}
+                                    <p class="no-margin">{{ warn | format_warning }}</p>
+                                    <p>Across <span class="row-value">{{ count }} rows</span>.</p>
+                                  {% endfor %}
+                              </li>
+                             {% endif %}
                       {% endfor %}
                     </ul>
                   </div>

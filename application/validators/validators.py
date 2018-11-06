@@ -47,7 +47,7 @@ class ValidationWarning(Enum):
     CONTENT_TYPE_WARNING = 'Set Content-Type to text/csv;charset-utf8'
     FILE_ENCODING_WARNING = 'File should be encoded as utf-8'
     LOCATION_WARNING = 'Site location is not within expected area'
-    COORDINATE_REFERENCE_WARNING = 'WGS84 coordinates recommended'
+    CONTENT_WARNING = 'There is better content for this field'
 
     def to_dict(self):
         return {'type': self.name, 'message': self.value}
@@ -93,12 +93,12 @@ class URLValidator(BaseFieldValidator):
                 self.checked.add(data)
             except (InvalidSchema, MissingSchema) as e:
                 logger.debug('Found error with', data)
-                return {'field': field, 'data': data, 'error': ValidationError.INVALID_URL.to_dict(), 'fix': None}
+                return {'data': data, 'error': ValidationError.INVALID_URL.to_dict()}
             except (HTTPError, requests.exceptions.ConnectionError) as e:
                 logger.debug('Found warning with', data)
-                return {'field': field, 'data': data, 'error': ValidationWarning.HTTP_WARNING.to_dict(), 'fix': None}
+                return {'data': data, 'warning': ValidationWarning.HTTP_WARNING.to_dict()}
 
-        return {'field': field, 'data': data, 'error': None, 'fix': None}
+        return {'data': data}
 
 
 class StringNoLineBreaksValidator(BaseFieldValidator):
@@ -115,17 +115,18 @@ class StringNoLineBreaksValidator(BaseFieldValidator):
         if data is not None and not self.allow_empty and ('\r\n' in data or '\n' in data):
             fix = data.replace('\r\n',',').replace('\n', ',')
             logger.info('Found error with', data)
-            return {'field': field, 'data': data, 'error': ValidationError.NO_LINE_BREAK.to_dict(), 'fix': fix}
+            return {'data': data, 'error': ValidationError.NO_LINE_BREAK.to_dict(), 'fix': fix}
 
-        return {'field': field, 'data': data, 'error': None, 'fix': None}
+        return {'data': data}
 
 
 class ISO8601DateValidator(BaseFieldValidator):
 
     ''' Field must be iso-8601 formatted date string '''
 
-    def __init__(self, **kwargs):
+    def __init__(self, fixer, **kwargs):
         super(ISO8601DateValidator, self).__init__(**kwargs)
+        self.fixer = fixer
 
     def validate(self, field, row):
 
@@ -134,20 +135,11 @@ class ISO8601DateValidator(BaseFieldValidator):
             try:
                 datetime.datetime.strptime(data, '%Y-%m-%d')
             except ValueError as e:
-                fix = self.try_to_fix_date(data)
+                fix = self.fixer(data)
                 logger.info('Found error with', data)
-                return {'field': field, 'data': data, 'error': ValidationError.INVALID_DATE.to_dict(), 'fix': fix}
+                return {'data': data, 'error': ValidationError.INVALID_DATE.to_dict(), 'fix': fix}
 
-        return {'field': field, 'data': data, 'error': None, 'fix': None}
-
-    @staticmethod
-    def try_to_fix_date(data):
-        try:
-            d = datetime.datetime.strptime(data, '%d/%m/%Y')
-            return datetime.date.strftime(d, '%Y-%m-%d')
-        except ValueError:
-            logger.info('Found error with', data)
-
+        return {'data': data}
 
 # TODO not sure this should exist, just use the allow emtpy flag?
 # class NotEmptyValidator(BaseFieldValidator):
@@ -179,9 +171,9 @@ class FloatValidator(BaseFieldValidator):
                 float(data)
         except ValueError as e:
             logger.info('Found error with', data)
-            return {'field': field, 'data': data, 'error': ValidationError.INVALID_FLOAT.to_dict()}
+            return {'data': data, 'error': ValidationError.INVALID_FLOAT.to_dict()}
 
-        return {'field': field, 'data': data, 'error': None}
+        return {'data': data}
 
 
 class GeoFieldValidator(BaseFieldValidator):
@@ -214,13 +206,12 @@ class GeoFieldValidator(BaseFieldValidator):
                                            Organisation.organisation == self.organisation.organisation)).first()
 
         if f is None:
-            if field == 'GeoX' and (-5.5 < lng < 1.9) and (49.0 < lat < 55.5):
+            if field == 'GeoX' and not (-5.5 < lng < 1.9):
                 fix = lat
-            elif field == 'GeoY' and (-5.5 < lng < 1.9) and (49.0 < lat < 55.5):
+            elif field == 'GeoY' and not (49.0 < lat < 55.5):
                 fix = lng
             else:
                 fix = None
-
         else:
             if field == 'GeoX':
                 fix = lng
@@ -229,7 +220,7 @@ class GeoFieldValidator(BaseFieldValidator):
             else:
                 fix = None
 
-        result = {'field': field, 'data': row.get(field), 'fix': fix}
+        result = {'data': row.get(field), 'fix': fix}
 
         if f is None:
             result['warning'] = ValidationWarning.LOCATION_WARNING.to_dict()
@@ -253,13 +244,15 @@ class RegexValidator(BaseFieldValidator):
             if self.regex.match(data) is None:
                 logger.info('Found error with', data)
                 message = 'Content should be one of: %s' % ','.join(self.expected)
-                return {'field': field,
-                        'data': data,
+                return {'data': data,
                         'error': ValidationError.INVALID_CONTENT.to_dict(),
-                        'fix': fix,
-                        'message': message}
+                        'fix': fix}
 
-        return {'field': field, 'data': data, 'fix': fix}
+        result = {'data': data, 'fix': fix}
+        if data != fix:
+            result['warning'] = ValidationWarning.CONTENT_WARNING.to_dict()
+
+        return result
 
 
 class ValidationRunner:
@@ -334,11 +327,11 @@ class ValidationRunner:
                     self.empty_lines += 1
                     continue
                 self.rows_analysed += 1
-                validated = {'line': line, 'content': row, 'validation_result': []}
+                validated = {'line': line, 'content': row, 'validation_result': {}}
                 for field, validators in self.validators.items():
                     for validator in validators:
                         result = validator.validate(field, row)
-                        validated['validation_result'].append(result)
+                        validated['validation_result'][field] = result
 
                 self.validated_rows.append(validated)
 
@@ -361,26 +354,26 @@ class ValidationRunner:
     def _gather_result_counts(self):
 
         for item in self.validated_rows:
-            for vr in item['validation_result']:
-                if vr.get('error') is not None:
+            for field, result in item['validation_result'].items():
+                if result.get('error') is not None:
                     self.errors = True
-                    if self.report.get(vr['field']) is None:
-                        self.report[vr['field']] = {'errors': {}}
-                    err_type = vr['error']['type']
-                    if self.report[vr['field']]['errors'].get(err_type) is None:
-                        self.report[vr['field']]['errors'][err_type] = 1
+                    if self.report.get(field) is None:
+                        self.report[field] = {'errors': {}}
+                    err_type = result['error']['type']
+                    if self.report[field]['errors'].get(err_type) is None:
+                        self.report[field]['errors'][err_type] = 1
                     else:
-                        self.report[vr['field']]['errors'][err_type] += 1
-
-                if vr.get('warning') is not None:
+                        self.report[field]['errors'][err_type] += 1
+                if result.get('warning') is not None:
                     self.warnings = True
-                    if self.report.get(vr['field']) is None:
-                        self.report[vr['field']] = {'warnings': {}}
-                    warning_type = vr['warning']['type']
-                    if self.report[vr['field']]['warnings'].get(warning_type) is None:
-                        self.report[vr['field']]['warnings'][warning_type] = 1
+                    if self.report.get(field) is None:
+                        self.report[field] = {'warnings': {}}
+                        warning_type = result['warning']['type']
+                    if self.report[field]['warnings'].get(warning_type) is None:
+                        self.report[field]['warnings'][warning_type] = 1
                     else:
-                        self.report[vr['field']]['warnings'][warning_type] += 1
+                        self.report[field]['warnings'][warning_type] += 1
+
 
 
 class BrownfieldSiteValidationRunner(ValidationRunner):
@@ -402,10 +395,17 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                                  'planning permission granted under an order',
                                  'other']
 
-        def set_to_wgs84(coordinate_reference_system):
-            if coordinate_reference_system != 'WGS84':
+        def set_osgb36_to_wgs84(coordinate_reference_system):
+            if coordinate_reference_system == 'OSGB36':
                 return 'WGS84'
             return coordinate_reference_system
+
+        def date_fix(data):
+            try:
+                d = datetime.datetime.strptime(data, '%d/%m/%Y')
+                return datetime.date.strftime(d, '%Y-%m-%d')
+            except ValueError:
+                return None
 
         self.validators = {
             'OrganisationURI': [
@@ -427,7 +427,7 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                 URLValidator()
             ],
             'CoordinateReferenceSystem': [
-                RegexValidator(expected=valid_coordinate_reference_system, fixer=set_to_wgs84),
+                RegexValidator(expected=valid_coordinate_reference_system, fixer=set_osgb36_to_wgs84),
             ],
             'GeoX': [
                 GeoFieldValidator(self.organisation, check_against='GeoY')
@@ -468,9 +468,9 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
             ],
             'Notes': [],
             'FirstAddedDate': [
-                ISO8601DateValidator(),
+                ISO8601DateValidator(fixer=date_fix),
             ],
             'LastUpdatedDate': [
-                ISO8601DateValidator()
+                ISO8601DateValidator(fixer=date_fix)
             ]
         }

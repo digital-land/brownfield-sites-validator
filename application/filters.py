@@ -22,3 +22,19 @@ def healthcheck(validation_dict):
 
 def format_date_time(date_time):
     return date_time.strftime('%d %b %Y %-H:%M')
+
+
+def count_fields_with_errors(data):
+    filtered = []
+    for field, data in data.items():
+        if data.get('errors') is not None:
+            filtered.append(field)
+    return len(filtered)
+
+
+def count_fields_with_warnings(data):
+    filtered = []
+    for field, data in data.items():
+        if data.get('warnings') is not None:
+            filtered.append(field)
+    return len(filtered)

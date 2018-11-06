@@ -34,7 +34,7 @@ class Organisation(db.Model):
     @property
     def validation(self):
         if self.validation_results:
-            return self.validation_results[0]
+            return self.validation_results[-1]
         else:
             return None
 
@@ -53,8 +53,9 @@ class BrownfieldSiteValidation(db.Model):
     def geojson(self):
         geo = {'features': [], 'type': 'FeatureCollection'}
         for d in self.data:
-            longitude = float(d['GeoX'].strip())
-            latitude = float(d['GeoY'].strip())
+            content = d['content']
+            longitude = float(content['GeoX'].strip())
+            latitude = float(content['GeoY'].strip())
 
             if d.get('CoordinateReferenceSystem') == 'OSGB36' or longitude > 10000.0:
                 bng = pyproj.Proj(init='epsg:27700')
@@ -70,7 +71,7 @@ class BrownfieldSiteValidation(db.Model):
                     'type': 'Point'
                 },
                 'properties': {
-                    'SiteNameAddress': d.get('SiteNameAddress', '')
+                    'SiteNameAddress': content.get('SiteNameAddress', '')
                 },
                 'type': 'Feature'
             }
@@ -94,12 +95,9 @@ class BrownfieldSiteValidation(db.Model):
             writer.writerow(fixed_data)
         return output.getvalue().encode('utf-8')
 
-    def _get_any_fixes(self, key, validation_result):
-        candidates = [result for result in validation_result if result['field'] == key]
-
-        if len(candidates) == 1:
-            r = candidates[0]
-            if r.get('fix') is not None:
-                return r.get('fix')
-            return None
+    @staticmethod
+    def _get_any_fixes(key, validation_result):
+        candidate  = validation_result.get(key)
+        if candidate is not None:
+            return candidate.get('fix')
         return None
