@@ -16,7 +16,6 @@ import requests
 from io import StringIO
 from enum import Enum
 
-from bng_to_latlon import OSGB36toWGS84
 from requests.exceptions import InvalidSchema, HTTPError, MissingSchema
 from sqlalchemy import func, and_
 
@@ -48,6 +47,7 @@ class ValidationWarning(Enum):
     CONTENT_TYPE_WARNING = 'Set Content-Type to text/csv;charset-utf8'
     FILE_ENCODING_WARNING = 'File should be encoded as utf-8'
     LOCATION_WARNING = 'Site location is not within expected area'
+    COORDINATE_REFERENCE_WARNING = 'WGS84 coordinates recommended'
 
     def to_dict(self):
         return {'type': self.name, 'message': self.value}
@@ -194,55 +194,72 @@ class GeoFieldValidator(BaseFieldValidator):
         self.check_against = check_against
 
     def validate(self, field, row):
-        try:
-            if field == 'GeoX':
-                geoX = float(row[field].strip())
-                geoY = float(row[self.check_against].strip())
-            elif field == 'GeoY':
-                geoX = float(row[self.check_against].strip())
-                geoY = float(row[field].strip())
 
-            if row.get('CoordinateReferenceSystem') == 'OSGB36' or geoY > 10000.0:
-                bng = pyproj.Proj(init='epsg:27700')
-                wgs84 = pyproj.Proj(init='epsg:4326')
-                lng, lat = pyproj.transform(bng, wgs84, geoX, geoY)
+        if field == 'GeoX':
+            geoX = float(row[field].strip())
+            geoY = float(row[self.check_against].strip())
+        elif field == 'GeoY':
+            geoX = float(row[self.check_against].strip())
+            geoY = float(row[field].strip())
+
+        if row.get('CoordinateReferenceSystem') == 'OSGB36' or geoY > 10000.0:
+            bng = pyproj.Proj(init='epsg:27700')
+            wgs84 = pyproj.Proj(init='epsg:4326')
+            lng, lat = pyproj.transform(bng, wgs84, geoX, geoY)
+        else:
+            lng, lat = geoX, geoY
+
+        point = func.ST_SetSRID(func.ST_MakePoint(lng,lat), 4326)
+        f = Organisation.query.filter(and_(Organisation.geometry.ST_Contains(point),
+                                           Organisation.organisation == self.organisation.organisation)).first()
+
+        if f is None:
+            if field == 'GeoX' and (-5.5 < lng < 1.9) and (49.0 < lat < 55.5):
+                fix = lat
+            elif field == 'GeoY' and (-5.5 < lng < 1.9) and (49.0 < lat < 55.5):
+                fix = lng
             else:
-                lng, lat = geoX, geoY
+                fix = None
 
-            point = func.ST_SetSRID(func.ST_MakePoint(lng,lat), 4326)
-            f = Organisation.query.filter(and_(Organisation.geometry.ST_Contains(point),
-                                               Organisation.organisation==self.organisation.organisation)).first()
-            if f is None:
-                raise ValueError('Point is not within borough')
+        else:
+            if field == 'GeoX':
+                fix = lng
+            elif field == 'GeoY':
+                fix = lat
+            else:
+                fix = None
 
-        except ValueError as e:
-            if 49 < lng < 60:
-                # lat, lng have probably been flipped
-                fix = lat if field == 'GeoX' else lng
-                return {'field': field, 'data': row.get(field), 'warning': ValidationWarning.LOCATION_WARNING.to_dict(), 'fix': fix}
+        result = {'field': field, 'data': row.get(field), 'fix': fix}
 
-        return {'field': field, 'data': row.get(field), 'error': None, 'fix': None}
+        if f is None:
+            result['warning'] = ValidationWarning.LOCATION_WARNING.to_dict()
+
+        return result
 
 
 class RegexValidator(BaseFieldValidator):
 
-    def __init__(self, expected, **kwargs):
+    def __init__(self, expected, fixer=None, **kwargs):
         super(RegexValidator, self).__init__(**kwargs)
         self.expected = expected
         pattern = r'(?i)(%s)' % '|'.join(self.expected)
         self.regex = re.compile(pattern)
+        self.fixer = fixer
 
     def validate(self, field, row):
-        errors = []
-        warnings = []
         data = row.get(field)
+        fix = self.fixer(data) if self.fixer else None
         if data is not None and not self.allow_empty:
             if self.regex.match(data) is None:
-                message = 'Content should be one of: %s' % ','.join(self.expected)
-                errors.append({'data': data, 'error': ValidationError.INVALID_CONTENT.to_dict(), 'message': message})
                 logger.info('Found error with', data)
-        return errors, warnings
+                message = 'Content should be one of: %s' % ','.join(self.expected)
+                return {'field': field,
+                        'data': data,
+                        'error': ValidationError.INVALID_CONTENT.to_dict(),
+                        'fix': fix,
+                        'message': message}
 
+        return {'field': field, 'data': data, 'fix': fix}
 
 
 class ValidationRunner:
@@ -268,6 +285,8 @@ class ValidationRunner:
     def to_dict(self):
         return {'file_errors': self.file_errors,
                 'file_warnings': self.file_warnings,
+                'errors': self.errors,
+                'warnings': self.warnings,
                 'missing': list(self.missing),
                 'unknown': list(self.unknown),
                 'line_count': self.line_count,
@@ -337,15 +356,15 @@ class ValidationRunner:
         db.session.add(self.organisation)
         db.session.commit()
 
-        return self
+        return validation
 
     def _gather_result_counts(self):
 
         for item in self.validated_rows:
             for vr in item['validation_result']:
                 if vr.get('error') is not None:
+                    self.errors = True
                     if self.report.get(vr['field']) is None:
-                        self.errors = True
                         self.report[vr['field']] = {'errors': {}}
                     err_type = vr['error']['type']
                     if self.report[vr['field']]['errors'].get(err_type) is None:
@@ -354,8 +373,8 @@ class ValidationRunner:
                         self.report[vr['field']]['errors'][err_type] += 1
 
                 if vr.get('warning') is not None:
+                    self.warnings = True
                     if self.report.get(vr['field']) is None:
-                        self.warnings = True
                         self.report[vr['field']] = {'warnings': {}}
                     warning_type = vr['warning']['type']
                     if self.report[vr['field']]['warnings'].get(warning_type) is None:
@@ -383,6 +402,11 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                                  'planning permission granted under an order',
                                  'other']
 
+        def set_to_wgs84(coordinate_reference_system):
+            if coordinate_reference_system != 'WGS84':
+                return 'WGS84'
+            return coordinate_reference_system
+
         self.validators = {
             'OrganisationURI': [
                 URLValidator()
@@ -403,7 +427,7 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                 URLValidator()
             ],
             'CoordinateReferenceSystem': [
-                # RegexValidator(expected=valid_coordinate_reference_system),
+                RegexValidator(expected=valid_coordinate_reference_system, fixer=set_to_wgs84),
             ],
             'GeoX': [
                 GeoFieldValidator(self.organisation, check_against='GeoY')

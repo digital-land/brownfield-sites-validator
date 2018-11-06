@@ -17,7 +17,6 @@ from flask import (
 
 from furl import furl
 from sqlalchemy import asc, desc
-from werkzeug.utils import secure_filename
 
 from application.frontend.forms import UploadForm
 from application.validators.validators import (
@@ -109,7 +108,8 @@ def validate(local_authority):
                                    message=e.message)
         context = {'url': url,
                    'result': result,
-                   'la': la
+                   'validation_id': result.id,
+                   'la': la,
                    }
         if la.validation is not None:
             context['feature'] = la.validation.geojson()
@@ -127,7 +127,8 @@ def validate_file(local_authority):
         la = Organisation.query.get(local_authority)
         result = _validate_from_file(la, f)
         context = {'url': f.filename,
-                   'result': result,
+                   'result': result.result,
+                   'validation_id': result.id,
                    'la': la
                    }
         if la.validation is not None:
@@ -139,13 +140,25 @@ def validate_file(local_authority):
 def geojson_download():
     if request.args.get('url') is not None:
         url = request.args.get('url').strip()
-        brownfield_site = BrownfieldSiteValidation.query.filter_by(data_source=url).order_by(desc(BrownfieldSiteValidation.created_date)).first()
-        filename = '%s.geojson' % brownfield_site.organisation.organisation
+        validation_result = BrownfieldSiteValidation.query.filter_by(data_source=url).order_by(desc(BrownfieldSiteValidation.created_date)).first()
+        filename = '%s.geojson' % validation_result.organisation.organisation
         return Response(
-                json.dumps(brownfield_site.geojson()),
+                json.dumps(validation_result.geojson()),
                 mimetype="application/json",
                 headers={"Content-disposition":
                          "attachment; filename="+filename})
+
+
+@frontend.route('/local-authority/<local_authority>/validation-result/<validation_id>')
+def download_fixed(local_authority, validation_id):
+    validation_result = BrownfieldSiteValidation.query.filter_by(organisation_id=local_authority, id=validation_id).one()
+    filename = 'brownfield-register-%s.csv' % validation_result.organisation.organisation
+    csv_data = validation_result.get_fixed_data()
+    return Response(
+        csv_data,
+        mimetype='text/csv',
+        headers={'Content-disposition': 'attachment; filename=%s' % filename, 'Content-Type': 'text/csv;charset-utf8'})
+
 
 #@frontend.route('/fix-up/<brownfield_site_publication_id>')
 @frontend.route('/fix-up/task-list')

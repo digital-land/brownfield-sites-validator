@@ -1,4 +1,6 @@
+import csv
 import datetime
+import io
 
 import pyproj
 from geoalchemy2 import Geometry
@@ -7,6 +9,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 
 from application.extensions import db
+from application.utils import ordered_brownfield_register_fields
 
 
 class Organisation(db.Model):
@@ -73,3 +76,30 @@ class BrownfieldSiteValidation(db.Model):
             }
             geo['features'].append(feature)
         return geo
+
+    def get_fixed_data(self):
+        output = io.StringIO()
+        writer = csv.DictWriter(output, ordered_brownfield_register_fields)
+        writer.writeheader()
+        for row in self.data:
+            original_data = row['content']
+            fixed_data = {}
+            for key, val in original_data.items():
+                fix = self._get_any_fixes(key, row['validation_result'])
+                if fix is not None:
+                    fixed_data[key] = fix
+                else:
+                    fixed_data[key] = val
+
+            writer.writerow(fixed_data)
+        return output.getvalue().encode('utf-8')
+
+    def _get_any_fixes(self, key, validation_result):
+        candidates = [result for result in validation_result if result['field'] == key]
+
+        if len(candidates) == 1:
+            r = candidates[0]
+            if r.get('fix') is not None:
+                return r.get('fix')
+            return None
+        return None

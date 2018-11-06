@@ -136,7 +136,7 @@
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
                 <strong class="govuk-warning-text__text">
                   <span class="govuk-warning-text__assistive">Error or warning</span>
-                    <a href="#">Download</a> the data as CSV with many common errors fixed.
+                    <a href="{{ url_for('frontend.download_fixed', local_authority=la.organisation, validation_id=validation_id) }}">Download</a> the data as CSV with many common errors fixed.
                 </strong>
               </div>
               <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
