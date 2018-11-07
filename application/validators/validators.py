@@ -267,6 +267,7 @@ class ValidationRunner:
         self.empty_lines = 0
         self.validated_rows = []
         self.organisation = organisation
+        self.has_geo_fixes = False
 
     def to_dict(self):
         return {'file_errors': self.file_errors,
@@ -278,7 +279,8 @@ class ValidationRunner:
                 'line_count': self.line_count,
                 'rows_analysed': self.rows_analysed,
                 'report': self.report,
-                'empty_lines': self.empty_lines}
+                'empty_lines': self.empty_lines,
+                'has_geo_fixes': self.has_geo_fixes}
 
     @classmethod
     def from_validation(cls, validation):
@@ -360,7 +362,9 @@ class ValidationRunner:
                     self.warnings = True
                     if self.report.get(field) is None:
                         self.report[field] = {'warnings': {}}
-                        warning_type = result['warning']['type']
+                    warning_type = result['warning']['type']
+                    if warning_type == ValidationWarning.LOCATION_WARNING.name and result.get('fix') is not None:
+                        self.has_geo_fixes = True
                     if self.report[field]['warnings'].get(warning_type) is None:
                         self.report[field]['warnings'][warning_type] = 1
                     else:

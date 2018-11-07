@@ -50,7 +50,10 @@ class BrownfieldSiteValidation(db.Model):
     organisation_id = db.Column(db.String(64), ForeignKey('organisation.organisation'))
     organisation = relationship('Organisation', back_populates="validation_results")
 
-    def geojson(self):
+    def has_geo_fixes(self):
+        return self.result['has_geo_fixes']
+
+    def geojson(self, with_fixes=False):
         geo = {'features': [], 'type': 'FeatureCollection'}
         for d in self.data:
             if d.get('content'):
@@ -64,6 +67,10 @@ class BrownfieldSiteValidation(db.Model):
                 bng = pyproj.Proj(init='epsg:27700')
                 wgs84 = pyproj.Proj(init='epsg:4326')
                 longitude, latitude = pyproj.transform(bng, wgs84, longitude, latitude)
+
+            if with_fixes and self.has_geo_fixes():
+                longitude = d['validation_result']['GeoX']['fix']
+                latitude = d['validation_result']['GeoY']['fix']
 
             feature = {
                 'geometry': {

@@ -225,5 +225,32 @@
 
     </script>
 
+    {% if feature_fixed %}
+
+        <script>
+
+      // initialise MHCLGMaps with mapbox access token
+          const fixedMhclgMaps = new MHCLGMaps({mapbox_token: '{{ config.MAPBOX_TOKEN }}'});
+          const fixedMap = fixedMhclgMaps.createMap("map-fixed");
+
+          var onEachFeature = function(feature, layer) {
+              layer.bindTooltip(feature.properties.SiteNameAddress);
+          };
+
+          fixedMapGeoJsonLayer = L.geoJSON({{ feature_fixed | tojson }}, {
+              onEachFeature: onEachFeature
+          });
+
+          boundary =  L.geoJSON({{ la.geojson | tojson }});
+
+          fixedMapGeoJsonLayer.addTo(fixedMap);
+          boundary.addTo(fixedMap);
+
+          fixedMap.fitBounds(fixedMapGeoJsonLayer.getBounds());
+
+    </script>
+
+    {% endif %}
+
 {% endblock %}
 

@@ -133,6 +133,9 @@ def validate_file(local_authority):
                    }
         if la.validation is not None:
             context['feature'] = la.validation.geojson()
+            if la.validation.has_geo_fixes():
+                context['feature_fixed'] = la.validation.geojson(with_fixes=True)
+
         return render_template('result.html', **context)
 
 
