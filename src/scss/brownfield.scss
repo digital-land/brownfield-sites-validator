@@ -91,8 +91,15 @@ a {
 }
 
 .govuk-panel--error {
-  border: 10px solid govuk-colour("red");
+  border: 8px solid govuk-colour("red");
   background: $govuk-canvas-background-colour;
+  color: $govuk-text-colour;
+}
+
+.govuk-panel--warning {
+  border: 8px solid govuk-colour("yellow");
+  background: $govuk-canvas-background-colour;
+  color: $govuk-text-colour;
 }
 
 // tweak .govuk-tag

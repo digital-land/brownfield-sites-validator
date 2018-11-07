@@ -39,17 +39,27 @@
 
 {% block content %}
 
+{% macro statusPanel(class, text) %}
+<div class="govuk-panel {{ class }}">
+    <h2 class="govuk-panel__title">
+        Validation {{ text }}
+    </h2>
+    <div class="govuk-panel__body">
+        <p>For<br><strong class="url">{{ la.name }}</strong></p>
+        {#<p><a class="govuk-panel__link" href="{{ url }}">Go to register</a></p>#}
+    </div>
+</div>
+{% endmacro %}
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <div class="govuk-panel govuk-panel--confirmation">
-                <h2 class="govuk-panel__title">
-                    Validation complete
-                </h2>
-                <div class="govuk-panel__body">
-                    <p>For<br><strong class="url">{{ la.name }}</strong></p>
-{#                    <p><a class="govuk-panel__link" href="{{ url }}">Go to register</a></p>#}
-                </div>
-            </div>
+            {%- if result.errors -%}
+              {{ statusPanel("govuk-panel--error", "found errors") }}
+            {%- elif result.warnings -%}
+              {{ statusPanel("govuk-panel--warning", "found warnings") }}
+            {%- else -%}
+              {{ statusPanel("govuk-panel--confirmation", "complete") }}
+            {%- endif -%}
         </div>
     </div>
 

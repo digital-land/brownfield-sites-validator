@@ -5749,8 +5749,15 @@ a.govuk-panel__link:visited {
 }
 
 .govuk-panel--error {
-  border: 10px solid #b10e1e;
+  border: 8px solid #b10e1e;
   background: #dee0e2;
+  color: #0b0c0c;
+}
+
+.govuk-panel--warning {
+  border: 8px solid #ffbf47;
+  background: #dee0e2;
+  color: #0b0c0c;
 }
 
 .govuk-tag {
