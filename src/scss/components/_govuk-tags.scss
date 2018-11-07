@@ -1,0 +1,15 @@
+// tweak .govuk-tag
+// required if using helvetica, not NTA
+@if $using-helvetica == true {
+  .govuk-tag {
+    padding: 3px 8px 2px;
+  }
+}
+
+.govuk-tag--error {
+  background-color: govuk-colour("red");
+}
+
+.govuk-tag--warning {
+  background-color: govuk-colour("yellow");
+}
