@@ -112,7 +112,7 @@ def validate(local_authority):
                    'la': la,
                    }
         if la.validation is not None:
-            context['feature'] = la.validation.geojson()
+            context['feature'] = result.geojson()
 
         return render_template('result.html', **context)
 
@@ -250,7 +250,7 @@ def get_data_and_validate(organisation, url, cached=False):
     # but fetch fresh each time validate view method called?
     validation = BrownfieldSiteValidation.query.filter_by(data_source=url).first()
     if validation is not None and cached:
-        return BrownfieldSiteValidationRunner.from_validation(validation)
+        return validation
     else:
         file_warnings = []
         resp = requests.get(url)

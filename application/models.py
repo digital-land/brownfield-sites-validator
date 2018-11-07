@@ -53,7 +53,10 @@ class BrownfieldSiteValidation(db.Model):
     def geojson(self):
         geo = {'features': [], 'type': 'FeatureCollection'}
         for d in self.data:
-            content = d['content']
+            if d.get('content'):
+                content = d['content']
+            else:
+                content = d
             longitude = float(content['GeoX'].strip())
             latitude = float(content['GeoY'].strip())
 
