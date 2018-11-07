@@ -141,19 +141,9 @@
                     </ul>
                   </div>
               </details>
+              <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
             </div>
         </div>
-    {% endif %}
-
-    {% if result.errors or result.warnings %}
-        <div class="govuk-warning-text">
-                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                <strong class="govuk-warning-text__text">
-                  <span class="govuk-warning-text__assistive">Error or warning</span>
-                    <a href="{{ url_for('frontend.download_fixed', local_authority=la.organisation, validation_id=validation_id) }}">Download</a> the data as CSV with many common errors fixed.
-                </strong>
-              </div>
-              <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
     {% endif %}
 
     <div class="govuk-grid-row">
@@ -164,11 +154,35 @@
         </div>
 
         <div class="govuk-grid-column-two-thirds">
+          {% if result.errors or result.warnings %}
+
+          <h3 class="govuk-heading-m">Fixing the data</h3>
+          <p class="govuk-body">A lot of the common problems with the data can be automatically fixed.</p>
+          <details class="govuk-details">
+            <summary class="govuk-details__summary">
+              <span class="govuk-details__summary-text">
+                What we will fix
+              </span>
+            </summary>
+            <div class="govuk-details__text">
+              A LIST OF THE THINGS WE CAN FIX
+            </div>
+          </details>
+          <a class="govuk-button button-load-data" href="{{ url_for('frontend.download_fixed', local_authority=la.organisation, validation_id=validation_id) }}">Download fixed CSV</a>
+          <div class="govuk-inset-text">
+            Any remaining issues will have to be fixed manually.
+          </div>
+          <p class="govuk-body">Once downloaded and any manually fixes are made you can <a href="{{ url_for('frontend.validate', local_authority=la.organisation )}}">retry validating the register</a>.</p>
+
+          {% else %}
+
           <h3 class="govuk-heading-m">What next</h3>
           <p class="govuk-body">
               {% if not result.errors and not result.warnings %}This brownfield site data is valid.{% endif %}
               The location of the sites can be downloaded as GeoJSON and used in other applications.</p>
           <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', url=request.args.get('url'))}}">Download geojson</a>
+
+          {% endif %}
         </div>
     </div>
 

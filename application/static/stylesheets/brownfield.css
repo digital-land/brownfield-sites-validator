@@ -5825,3 +5825,7 @@ li.fix-a-row .govuk-input-inline {
 .list-of-columns--warning {
   border: 4px solid #ffbf47;
 }
+
+.govuk-button + .govuk-inset-text {
+  margin-top: 0;
+}
