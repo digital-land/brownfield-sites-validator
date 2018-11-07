@@ -104,6 +104,24 @@
       </div>
 
       <div class="govuk-grid-row">
+          <div class="govuk-grid-column-one-half">
+            <h2 class="govuk-heading-m">Does it follow the standard?</h2>
+              {% if result.report %}
+                  <img src="https://img.shields.io/badge/schema-errors-red.svg?longCache=true&style=for-the-badge"
+                       alt="schema errors">
+                  <div class="govuk-inset-text govuk-inset-text--error"><p>{{ result.report.items()| count }} fields have errors.</p></div>
+                  <ol class="govuk-list govuk-list--number">
+                      {% for field, error in result.report.items() %}
+                          <li>
+                              <h3 class="govuk-heading-s">{{ field }}</h3>
+                              <p class="no-margin">{{ error.message }}</p>
+                              <p>Across <span class="row-value">{{ error.count }} rows</span>.</p>
+                              <p><a href="#">Fix these errors</a>.</p>
+                          </li>
+                      {% endfor %}
+                  </ol>
+              {% endif %}
+         </div>    
         <div class="govuk-grid-column-one-half">
           <h4 class="govuk-heading-s">Missing</h4>
           <p class="govuk-body">The Standard contains the required fields. The following fields are missing from the analysed register.</p>

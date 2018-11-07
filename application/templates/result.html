@@ -1,0 +1,229 @@
+{% extends "default.html" %}
+
+{% from "macros/forms.html" import render_input_field %}
+
+{% block title %}{{ url }} validation result{% endblock %}
+
+{% block headEnd %}
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+   integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+   crossorigin=""/>
+
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+   integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+   crossorigin=""></script>
+
+{% endblock %}
+
+{% block beforeContent %}
+ {{ super() }}
+
+ {{ govukBreadcrumbs({
+   "items": [
+     {
+       "text": "Brownfield site data",
+       "href": url_for("frontend.index")
+     },
+     {
+       "text": "Validator",
+       "href": url_for("frontend.start")
+     },
+     {
+       "text": "Result"
+     }
+   ]
+ }) }}
+
+{% endblock %}
+
+{% block content %}
+
+{% macro statusPanel(class, text) %}
+<div class="govuk-panel {{ class }}">
+    <h2 class="govuk-panel__title">
+        Validation {{ text }}
+    </h2>
+    <div class="govuk-panel__body">
+        <p>For<br><strong class="url">{{ la.name }}</strong></p>
+        {#<p><a class="govuk-panel__link" href="{{ url }}">Go to register</a></p>#}
+    </div>
+</div>
+{% endmacro %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {%- if result.errors -%}
+              {{ statusPanel("govuk-panel--error", "found errors") }}
+            {%- elif result.warnings -%}
+              {{ statusPanel("govuk-panel--warning", "found warnings") }}
+            {%- else -%}
+              {{ statusPanel("govuk-panel--confirmation", "complete") }}
+            {%- endif -%}
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+          <h2 class="govuk-heading-m">What was found</h2>
+          <p class="govuk-body">{{ result.line_count }} rows in the file (including header)</p>
+          <p class="govuk-body">{{ result.rows_analysed }} rows analysed.</p>
+          {% if result.empty_lines %}
+              <p class="govuk-body">{{ result.empty_lines }} empty lines in this file.</p>
+          {% endif %}
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+          <div class="govuk-grid-column-full">
+              {% if result.errors %}
+                  <details class="govuk-details">
+                      <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">
+                      <h2 class="govuk-heading-m">Errors</h2>
+                    </span>
+                      </summary>
+                      <div class="govuk-details__text">
+                          <img src="https://img.shields.io/badge/schema-errors-red.svg?longCache=true&style=for-the-badge"
+                               alt="schema errors" style="padding-top: 20px">
+                          <div class="govuk-inset-text govuk-inset-text--error"><p>{{ result.report | count_fields_with_errors }}
+                              fields have errors.</p></div>
+                          <ol class="govuk-list govuk-list--number">
+                              {% for field, report in result.report.items() %}
+                                  {% if report.errors %}
+                                     <li>
+                                      <h3 class="govuk-heading-s">{{ field }}</h3>
+                                      {% for err, count in report.errors.items() %}
+                                          <p class="no-margin">{{ err | format_error }}</p>
+                                          <p>Across <span class="row-value">{{ count }} rows</span>.</p>
+                                      {% endfor %}
+                                    </li>
+                                  {% endif %}
+                              {% endfor %}
+                          </ol>
+                      </div>
+                  </details>
+              {%  else %}
+                  <img src="https://img.shields.io/badge/schema-valid-green.svg?longCache=true&style=for-the-badge"
+                       alt="schema valid">
+              {% endif %}
+          </div>
+      </div>
+
+    {% if result.warnings %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+              <details class="govuk-details">
+                <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">
+                      <h2 class="govuk-heading-m">Warnings</h2>
+                    </span>
+                  </summary>
+                  <div class="govuk-details__text">
+                    <img src="https://img.shields.io/badge/file-warning-yellow.svg?longCache=true&style=for-the-badge"
+                         alt="file warnings" style="padding-top: 20px">
+                    <ul class="govuk-list govuk-list--bullet">
+                        {% for w in result.file_warnings %}
+                            <li>{{ w.data }} {{ w.warning.name }} {{ w.warning.message }}.</li>
+                        {% endfor %}
+                         {% for field, report in result.report.items() %}
+                             {% if report.warnings %}
+                              <li>
+                                  <h3 class="govuk-heading-s">{{ field }}</h3>
+                                  {% for warn, count in report.warnings.items() %}
+                                    <p class="no-margin">{{ warn | format_warning }}</p>
+                                    <p>Across <span class="row-value">{{ count }} rows</span>.</p>
+                                  {% endfor %}
+                              </li>
+                             {% endif %}
+                      {% endfor %}
+                    </ul>
+                  </div>
+              </details>
+              <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+          <h2 class="govuk-heading-m">Brownfield site locations</h2>
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+          <h3 class="govuk-heading-s">Original</h3>
+          <div id="map-original" style="height: 555px;"></div>
+        </div>
+        <div class="govuk-grid-column-one-half">
+          <h3 class="govuk-heading-s">Fixed</h3>
+          <div id="map-fixed" style="height: 555px;"></div>
+        </div>
+    </div>
+
+    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          {% if result.errors or result.warnings %}
+
+          <h3 class="govuk-heading-m">Fixing the data</h3>
+          <p class="govuk-body">A lot of the common problems with the data can be automatically fixed.</p>
+          <details class="govuk-details">
+            <summary class="govuk-details__summary">
+              <span class="govuk-details__summary-text">
+                What we will fix
+              </span>
+            </summary>
+            <div class="govuk-details__text">
+              A LIST OF THE THINGS WE CAN FIX
+            </div>
+          </details>
+          <a class="govuk-button button-load-data" href="{{ url_for('frontend.download_fixed', local_authority=la.organisation, validation_id=validation_id) }}">Download fixed CSV</a>
+          <div class="govuk-inset-text">
+            Any remaining issues will have to be fixed manually.
+          </div>
+          <p class="govuk-body">Once downloaded and any manually fixes are made you can <a href="{{ url_for('frontend.validate', local_authority=la.organisation )}}">retry validating the register</a>.</p>
+
+          {% else %}
+
+          <h3 class="govuk-heading-m">What next</h3>
+          <p class="govuk-body">
+              {% if not result.errors and not result.warnings %}This brownfield site data is valid.{% endif %}
+              The location of the sites can be downloaded as GeoJSON and used in other applications.</p>
+          <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', url=request.args.get('url'))}}">Download geojson</a>
+
+          {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block bodyEnd %}
+    <script src="/static/javascripts/mhclg-maps.js"></script>
+    <script>
+
+      // initialise MHCLGMaps with mapbox access token
+      const mhclgMaps = new MHCLGMaps({mapbox_token: '{{ config.MAPBOX_TOKEN }}'});
+      const map = mhclgMaps.createMap("map-original");
+
+      var onEachFeature = function(feature, layer) {
+          layer.bindTooltip(feature.properties.SiteNameAddress);
+      };
+
+      geojsonLayer = L.geoJSON({{ feature | tojson }}, {
+          onEachFeature: onEachFeature
+      });
+
+      laBoundary =  L.geoJSON({{ la.geojson | tojson }});
+
+      geojsonLayer.addTo(map);
+      laBoundary.addTo(map);
+
+      map.fitBounds(geojsonLayer.getBounds());
+
+    </script>
+
+{% endblock %}
+

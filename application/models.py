@@ -1,4 +1,6 @@
+import csv
 import datetime
+import io
 
 import pyproj
 from geoalchemy2 import Geometry
@@ -7,6 +9,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 
 from application.extensions import db
+from application.utils import ordered_brownfield_register_fields
 
 
 class Organisation(db.Model):
@@ -31,7 +34,7 @@ class Organisation(db.Model):
     @property
     def validation(self):
         if self.validation_results:
-            return self.validation_results[0]
+            return self.validation_results[-1]
         else:
             return None
 
@@ -50,8 +53,12 @@ class BrownfieldSiteValidation(db.Model):
     def geojson(self):
         geo = {'features': [], 'type': 'FeatureCollection'}
         for d in self.data:
-            longitude = float(d['GeoX'].strip())
-            latitude = float(d['GeoY'].strip())
+            if d.get('content'):
+                content = d['content']
+            else:
+                content = d
+            longitude = float(content['GeoX'].strip())
+            latitude = float(content['GeoY'].strip())
 
             if d.get('CoordinateReferenceSystem') == 'OSGB36' or longitude > 10000.0:
                 bng = pyproj.Proj(init='epsg:27700')
@@ -67,9 +74,33 @@ class BrownfieldSiteValidation(db.Model):
                     'type': 'Point'
                 },
                 'properties': {
-                    'SiteNameAddress': d.get('SiteNameAddress', '')
+                    'SiteNameAddress': content.get('SiteNameAddress', '')
                 },
                 'type': 'Feature'
             }
             geo['features'].append(feature)
         return geo
+
+    def get_fixed_data(self):
+        output = io.StringIO()
+        writer = csv.DictWriter(output, ordered_brownfield_register_fields)
+        writer.writeheader()
+        for row in self.data:
+            original_data = row['content']
+            fixed_data = {}
+            for key, val in original_data.items():
+                fix = self._get_any_fixes(key, row['validation_result'])
+                if fix is not None:
+                    fixed_data[key] = fix
+                else:
+                    fixed_data[key] = val
+
+            writer.writerow(fixed_data)
+        return output.getvalue().encode('utf-8')
+
+    @staticmethod
+    def _get_any_fixes(key, validation_result):
+        candidate  = validation_result.get(key)
+        if candidate is not None:
+            return candidate.get('fix')
+        return None

@@ -5765,8 +5765,15 @@ a.govuk-panel__link:visited {
 }
 
 .govuk-panel--error {
-  border: 10px solid #b10e1e;
+  border: 8px solid #b10e1e;
   background: #dee0e2;
+  color: #0b0c0c;
+}
+
+.govuk-panel--warning {
+  border: 8px solid #ffbf47;
+  background: #dee0e2;
+  color: #0b0c0c;
 }
 
 .standard-extract {
@@ -5823,6 +5830,9 @@ li.fix-a-row .govuk-input-inline {
   border: 4px solid #ffbf47;
 }
 
+.govuk-button + .govuk-inset-text {
+  margin-top: 0;
+}
 .govuk-details__summary-text .govuk-heading-m,
 .govuk-details__summary-heading {
   margin-bottom: 5px;

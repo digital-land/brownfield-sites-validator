@@ -98,8 +98,15 @@ a {
 }
 
 .govuk-panel--error {
-  border: 10px solid govuk-colour("red");
+  border: 8px solid govuk-colour("red");
   background: $govuk-canvas-background-colour;
+  color: $govuk-text-colour;
+}
+
+.govuk-panel--warning {
+  border: 8px solid govuk-colour("yellow");
+  background: $govuk-canvas-background-colour;
+  color: $govuk-text-colour;
 }
 
 .standard-extract {
@@ -145,6 +152,9 @@ li.fix-a-row {
   }
 }
 
+.govuk-button + .govuk-inset-text {
+  margin-top: 0;
+}
 .govuk-details__summary-text .govuk-heading-m,
 .govuk-details__summary-heading {
   margin-bottom: 5px;

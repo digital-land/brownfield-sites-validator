@@ -95,11 +95,11 @@
                 {%- if organisation.validation.result.unknown|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
                 {{- organisation.validation.result.unknown | length }}</td>
                 <td class="
-                {%- if organisation.validation.result.errors|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- organisation.validation.result.errors | length }}</td>
+                {%- if organisation.validation.result.errors  %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- organisation.validation.result.report | count_fields_with_errors }} </td>
                 <td class=" 
-                {%- if organisation.validation.result.warnings|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- organisation.validation.result.warnings | length }}</td>
+                {%- if organisation.validation.result.warnings %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- organisation.validation.result.report | count_fields_with_warnings }} </td>
                 <td class="
                 {%- if organisation.validation.result.file_errors|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
                 {{- organisation.validation.result.file_errors | length }}</td>
