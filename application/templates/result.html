@@ -192,7 +192,7 @@
           <p class="govuk-body">
               {% if not result.errors and not result.warnings %}This brownfield site data is valid.{% endif %}
               The location of the sites can be downloaded as GeoJSON and used in other applications.</p>
-          <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', url=request.args.get('url'))}}">Download geojson</a>
+          <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', validation_id=validation_id)}}">Download geojson</a>
 
           {% endif %}
         </div>

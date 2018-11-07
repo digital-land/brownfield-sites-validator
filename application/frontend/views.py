@@ -139,17 +139,15 @@ def validate_file(local_authority):
         return render_template('result.html', **context)
 
 
-@frontend.route('/geojson-download')
-def geojson_download():
-    if request.args.get('url') is not None:
-        url = request.args.get('url').strip()
-        validation_result = BrownfieldSiteValidation.query.filter_by(data_source=url).order_by(desc(BrownfieldSiteValidation.created_date)).first()
-        filename = '%s.geojson' % validation_result.organisation.organisation
-        return Response(
-                json.dumps(validation_result.geojson()),
-                mimetype="application/json",
-                headers={"Content-disposition":
-                         "attachment; filename="+filename})
+@frontend.route('/geojson-download/<validation_id>')
+def geojson_download(validation_id):
+    validation_result = BrownfieldSiteValidation.query.get(validation_id)
+    filename = '%s.geojson' % validation_result.organisation.organisation
+    return Response(
+            json.dumps(validation_result.geojson()),
+            mimetype="application/json",
+            headers={"Content-disposition":
+                     "attachment; filename="+filename})
 
 
 @frontend.route('/local-authority/<local_authority>/validation-result/<validation_id>')
