@@ -5833,6 +5833,7 @@ li.fix-a-row .govuk-input-inline {
 .govuk-button + .govuk-inset-text {
   margin-top: 0;
 }
+
 .govuk-details__summary-text .govuk-heading-m,
 .govuk-details__summary-heading {
   margin-bottom: 5px;
@@ -5840,6 +5841,11 @@ li.fix-a-row .govuk-input-inline {
 
 .govuk-warning-text__icon {
   line-height: 26px;
+}
+
+.govuk-button--start {
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .column-review {
