@@ -283,7 +283,11 @@
               </span>
             </summary>
             <div class="govuk-details__text">
-              A LIST OF THE THINGS WE CAN FIX
+              <ul class="govuk-list govuk-list--bullet">
+                <li>Dates to YYYY-MM-DD format</li>
+                <li>Change CoordinateReferenceSystem if coordinates given are a match for another system</li>
+                <li>Flip lat and lng if result is in Local Authority boundary</li>
+              </ul>
             </div>
           </details>
           <a class="govuk-button button-load-data" href="{{ url_for('frontend.download_fixed', local_authority=la.organisation, validation_id=validation_id) }}">Download fixed CSV</a>
