@@ -156,7 +156,14 @@
         <details class="govuk-details">
           <summary class="govuk-details__summary">
               <span class="govuk-details__summary-text">
-                <h4 class="govuk-heading-s govuk-details__summary-heading">There are {{ result.report | count_fields_with_errors }} fields with content errors.</h4>
+                {%- set error_count = result.report | count_fields_with_errors -%}
+                <h4 class="govuk-heading-s govuk-details__summary-heading">
+                  {%- if error_count > 1 -%}
+                  There are {{ error_count }} fields with content errors.
+                  {%- else -%}
+                  There is {{ error_count }} field with content errors.
+                  {% endif %}
+                </h4>
               </span>
             </summary>
             <div class="govuk-details__text">
@@ -194,7 +201,14 @@
         <details class="govuk-details">
           <summary class="govuk-details__summary">
             <span class="govuk-details__summary-text">
-              <h4 class="govuk-heading-s govuk-details__summary-heading">There are {{ result.report | count_fields_with_warnings }} fields have warnings.</h4>
+              {%- set warning_count = result.report | count_fields_with_warnings -%}
+              <h4 class="govuk-heading-s govuk-details__summary-heading">
+                {%- if warning_count > 1 -%}
+                There are {{ warning_count }} fields with warnings.
+                {%- else -%}
+                There is {{ warning_count }} field with warnings.
+                {% endif %}
+              </h4>
             </span>
           </summary>
           <div class="govuk-details__text">
