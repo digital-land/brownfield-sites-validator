@@ -260,6 +260,7 @@
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+              <p class="govuk-body">Using the data found we were able to plot these brownfield sites.</p>
                 <div id="map-original" style="height: 555px;"></div>
             </div>
         </div>
@@ -326,7 +327,7 @@
       geojsonLayer.addTo(map);
       laBoundary.addTo(map);
 
-      map.fitBounds(geojsonLayer.getBounds());
+      map.fitBounds(geojsonLayer.getBounds(), {padding: [30, 30]});
 
     </script>
 
