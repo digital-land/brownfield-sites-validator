@@ -14,7 +14,7 @@
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">Provide the Brownfield site data</h1>
-        <p class="govuk-body">You can provide the data by either uploading the CSV file or entering the URL for the CSV file if it is available online.</p>
+        <p class="govuk-body">Upload a CSV file containing your brownfield site data.</p>
       </div>
     </div>
 
@@ -33,10 +33,16 @@
       </div>
     </div>
 
-    <h4 class="govuk-heading-l">or</h4>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-quarter">
+        <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+        <h4 class="govuk-heading-l">or</h4>
+      </div>
+    </div>
 
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
+        <p class="govuk-body">Provided the URL if the CSV file is available online.</p>
           <form class="govuk-form" method="GET" action="{{ url_for('frontend.validate', local_authority=local_authority) }}">
               <div class="govuk-form-group">
                   <label class="govuk-label govuk-label--s" for="url">URL</label>
@@ -44,7 +50,7 @@
 
                   <input class="govuk-input" id="url" name="url" required="" value="" type="url">
               </div>
-              <button class="govuk-button button-validate" type="submit">Fetch and validate</button>
+              <button class="govuk-button button-validate dlf-secondary-button" type="submit">Fetch and validate</button>
           </form>
       </div>
     </div>

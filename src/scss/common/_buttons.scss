@@ -30,3 +30,15 @@
   }
   
 }
+
+// Button styles
+// -------------
+.dlf-load-button,
+.dlf-filter-button {
+  @include govuk-style-button($button-colour:  govuk-colour(blue));
+  margin-top: 5px;
+}
+
+.dlf-secondary-button {
+  @include govuk-style-button($button-text-colour: $govuk-text-colour, $button-colour:  govuk-colour("grey-3"));
+}
