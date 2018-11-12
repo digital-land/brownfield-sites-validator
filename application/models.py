@@ -110,7 +110,9 @@ class BrownfieldSiteValidation(db.Model):
 
     @staticmethod
     def _get_any_fixes(key, validation_result):
-        candidate  = validation_result.get(key)
-        if candidate is not None:
-            return candidate.get('fix')
+        candidates = validation_result.get(key)
+        if candidates is not None:
+            for c in candidates:
+                if c.get('fix') is not None:
+                    return c.get('fix')
         return None

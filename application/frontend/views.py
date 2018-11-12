@@ -107,7 +107,7 @@ def validate(local_authority):
                                    local_authority=la,
                                    message=e.message)
         context = {'url': url,
-                   'result': result,
+                   'result': result.result,
                    'validation_id': result.id,
                    'la': la,
                    }
