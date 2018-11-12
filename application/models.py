@@ -69,8 +69,11 @@ class BrownfieldSiteValidation(db.Model):
                 longitude, latitude = pyproj.transform(bng, wgs84, longitude, latitude)
 
             if with_fixes and self.has_geo_fixes():
-                longitude = d['validation_result']['GeoX']['fix']
-                latitude = d['validation_result']['GeoY']['fix']
+                lng_fix = [f for f in d['validation_result']['GeoX'] if f.get('warning') and f.get('warning').get('type') == 'LOCATION_WARNING']
+                lat_fix = [f for f in d['validation_result']['GeoY'] if f.get('warning') and f.get('warning').get('type') == 'LOCATION_WARNING']
+
+                longitude = lng_fix[0]['fix'] if lng_fix else longitude
+                latitude = lat_fix[0]['fix'] if lat_fix else latitude
 
             feature = {
                 'geometry': {

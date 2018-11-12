@@ -36,6 +36,8 @@ class ValidationError(Enum):
     INVALID_INTEGER = 'This field must contain an integer (whole) number'
     INVALID_CSV_HEADERS = 'This file does not contain the expected headers'
     INVALID_CONTENT = 'This field does not contain expected content'
+    CONTENT_TOO_LONG = 'The character count is longer than allowed in this field'
+    CONTENT_NOT_ALLOWED = 'This field should be blank because of value in another field'
 
     def to_dict(self):
         return {'type': self.name, 'message': self.value}
@@ -292,6 +294,35 @@ class IntValidator(BaseFieldValidator):
         return {'data': data}
 
 
+class MaxCharacterValidator(BaseFieldValidator):
+
+    def __init__(self, maximum_length, **kwargs):
+        super(MaxCharacterValidator, self).__init__(**kwargs)
+        self.maximum_length = maximum_length
+
+    def validate(self, field, row):
+        data = row.get(field)
+        if data is not None and not self.allow_empty and len(data) > self.maximum_length:
+            logger.info('Found error with', data)
+            return {'data': data, 'error': ValidationError.CONTENT_TOO_LONG.to_dict()}
+
+        return {'data': data}
+
+
+class RequiredIfNot(BaseFieldValidator):
+
+    def __init__(self, should_be_undefined, **kwargs):
+        super(RequiredIfNot, self).__init__(**kwargs)
+        self.should_be_undefined = should_be_undefined
+
+    def validate(self, field, row):
+        data = row.get(field)
+        other_field_value = row.get(self.should_be_undefined)
+        if other_field_value and data:
+            return {'data': data, 'error': ValidationError.INVALID_CONTENT.to_dict()}
+
+        return {'data': data}
+
 
 class ValidationRunner:
 
@@ -370,7 +401,10 @@ class ValidationRunner:
                 for field, validators in self.validators.items():
                     for validator in validators:
                         result = validator.validate(field, row)
-                        validated['validation_result'][field] = result
+                        if validated['validation_result'].get(field):
+                            validated['validation_result'][field].append(result)
+                        else:
+                            validated['validation_result'][field] = [result]
 
                 self.validated_rows.append(validated)
 
@@ -393,27 +427,28 @@ class ValidationRunner:
     def _gather_result_counts(self):
 
         for item in self.validated_rows:
-            for field, result in item['validation_result'].items():
-                if result.get('error') is not None:
-                    self.errors = True
-                    if self.report.get(field) is None:
-                        self.report[field] = {'errors': {}}
-                    err_type = result['error']['type']
-                    if self.report[field]['errors'].get(err_type) is None:
-                        self.report[field]['errors'][err_type] = 1
-                    else:
-                        self.report[field]['errors'][err_type] += 1
-                if result.get('warning') is not None:
-                    self.warnings = True
-                    if self.report.get(field) is None:
-                        self.report[field] = {'warnings': {}}
-                    warning_type = result['warning']['type']
-                    if warning_type == ValidationWarning.LOCATION_WARNING.name and result.get('fix') is not None:
-                        self.has_geo_fixes = True
-                    if self.report[field]['warnings'].get(warning_type) is None:
-                        self.report[field]['warnings'][warning_type] = 1
-                    else:
-                        self.report[field]['warnings'][warning_type] += 1
+            for field, results in item['validation_result'].items():
+                for result in results:
+                    if result.get('error') is not None:
+                        self.errors = True
+                        if self.report.get(field) is None:
+                            self.report[field] = {'errors': {}}
+                        err_type = result['error']['type']
+                        if self.report[field]['errors'].get(err_type) is None:
+                            self.report[field]['errors'][err_type] = 1
+                        else:
+                            self.report[field]['errors'][err_type] += 1
+                    if result.get('warning') is not None:
+                        self.warnings = True
+                        if self.report.get(field) is None:
+                            self.report[field] = {'warnings': {}}
+                        warning_type = result['warning']['type']
+                        if warning_type == ValidationWarning.LOCATION_WARNING.name and result.get('fix') is not None:
+                            self.has_geo_fixes = True
+                        if self.report[field]['warnings'].get(warning_type) is None:
+                            self.report[field]['warnings'][warning_type] = 1
+                        else:
+                            self.report[field]['warnings'][warning_type] += 1
 
 
 class BrownfieldSiteValidationRunner(ValidationRunner):
@@ -446,6 +481,7 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                 return 'WGS84'
             return coordinate_reference_system
 
+        # TODO - more attempts at fixing dates
         def date_fix(data):
             try:
                 d = datetime.datetime.strptime(data, '%d/%m/%Y')
@@ -509,7 +545,11 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
             'MinNetDwellings': [
                 IntValidator()
             ],
-            'DevelopmentDescription': [],
+            'DevelopmentDescription': [
+                MaxCharacterValidator(maximum_length=4000, allow_empty=True),
+                RequiredIfNot(should_be_undefined='NetDwellingsRangeFrom'),
+                RequiredIfNot(should_be_undefined='NetDwellingRangeTo')
+            ],
             'NonHousingDevelopment': [],
             'Part2': [
                 SetValueValidator(expected_value='yes', allow_empty=True),
