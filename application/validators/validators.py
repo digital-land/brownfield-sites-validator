@@ -33,6 +33,7 @@ class ValidationError(Enum):
     NO_LINE_BREAK = 'No line breaks allowed'
     REQUIRED_FIELD = 'Required data is missing'
     INVALID_FLOAT = 'This field must contain a floating point number'
+    INVALID_INTEGER = 'This field must contain an integer (whole) number'
     INVALID_CSV_HEADERS = 'This file does not contain the expected headers'
     INVALID_CONTENT = 'This field does not contain expected content'
 
@@ -277,6 +278,21 @@ class RequiredIf(BaseFieldValidator):
         return {'data': data}
 
 
+class IntValidator(BaseFieldValidator):
+
+    def __init__(self, **kwargs):
+        super(IntValidator, self).__init__(**kwargs)
+
+    def validate(self, field, row):
+        data = int(row.get(field))
+        if data is not None and not isinstance(data, int):
+            logger.info('Found error with', data)
+            return {'data': data, 'error': ValidationError.INVALID_INTEGER.to_dict()}
+
+        return {'data': data}
+
+
+
 class ValidationRunner:
 
     def __init__(self, source, file_warnings, line_count, organisation, validators={}, delimiter=None):
@@ -487,15 +503,22 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
             'PlanningHistory': [
                 URLValidator(allow_empty=True)
             ],
-            'ProposedForPIP': [],
+            'ProposedForPIP': [
+                SetValueValidator(expected_value='yes', allow_empty=True)
+            ],
             'MinNetDwellings': [
+                IntValidator()
             ],
             'DevelopmentDescription': [],
             'NonHousingDevelopment': [],
-            'Part2': [],
+            'Part2': [
+                SetValueValidator(expected_value='yes', allow_empty=True),
+            ],
             'NetDwellingsRangeFrom': [],
             'NetDwellingsRangeTo': [],
-            'HazardousSubstances': [],
+            'HazardousSubstances': [
+                SetValueValidator(expected_value='yes', allow_empty=True),
+            ],
             'SiteInformation': [
                 URLValidator(allow_empty=True)
             ],
