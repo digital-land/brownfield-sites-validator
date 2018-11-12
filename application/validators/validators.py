@@ -111,7 +111,7 @@ class StringNoLineBreaksValidator(BaseFieldValidator):
         data = row.get(field)
 
         if data is not None and not self.allow_empty and ('\r\n' in data or '\n' in data):
-            fix = data.replace('\r\n',',').replace('\n', ',')
+            fix = data.replace('\r\n',' ').replace('\n', ' ')
             logger.info('Found error with', data)
             return {'data': data, 'error': ValidationError.NO_LINE_BREAK.to_dict(), 'fix': fix}
 

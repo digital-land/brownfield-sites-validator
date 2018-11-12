@@ -90,7 +90,7 @@ class BrownfieldSiteValidation(db.Model):
 
     def get_fixed_data(self):
         output = io.StringIO()
-        writer = csv.DictWriter(output, ordered_brownfield_register_fields)
+        writer = csv.DictWriter(output, ordered_brownfield_register_fields, lineterminator='\n')
         writer.writeheader()
         for row in self.data:
             original_data = row['content']
@@ -103,7 +103,7 @@ class BrownfieldSiteValidation(db.Model):
                     fixed_data[key] = val
 
             writer.writerow(fixed_data)
-        return output.getvalue().encode('utf-8')
+        return output.getvalue()
 
     @staticmethod
     def _get_any_fixes(key, validation_result):
