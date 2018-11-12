@@ -154,7 +154,7 @@ def geojson_download(validation_id):
 def download_fixed(local_authority, validation_id):
     validation_result = BrownfieldSiteValidation.query.filter_by(organisation_id=local_authority, id=validation_id).one()
     filename = 'brownfield-register-%s.csv' % validation_result.organisation.organisation.replace(':', '-')
-    csv_data = validation_result.get_fixed_data()
+    csv_data = validation_result.get_fixed_data().encode('utf-8')
     return Response(
         csv_data,
         mimetype='text/csv',

@@ -144,8 +144,6 @@ class NotEmptyValidator(BaseFieldValidator):
         super(NotEmptyValidator, self).__init__(**kwargs)
 
     def validate(self, field, row):
-        errors = []
-        warnings = []
         data = row.get(field)
         if data is None or data.strip() == '':
             return {'data': data, 'error': ValidationError.REQUIRED_FIELD.to_dict()}
@@ -246,6 +244,37 @@ class RegexValidator(BaseFieldValidator):
             result['warning'] = ValidationWarning.CONTENT_WARNING.to_dict()
 
         return result
+
+
+class SetValueValidator(BaseFieldValidator):
+
+    def __init__(self, expected_value, **kwargs):
+        super(SetValueValidator, self).__init__(**kwargs)
+        self.expected_value = expected_value
+
+    def validate(self, field, row):
+        data = row.get(field, '').strip()
+        if data is not None and not self.allow_empty:
+            if self.expected_value.lower() == data.lower():
+                return {'data': data, 'error': ValidationError.INVALID_CONTENT.to_dict()}
+
+        return {'data': data}
+
+
+class RequiredIf(BaseFieldValidator):
+
+    def __init__(self, requires_field, requires_value, **kwargs):
+        super(RequiredIf, self).__init__(**kwargs)
+        self.requires_field = requires_field
+        self.requires_value = requires_value
+
+    def validate(self, field, row):
+        data = row.get(field, '').strip()
+        other_field_value = row.get(self.requires_field, '').strip()
+        if other_field_value == self.requires_value and not data:
+            return {'data': data, 'error': ValidationError.REQUIRED_FIELD.to_dict()}
+
+        return {'data': data}
 
 
 class ValidationRunner:
@@ -378,10 +407,15 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
         super(BrownfieldSiteValidationRunner, self).__init__(source, file_warnings, line_count, organisation)
 
         valid_coordinate_reference_system = ['WGS84', 'OSGB36', 'ETRS89']
+
         valid_ownership_status = ['owned by a public authority',
                                   'not owned by a public authority',
                                   'unknown ownership','mixed ownership']
-        valid_planning_status = ['permissioned', 'not permissioned', 'pending decision']
+
+        valid_planning_status = ['permissioned',
+                                 'not permissioned',
+                                 'pending decision']
+
         valid_permission_type = ['full planning permission',
                                  'outline planning permission',
                                  'reserved matters approval',
@@ -389,6 +423,7 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                                  'technical details consent',
                                  'planning permission granted under an order',
                                  'other']
+
 
         def set_osgb36_to_wgs84(coordinate_reference_system):
             if coordinate_reference_system == 'OSGB36':
@@ -436,7 +471,9 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
             'OwnershipStatus': [
                 RegexValidator(expected=valid_ownership_status)
             ],
-            'Deliverable': [],
+            'Deliverable': [
+                SetValueValidator(expected_value='yes', allow_empty=True)
+            ],
             'PlanningStatus': [
                 RegexValidator(expected=valid_planning_status)
             ],
@@ -444,7 +481,8 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                 RegexValidator(expected=valid_permission_type, allow_empty=True)
             ],
             'PermissionDate': [
-                ISO8601DateValidator(allow_empty=True, fixer=date_fix)
+                ISO8601DateValidator(allow_empty=True, fixer=date_fix),
+                RequiredIf(requires_field='PlanningStatus', requires_value='permissioned')
             ],
             'PlanningHistory': [
                 URLValidator(allow_empty=True)
