@@ -5899,3 +5899,20 @@ li.fix-a-row .govuk-input-inline {
 .column-review--unknown {
   border-left: 5px solid #ffbf47;
 }
+
+.leaflet-pane .bfs-popup {
+  padding: 10px;
+}
+
+.leaflet-pane .bfs-popup--heading {
+  margin-bottom: 10px;
+}
+
+.leaflet-pane .bfs-popup p {
+  margin-bottom: 10px;
+  word-break: break-all;
+}
+
+.leaflet-pane .bfs-popup p:last-child {
+  margin-bottom: 0;
+}

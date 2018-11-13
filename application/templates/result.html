@@ -322,8 +322,28 @@
       const map = mhclgMaps.createMap("map-original");
 
       var onEachFeature = function(feature, layer) {
-          layer.bindTooltip(feature.properties.SiteNameAddress);
+        const popupContent = L.Util.template(bfsTemplate, {
+          SiteReference: feature.properties.SiteReference,
+          SiteNameAddress: prepAddressStr(feature.properties.SiteNameAddress),
+          PlanningStatus: feature.properties.PlanningStatus
+        });
+        layer.bindTooltip( popupContent );
       };
+
+      function stripQuotes(str) {
+        return str.replace(/"/g, '');
+      }
+      function prepAddressStr(str) {
+        var str = stripQuotes(str);
+        return str.replace(/, /g, '<br />');
+      }
+
+      const bfsTemplate =
+      '<div class="bfs-popup">' +
+        '<h3 class="govuk-heading-s bfs-popup--heading">{SiteReference}</h3>' +
+        '<p class="govuk-body-s">{SiteNameAddress}</p>' +
+        '<p class="govuk-body"><span class="govuk-tag">{PlanningStatus}</span></p>' +
+      '</div>';
 
       geojsonLayer = L.geoJSON({{ feature | tojson }}, {
           onEachFeature: onEachFeature

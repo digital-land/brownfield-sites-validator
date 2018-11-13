@@ -84,7 +84,9 @@ class BrownfieldSiteValidation(db.Model):
                     'type': 'Point'
                 },
                 'properties': {
-                    'SiteNameAddress': content.get('SiteNameAddress', '')
+                    'SiteReference': content.get('SiteReference', ''),
+                    'SiteNameAddress': content.get('SiteNameAddress', ''),
+                    'PlanningStatus': content.get('PlanningStatus', '')
                 },
                 'type': 'Feature'
             }
