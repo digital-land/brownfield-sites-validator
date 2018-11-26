@@ -61,28 +61,19 @@ file. Secret configuration variables should be added to a .env file in base dire
 Deployment
 ----------
 
-Currently this application is deployed to https://brownfield-sites-validator.cloudapps.digital on the [GOV.UK Paas](https://www.cloud.service.gov.uk/)
+Currently this application is deployed to brownfield-sites-validator.herokuapp.com. The heroku app is configured to deploy on commits
+to master.
 
-The following environment variables are needed for to run the application in production
+The following environment variables are needed for to run the application on heroku
 
     FLASK_ENV=production
     FLASK_CONFIG=config.Config
     FLASK_APP=application.wsgi:app
     SECRET_KEY=[something secret]
     MAPBOX_TOKEN=[set to valid token]
+    S3_REGION=eu-west-1
+    S3_BUCKET=digital-land-output
 
-Deployment is done using a zero downtime deploy plugin [autopilot](https://github.com/contraband/autopilot)
-
-Autopilot plugin provisions a new instance and then routes traffic to the new instance before tearing down the old one. Therefore
-setting envionment variables via ```cf set-env``` is not an option (they variables would not be present in
-the newly created instance).
-
-To get around this issue, a standalone service ```user-provided-config-service``` has been created
-to contain configuration. [See notes here](https://docs.cloudfoundry.org/devguide/services/user-provided.html). Any application that is bound to this service can
-then access variables via the ```VCAP_SERVICES``` configuration values. See ```Config.py``` for
-how those value are retrieved in the application. If you need to add configuration to the ```user-provided-config-service``` it
-seems that updates are destructive, so please recreate all the values, do not just add the
-new ones.
 
 Useful commands
 ---------------

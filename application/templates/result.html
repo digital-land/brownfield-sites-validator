@@ -53,7 +53,7 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {%- if result.errors -%}
+            {%- if result.errors or result.rows_analysed == 0 -%}
               {{ statusPanel("govuk-panel--error", "found errors") }}
             {%- elif result.warnings -%}
               {{ statusPanel("govuk-panel--warning", "found warnings") }}

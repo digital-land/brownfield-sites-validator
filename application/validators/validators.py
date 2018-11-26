@@ -188,7 +188,17 @@ class GeoFieldValidator(BaseFieldValidator):
             geoX = float(row[self.check_against].strip())
             geoY = float(row[field].strip())
 
-        if row.get('CoordinateReferenceSystem') == 'OSGB36' or geoY > 10000.0:
+        coord_ref_system = row.get('CoordinateReferenceSystem')
+
+        if coord_ref_system == 'ETRS89' and not (-5.5 < geoX < 2):
+            if (-5.5 < geoY < 2) and (49 < geoX < 60 ):
+                # probably just swapped lat/long
+                lng, lat = geoY, geoX
+            else:
+                etrs89 = pyproj.Proj(init='epsg:3035')
+                wgs84 = pyproj.Proj(init='epsg:4326')
+                lng, lat = pyproj.transform(etrs89, wgs84, geoX, geoY)
+        elif coord_ref_system == 'OSGB36' or geoY > 10000.0:
             bng = pyproj.Proj(init='epsg:27700')
             wgs84 = pyproj.Proj(init='epsg:4326')
             lng, lat = pyproj.transform(bng, wgs84, geoX, geoY)
@@ -475,9 +485,8 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                                  'planning permission granted under an order',
                                  'other']
 
-
-        def set_osgb36_to_wgs84(coordinate_reference_system):
-            if coordinate_reference_system == 'OSGB36':
+        def set_coord_ref_sys_to_wgs84(coordinate_reference_system):
+            if coordinate_reference_system != 'WGS84':
                 return 'WGS84'
             return coordinate_reference_system
 
@@ -509,7 +518,7 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                 URLValidator()
             ],
             'CoordinateReferenceSystem': [
-                RegexValidator(expected=valid_coordinate_reference_system, fixer=set_osgb36_to_wgs84),
+                RegexValidator(expected=valid_coordinate_reference_system, fixer=set_coord_ref_sys_to_wgs84),
             ],
             'GeoX': [
                 GeoFieldValidator(self.organisation, check_against='GeoY')

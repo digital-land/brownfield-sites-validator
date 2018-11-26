@@ -4,17 +4,3 @@ python:
 install:
 - pip install -r test_requirements.txt
 script: pytest
-env:
-  global:
-  - FLASK_CONFIG=config.TestConfig
-  - CF_API=https://api.cloud.service.gov.uk
-  - CF_ORGANIZATION=mhclg-digital-land
-  - CF_USERNAME=adam.shimali@gmail.com
-  - CF_SPACE=digital-land
-  - secure: nHAlhvF1XvsrbS2Z26e8v2E0JoWzjKbdmG/DdDNExkgnDYx6W78mECbHcLivPLIzUuZRBRBnhWu3c3JNgq9Xl0tRuTvztSOgwPw4JA55ROT9ELRFgskbSilbKBP/mFHRpeyE/Y2XyUsLJEojSjL23BWwPc3zxi9QghLjpCgoCTSHpPfSRUkKCXNPaq3QJOtvyCTaEq28RGNpl8QmBwuS5YltOkZ9YkPOvI8VsCnmz8bOSKXdVai0kHqaCMgwN3eybcbq1MZMJvQ/SGK18zmIRQJX2Yx5NZ3g4jpC7e/0AkYjg55NY+29ZGl2jonSqDB+GKBPg9Rs2sg0mI58ASma0Fs7H+Cx0wgUMQO7Iv6QydUpx0J/OvDnvDB935WD17/1rdIekGWou/U3ls2m7mAH29rpveiWdkN7nS8qXlLRmu5nWrDQVMfcz9+5IznRILB+2k5bGo8Aqh0Ij5kE17K0LVAXDStrdXaHeSuaWq/3nqvF4VlsWZWOxjSt1EaboqPJppY2v72zwHAXL1n9NvGZuwSJrhcrwtfnWMQikmGQsmRW9CtdB1Glx9+osFfwM2CoucNjX1yGe2mc/087gLSSUo16KnST+VVPV/xuG6fnolYAPGvHF6te+0HWAlmBHDmIgfQzCEs4jHDPB/2bwuOrgA3oBMqC8rpKZCSfr6Rnxb4=
-deploy:
-  provider: script
-  script: bash scripts/deploy.sh
-  skip_cleanup: true
-  on:
-    repo: communitiesuk/brownfield-sites-validator

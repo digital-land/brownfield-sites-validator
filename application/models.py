@@ -63,7 +63,18 @@ class BrownfieldSiteValidation(db.Model):
             longitude = float(content['GeoX'].strip())
             latitude = float(content['GeoY'].strip())
 
-            if d.get('CoordinateReferenceSystem') == 'OSGB36' or longitude > 10000.0:
+            coord_ref_system = content.get('CoordinateReferenceSystem')
+
+            if coord_ref_system == 'ETRS89' and not (-5.5 < longitude < 2):
+                if (-5.5 < latitude < 2) and (49 < longitude < 60):
+                    # probably a swapped lat/long
+                    longitude, latitude = latitude, longitude
+                else:
+                    etrs89 = pyproj.Proj(init='epsg:3035')
+                    wgs84 = pyproj.Proj(init='epsg:4326')
+                    longitude, latitude = pyproj.transform(etrs89, wgs84, longitude, latitude)
+
+            if coord_ref_system == 'OSGB36' or (longitude > 10000.0 and coord_ref_system != 'ETRS89'):
                 bng = pyproj.Proj(init='epsg:27700')
                 wgs84 = pyproj.Proj(init='epsg:4326')
                 longitude, latitude = pyproj.transform(bng, wgs84, longitude, latitude)
@@ -107,6 +118,7 @@ class BrownfieldSiteValidation(db.Model):
                 else:
                     fixed_data[key] = val
 
+            fixed_data = self.clean(fixed_data)
             writer.writerow(fixed_data)
         return output.getvalue()
 
@@ -118,3 +130,11 @@ class BrownfieldSiteValidation(db.Model):
                 if c.get('fix') is not None:
                     return c.get('fix')
         return None
+
+    @staticmethod
+    def clean(fixed_data):
+        cleaned = {}
+        for key in fixed_data.keys():
+            if key in ordered_brownfield_register_fields:
+                cleaned[key] = fixed_data[key]
+        return cleaned

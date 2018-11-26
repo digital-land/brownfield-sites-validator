@@ -1,6 +1,8 @@
 import csv
 import json
+import os
 from contextlib import closing
+from pathlib import Path
 from urllib.request import urlopen
 
 import ijson
@@ -11,6 +13,7 @@ import click
 import frontmatter
 import requests
 from flask.cli import with_appcontext
+from sqlalchemy.orm.exc import NoResultFound
 
 from application.extensions import db
 from application.frontend.views import get_data_and_validate
@@ -165,3 +168,21 @@ def clear():
 
     db.session.commit()
     print('cleared db')
+
+
+@click.command()
+@with_appcontext
+def update_brownfield_urls():
+    path = Path(os.path.dirname(os.path.realpath(__file__))).parent
+    update_file_path = os.path.join(path, 'data', 'updates.csv')
+    with open(update_file_path) as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            try:
+                org = Organisation.query.filter_by(brownfield_register_publication=row['brownfield_register_publication']).one()
+                org.brownfield_register_url = row['brownfield_register_url']
+                db.session.add(org)
+                db.session.commit()
+                print('Updated:', row['brownfield_register_publication'], 'to', row['brownfield_register_url'])
+            except NoResultFound as e:
+                print('Found no publication for:', row['brownfield_register_publication'])
