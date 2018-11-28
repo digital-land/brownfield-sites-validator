@@ -53,10 +53,10 @@ def load():
             org = row['organisation']
             if 'local-authority' in org or 'national-park' in org:
                 if not db.session.query(BrownfieldSiteRegister).get(org):
-                    organisation = BrownfieldSiteRegister(organisation=org,
-                                                          name=row['name'],
-                                                          website=row['website'])
-                    db.session.add(organisation)
+                    register = BrownfieldSiteRegister(organisation=org,
+                                                      name=row['name'],
+                                                      website=row['website'])
+                    db.session.add(register)
                     db.session.commit()
 
                     if row.get('feature') is not None:
@@ -67,7 +67,7 @@ def load():
 
     features_url = '%s/feature/national-park-boundary.geojson' % s3_bucket_url
     load_features(features_url, org_feature_mappings)
-    db.session.execute('CLUSTER organisation USING idx_organisation_geometry')
+    db.session.execute('CLUSTER brownfield_site_register USING idx_brownfield_site_register_geometry')
 
     urls = ['%s/%s' % (s3_bucket_url, file.key) for file in bucket.objects.filter(Prefix='publication/brownfield-sites')]
 
@@ -77,7 +77,7 @@ def load():
             content = requests.get(url).content.decode('utf-8')
             c = frontmatter.loads(content)
             publication = c.metadata['publication']
-            organisation = c.metadata['organisation']
+            register = c.metadata['organisation']
             copyright = c.metadata['copyright']
             licence = c.metadata['licence']
             data_url = c.metadata['data-url']
@@ -87,19 +87,19 @@ def load():
             geojson = requests.get(geojson_url).json()
 
             try:
-                organisation = BrownfieldSiteRegister.query.get(organisation)
-                organisation.brownfield_register_url = data_url
-                organisation.brownfield_register_copyright = copyright
-                organisation.brownfield_register_licence = licence
-                organisation.brownfield_register_publication = publication
-                organisation.brownfield_register_geojson = geojson
-                organisation.brownfield_register_suffix = suffix
+                register = BrownfieldSiteRegister.query.get(register)
+                register.register_url = data_url
+                register.publication_copyright = copyright
+                register.publication_licence = licence
+                register.publication = publication
+                register.publication_suffix = suffix
+                register.geojson = geojson
 
-                db.session.add(organisation)
+                db.session.add(register)
                 db.session.commit()
 
             except Exception as e:
-                print('Error saving site for', organisation)
+                print('Error saving site for', register)
 
         except Exception as e:
             print('Error loading', url, e)
@@ -110,13 +110,13 @@ def load():
 @click.command()
 @with_appcontext
 def validate():
-    organisations = BrownfieldSiteRegister.query.all()
-    for organisation in organisations:
+    registers = BrownfieldSiteRegister.query.all()
+    for register in registers:
         try:
-            if organisation.brownfield_register_url is not None:
-                print('Validating', organisation.brownfield_register_url)
-                validation = get_data_and_validate(organisation, organisation.brownfield_register_url)
-                print('Added data from',  organisation.brownfield_register_url)
+            if register.register_url is not None:
+                print('Validating', register.register_url)
+                validation = get_data_and_validate(register, register.register_url)
+                print('Added data from',  register.register_url)
         except Exception as e:
             print('error', e)
     print('Done')
@@ -139,11 +139,11 @@ def load_features(features_url, org_feature_mappings):
             item = 'item:%s' % feature['properties'].get('item')
             feature_id = id if id is not None else item
             try:
-                org = BrownfieldSiteRegister.query.get(org_feature_mappings[feature_id])
+                register = BrownfieldSiteRegister.query.get(org_feature_mappings[feature_id])
                 geojson = json.dumps(feature['geometry'])
-                org.geometry = db.session.execute(json_to_geo_query % geojson).fetchone()[0]
-                org.geojson = feature['geometry']
-                db.session.add(org)
+                register.geometry = db.session.execute(json_to_geo_query % geojson).fetchone()[0]
+                register.geojson = feature['geometry']
+                db.session.add(register)
                 db.session.commit()
             except KeyError as e:
                 print('No organisation for feature', feature_id)
@@ -164,7 +164,6 @@ def load_features(features_url, org_feature_mappings):
 @with_appcontext
 def clear():
     db.session.query(BrownfieldSiteRegister).delete()
-
     db.session.commit()
     print('cleared db')
 
@@ -178,9 +177,9 @@ def update_brownfield_urls():
         reader = csv.DictReader(file)
         for row in reader:
             try:
-                org = BrownfieldSiteRegister.query.filter_by(brownfield_register_publication=row['brownfield_register_publication']).one()
-                org.brownfield_register_url = row['brownfield_register_url']
-                db.session.add(org)
+                register = BrownfieldSiteRegister.query.filter_by(publication=row['brownfield_register_publication']).one()
+                register.brownfield_register_url = row['brownfield_register_url']
+                db.session.add(register)
                 db.session.commit()
                 print('Updated:', row['brownfield_register_publication'], 'to', row['brownfield_register_url'])
             except NoResultFound as e:
