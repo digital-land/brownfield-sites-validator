@@ -93,7 +93,7 @@ def load():
                 register.publication_licence = licence
                 register.publication = publication
                 register.publication_suffix = suffix
-                register.geojson = geojson
+                register.register_geojson = geojson
 
                 db.session.add(register)
                 db.session.commit()
