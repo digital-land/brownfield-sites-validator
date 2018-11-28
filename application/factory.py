@@ -40,7 +40,6 @@ def register_extensions(app):
     from application.extensions import db
     db.init_app(app)
 
-    from application.models import BrownfieldSiteValidation
     from application.extensions import migrate
     migrate.init_app(app=app)
 

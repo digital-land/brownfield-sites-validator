@@ -19,7 +19,7 @@ from enum import Enum
 from requests.exceptions import InvalidSchema, HTTPError, MissingSchema
 from sqlalchemy import func, and_
 
-from application.models import BrownfieldSiteValidation, Organisation
+from application.models import BrownfieldSiteRegister
 from application.extensions import db
 
 logger = logging.getLogger(__name__)
@@ -206,8 +206,8 @@ class GeoFieldValidator(BaseFieldValidator):
             lng, lat = geoX, geoY
 
         point = func.ST_SetSRID(func.ST_MakePoint(lng,lat), 4326)
-        f = Organisation.query.filter(and_(Organisation.geometry.ST_Contains(point),
-                                           Organisation.organisation == self.organisation.organisation)).first()
+        f = BrownfieldSiteRegister.query.filter(and_(BrownfieldSiteRegister.geometry.ST_Contains(point),
+                                                     BrownfieldSiteRegister.organisation == self.organisation.organisation)).first()
 
         if f is None:
             if field == 'GeoX' and not (-5.5 < lng < 1.9):
@@ -336,7 +336,7 @@ class RequiredIfNot(BaseFieldValidator):
 
 class ValidationRunner:
 
-    def __init__(self, source, file_warnings, line_count, organisation, validators={}, delimiter=None):
+    def __init__(self, source, file_warnings, line_count, register, validators={}, delimiter=None):
 
         self.source = source
         self.file_warnings = file_warnings
@@ -352,7 +352,7 @@ class ValidationRunner:
         self.report = {}
         self.empty_lines = 0
         self.validated_rows = []
-        self.organisation = organisation
+        self.register = register
         self.has_geo_fixes = False
 
     def to_dict(self):
@@ -371,7 +371,7 @@ class ValidationRunner:
     @classmethod
     def from_validation(cls, validation):
         datadict = validation.result
-        validator = cls(None, datadict['file_warnings'], datadict['line_count'], validation.organisation)
+        validator = cls(None, datadict['file_warnings'], datadict['line_count'], validation.register)
         validator.missing = datadict['missing']
         validator.unknown = datadict['unknown']
         validator.rows_analysed = datadict['rows_analysed']
@@ -420,19 +420,16 @@ class ValidationRunner:
 
         self._gather_result_counts()
 
-        url = self.organisation.brownfield_register_url if self.organisation.brownfield_register_url else None
+        url = self.register.register_url if self.register.register_url else None
 
-        validation = BrownfieldSiteValidation(id=uuid.uuid4(),
-                                              data_source=url,
-                                              result=self.to_dict(),
-                                              data=self.validated_rows)
+        self.register.data_source = url
+        self.register.validation_result = self.to_dict()
+        self.register.validation_data = self.validated_rows
 
-        self.organisation.validation_results.append(validation)
-
-        db.session.add(self.organisation)
+        db.session.add(self.register)
         db.session.commit()
 
-        return validation
+        return self
 
     def _gather_result_counts(self):
 
@@ -463,9 +460,9 @@ class ValidationRunner:
 
 class BrownfieldSiteValidationRunner(ValidationRunner):
 
-    def __init__(self, source, file_warnings, line_count, organisation):
+    def __init__(self, source, file_warnings, line_count, register):
 
-        super(BrownfieldSiteValidationRunner, self).__init__(source, file_warnings, line_count, organisation)
+        super(BrownfieldSiteValidationRunner, self).__init__(source, file_warnings, line_count, register)
 
         valid_coordinate_reference_system = ['WGS84', 'OSGB36', 'ETRS89']
 
@@ -521,10 +518,10 @@ class BrownfieldSiteValidationRunner(ValidationRunner):
                 RegexValidator(expected=valid_coordinate_reference_system, fixer=set_coord_ref_sys_to_wgs84),
             ],
             'GeoX': [
-                GeoFieldValidator(self.organisation, check_against='GeoY')
+                GeoFieldValidator(self.register, check_against='GeoY')
             ],
             'GeoY': [
-                GeoFieldValidator(self.organisation, check_against='GeoX')
+                GeoFieldValidator(self.register, check_against='GeoX')
             ],
             'Hectares': [
                 FloatValidator()

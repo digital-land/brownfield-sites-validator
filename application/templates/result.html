@@ -45,7 +45,7 @@
         Validation {{ text }}
     </h2>
     <div class="govuk-panel__body">
-        <p>For<br><strong class="url">{{ la.name }}</strong></p>
+        <p>For<br><strong class="url">{{ register.name }}</strong></p>
         {#<p><a class="govuk-panel__link" href="{{ url }}">Go to register</a></p>#}
     </div>
 </div>
@@ -53,9 +53,9 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {%- if result.errors or result.rows_analysed == 0 -%}
+            {%- if register.validation_result.errors or register.validation_result.rows_analysed == 0 -%}
               {{ statusPanel("govuk-panel--error", "found errors") }}
-            {%- elif result.warnings -%}
+            {%- elif register.validation_result.warnings -%}
               {{ statusPanel("govuk-panel--warning", "found warnings") }}
             {%- else -%}
               {{ statusPanel("govuk-panel--confirmation", "complete") }}
@@ -71,7 +71,7 @@
             <tbody class="govuk-table__body">
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Local Authority</th>
-                <td class="govuk-table__cell govuk-table__cell--numeric">{{ la.name }}</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ register.name }}</td>
               </tr>
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Type of file</th>
@@ -79,16 +79,16 @@
               </tr>
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Data rows in the register</th>
-                <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.line_count - 1 }}</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ register.validation_result.line_count - 1 }}</td>
               </tr>
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Rows we could analyse</th>
-                <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.rows_analysed }}</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ register.validation_result.rows_analysed }}</td>
               </tr>
-              {% if result.empty_lines %}
+              {% if register.validation_result.empty_lines %}
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Empty rows in register</th>
-                <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.empty_lines }}</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ register.validation_result.empty_lines }}</td>
               </tr>
               {% endif %}
             </tbody>
@@ -102,7 +102,7 @@
         <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
         <h2 class="govuk-heading-l">Does it follow the standard?</h2>
         <p class="govuk-body">We checked that the data complies with the Brownfield land data standard.</p>
-        {% if result.errors or result.missing %}
+        {% if register.validation_result.errors or register.validation_result.missing %}
         <p class="govuk-body">
           <img src="https://img.shields.io/badge/schema-errors-red.svg?longCache=true&style=for-the-badge"
             alt="schema errors">
@@ -113,7 +113,7 @@
       </div>
     </div>
 
-    {% if result.missing or result.unknown %}
+    {% if register.validation_result.missing or register.validation_result.unknown %}
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-full">
         <h3 class="govuk-heading-m">Fields</h3>
@@ -127,7 +127,7 @@
         <p class="govuk-body">The Standard contains the required fields. The following fields are missing from the analysed register.</p>
         <div class="column-review column-review--missing">
           <ul class="govuk-list">
-            {% for missing in result.missing %}
+            {% for missing in register.validation_result.missing %}
             <li>{{ missing }}</li>
             {% endfor %}
           </ul>
@@ -141,7 +141,7 @@
         <p class="govuk-body">The following fields do not make up part of the Standard.</p>
         <div class="column-review column-review--unknown">
           <ul class="govuk-list">
-            {% for unknown in result.unknown %}
+            {% for unknown in register.validation_result.unknown %}
             <li>{{ unknown }}</li>
             {% endfor %}
           </ul>
@@ -150,7 +150,7 @@
     </div>
     {% endif %}
 
-    {% if result.errors %}
+    {% if register.validation_result.errors %}
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
         <h3 class="govuk-heading-m">Field content</h3>
@@ -159,7 +159,7 @@
         <details class="govuk-details">
           <summary class="govuk-details__summary">
               <span class="govuk-details__summary-text">
-                {%- set error_count = result.report | count_fields_with_errors -%}
+                {%- set error_count = register.validation_result.report | count_fields_with_errors -%}
                 <h4 class="govuk-heading-s govuk-details__summary-heading">
                   {%- if error_count > 1 -%}
                   There are {{ error_count }} fields with content errors.
@@ -171,7 +171,7 @@
             </summary>
             <div class="govuk-details__text">
               <ol class="govuk-list govuk-list--number">
-                  {% for field, report in result.report.items() %}
+                  {% for field, report in register.validation_result.report.items() %}
                       {% if report.errors %}
                          <li>
                           <h3 class="govuk-heading-s">{{ field }}</h3>
@@ -195,7 +195,7 @@
       <div class="govuk-grid-column-two-thirds">
         <h2 class="govuk-heading-l">Does the data make sense?</h2>
         <p class="govuk-body">We checked that the data for common issues that can occur.</p>
-        {% if result.warnings %}
+        {% if register.validation_result.warnings %}
         <p class="govuk-body">
           <img src="https://img.shields.io/badge/data-warning-yellow.svg?longCache=true&style=for-the-badge"
              alt="data warnings">
@@ -204,7 +204,7 @@
         <details class="govuk-details">
           <summary class="govuk-details__summary">
             <span class="govuk-details__summary-text">
-              {%- set warning_count = result.report | count_fields_with_warnings -%}
+              {%- set warning_count = register.validation_result.report | count_fields_with_warnings -%}
               <h4 class="govuk-heading-s govuk-details__summary-heading">
                 {%- if warning_count > 1 -%}
                 There are {{ warning_count }} fields with warnings.
@@ -216,10 +216,10 @@
           </summary>
           <div class="govuk-details__text">
             <ul class="govuk-list govuk-list--bullet">
-                {% for w in result.file_warnings %}
+                {% for w in register.validation_result.file_warnings %}
                     <li>{{ w.data }} {{ w.warning.name }} {{ w.warning.message }}.</li>
                 {% endfor %}
-                 {% for field, report in result.report.items() %}
+                 {% for field, report in register.validation_result.report.items() %}
                      {% if report.warnings %}
                       <li>
                           <h3 class="govuk-heading-s">{{ field }}</h3>
@@ -235,7 +235,7 @@
         </details>
 
         {% else %}
-        <p class="govuk-body">{{ result.report | count_fields_with_warnings }} fields have warnings.</p>
+        <p class="govuk-body">{{ register.validation_result.report | count_fields_with_warnings }} fields have warnings.</p>
         {% endif %}
       </div>
     </div>
@@ -275,7 +275,7 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-          {% if result.errors or result.warnings %}
+          {% if register.validation_result.errors or register.validation_result.warnings %}
 
           <h3 class="govuk-heading-l">Fixing the data</h3>
           <p class="govuk-body">A lot of the common problems with the data can be automatically fixed.</p>
@@ -293,19 +293,19 @@
               </ul>
             </div>
           </details>
-          <a class="govuk-button button-load-data" href="{{ url_for('frontend.download_fixed', local_authority=la.organisation, validation_id=validation_id) }}">Download fixed CSV</a>
+          <a class="govuk-button button-load-data" href="{{ url_for('frontend.download_fixed', local_authority=register.organisation, validation_id=validation_id) }}">Download fixed CSV</a>
           <div class="govuk-inset-text">
             Any remaining issues will have to be fixed manually.
           </div>
-          <p class="govuk-body">Once downloaded and any manually fixes are made you can <a href="{{ url_for('frontend.validate', local_authority=la.organisation )}}">retry validating the register</a>.</p>
+          <p class="govuk-body">Once downloaded and any manually fixes are made you can <a href="{{ url_for('frontend.validate', local_authority=register.organisation )}}">retry validating the register</a>.</p>
 
           {% else %}
 
           <h3 class="govuk-heading-m">What next</h3>
           <p class="govuk-body">
-              {% if not result.errors and not result.warnings %}This brownfield site data is valid.{% endif %}
+              {% if not register.validation_result.errors and not register.validation_result.warnings %}This brownfield site data is valid.{% endif %}
               The location of the sites can be downloaded as GeoJSON and used in other applications.</p>
-          <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', validation_id=validation_id)}}">Download geojson</a>
+          <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', local_authority=register.organisation)}}">Download geojson</a>
 
           {% endif %}
         </div>
@@ -349,7 +349,7 @@
           onEachFeature: onEachFeature
       });
 
-      laBoundary =  L.geoJSON({{ la.geojson | tojson }});
+      laBoundary =  L.geoJSON({{ register.geojson | tojson }});
 
       geojsonLayer.addTo(map);
       laBoundary.addTo(map);
@@ -374,7 +374,7 @@
               onEachFeature: onEachFeature
           });
 
-          boundary =  L.geoJSON({{ la.geojson | tojson }});
+          boundary =  L.geoJSON({{ register.geojson | tojson }});
 
           fixedMapGeoJsonLayer.addTo(fixedMap);
           boundary.addTo(fixedMap);

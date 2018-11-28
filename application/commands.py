@@ -17,7 +17,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from application.extensions import db
 from application.frontend.views import get_data_and_validate
-from application.models import BrownfieldSiteValidation, Organisation
+from application.models import BrownfieldSiteRegister
 
 json_to_geo_query = "SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326);"
 
@@ -52,10 +52,10 @@ def load():
         for row in reader:
             org = row['organisation']
             if 'local-authority' in org or 'national-park' in org:
-                if not db.session.query(Organisation).get(org):
-                    organisation = Organisation(organisation=org,
-                                                name=row['name'],
-                                                website=row['website'])
+                if not db.session.query(BrownfieldSiteRegister).get(org):
+                    organisation = BrownfieldSiteRegister(organisation=org,
+                                                          name=row['name'],
+                                                          website=row['website'])
                     db.session.add(organisation)
                     db.session.commit()
 
@@ -87,7 +87,7 @@ def load():
             geojson = requests.get(geojson_url).json()
 
             try:
-                organisation = Organisation.query.get(organisation)
+                organisation = BrownfieldSiteRegister.query.get(organisation)
                 organisation.brownfield_register_url = data_url
                 organisation.brownfield_register_copyright = copyright
                 organisation.brownfield_register_licence = licence
@@ -110,7 +110,7 @@ def load():
 @click.command()
 @with_appcontext
 def validate():
-    organisations = Organisation.query.all()
+    organisations = BrownfieldSiteRegister.query.all()
     for organisation in organisations:
         try:
             if organisation.brownfield_register_url is not None:
@@ -139,7 +139,7 @@ def load_features(features_url, org_feature_mappings):
             item = 'item:%s' % feature['properties'].get('item')
             feature_id = id if id is not None else item
             try:
-                org = Organisation.query.get(org_feature_mappings[feature_id])
+                org = BrownfieldSiteRegister.query.get(org_feature_mappings[feature_id])
                 geojson = json.dumps(feature['geometry'])
                 org.geometry = db.session.execute(json_to_geo_query % geojson).fetchone()[0]
                 org.geojson = feature['geometry']
@@ -163,8 +163,7 @@ def load_features(features_url, org_feature_mappings):
 @click.command()
 @with_appcontext
 def clear():
-    db.session.query(BrownfieldSiteValidation).delete()
-    db.session.query(Organisation).delete()
+    db.session.query(BrownfieldSiteRegister).delete()
 
     db.session.commit()
     print('cleared db')
@@ -179,7 +178,7 @@ def update_brownfield_urls():
         reader = csv.DictReader(file)
         for row in reader:
             try:
-                org = Organisation.query.filter_by(brownfield_register_publication=row['brownfield_register_publication']).one()
+                org = BrownfieldSiteRegister.query.filter_by(brownfield_register_publication=row['brownfield_register_publication']).one()
                 org.brownfield_register_url = row['brownfield_register_url']
                 db.session.add(org)
                 db.session.commit()

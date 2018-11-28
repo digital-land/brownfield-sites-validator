@@ -75,37 +75,37 @@
               </tr>
             </thead>
             <tbody class="govuk-table__body">
-              {% for organisation in organisations %}
+              {% for register in registers %}
               <tr class="govuk-table__row validation-result-row">
-                <td class="govuk-table__cell" colspan="2">{{ organisation.name }}
-                  {% if organisation.validation %}
-                    <p class="full-results-link">Last validated - {{ organisation.validation.created_date | format_date_time }}. <a href="{{ url_for('frontend.validate', local_authority=organisation.organisation, url=organisation.brownfield_register_url, cached=True)}}">See full results</a></p>
+                <td class="govuk-table__cell" colspan="2">{{ register.name }}
+                  {% if register.validation_result %}
+                    <p class="full-results-link">Last validated - {{ register.validation_created_date | format_date_time }}. <a href="{{ url_for('frontend.validate', local_authority=register.organisation, url=register.brownfield_register_url, cached=True)}}">See full results</a></p>
                   {% endif %}
                 </td>
-                {% if organisation.validation is not none -%}
+                {% if register.validation_result is not none -%}
 
-                <td class="govuk-table__cell validation-result-numeric-cell">{{ organisation.validation.result.line_count - 1 }}</td>
-                <td class=" 
-                {%- if organisation.validation.result.rows_analysed == organisation.validation.result.line_count - 1 %}successful{% else %}unsuccessful{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- organisation.validation.result.rows_analysed }}</td>
+                <td class="govuk-table__cell validation-result-numeric-cell">{{ register.validation_result.line_count - 1 }}</td>
                 <td class="
-                {%- if organisation.validation.result.missing|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- organisation.validation.result.missing | length }}</td>
-                <td class=" 
-                {%- if organisation.validation.result.unknown|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- organisation.validation.result.unknown | length }}</td>
+                {%- if register.validation_result.rows_analysed == register.validation_result.line_count - 1 %}successful{% else %}unsuccessful{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- register.validation_result.rows_analysed }}</td>
                 <td class="
-                {%- if organisation.validation.result.errors  %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- organisation.validation.result.report | count_fields_with_errors }} </td>
-                <td class=" 
-                {%- if organisation.validation.result.warnings %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- organisation.validation.result.report | count_fields_with_warnings }} </td>
+                {%- if register.validation_result.missing|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- register.validation_result.missing | length }}</td>
                 <td class="
-                {%- if organisation.validation.result.file_errors|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- organisation.validation.result.file_errors | length }}</td>
-                <td class=" 
-                {%- if organisation.validation.result.file_warnings|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
-                {{- organisation.validation.result.file_warnings | length }}</td>
+                {%- if register.validation_result.unknown|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- register.validation_result.unknown | length }}</td>
+                <td class="
+                {%- if register.validation_result.errors  %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- register.validation_result.report | count_fields_with_errors }} </td>
+                <td class="
+                {%- if register.validation_result.warnings %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- register.validation_result.report | count_fields_with_warnings }} </td>
+                <td class="
+                {%- if register.validation_result.file_errors|length is gt 0 %}error{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- register.validation_result.file_errors | length }}</td>
+                <td class="
+                {%- if register.validation_result.file_warnings|length is gt 0 %}warning{% endif %} validation-result-numeric-cell govuk-table__cell">
+                {{- register.validation_result.file_warnings | length }}</td>
 
                 {%- else -%}
 
