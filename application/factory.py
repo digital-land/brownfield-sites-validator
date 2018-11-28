@@ -43,6 +43,9 @@ def register_extensions(app):
     from application.extensions import migrate
     migrate.init_app(app=app)
 
+    from flask_debugtoolbar import DebugToolbarExtension
+    toolbar = DebugToolbarExtension(app)
+
 
 def register_commands(app):
     from application.commands import load, validate, clear, update_brownfield_urls

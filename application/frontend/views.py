@@ -59,9 +59,15 @@ def all_results_map():
 
 
 def get_all_boundaries_and_results():
-    register = BrownfieldSiteRegister.query.all()
+    registers = db.session.query(BrownfieldSiteRegister.organisation,
+                                 BrownfieldSiteRegister.name,
+                                 BrownfieldSiteRegister.geojson,
+                                 BrownfieldSiteRegister.validation_result,
+                                 BrownfieldSiteRegister.register_url,
+                                 BrownfieldSiteRegister.validation_created_date).order_by(
+        asc(BrownfieldSiteRegister.name)).all()
     data = []
-    for reg in register:
+    for reg in registers:
         data.append(get_boundary_and_result(reg))
     return data
 

@@ -20,6 +20,7 @@ class Config(object):
 class DevelopmentConfig(Config):
     DEBUG = True
     WTF_CSRF_ENABLED = False
+    DEBUG_TB_PROFILER_ENABLED = True
 
 
 class TestConfig(Config):
