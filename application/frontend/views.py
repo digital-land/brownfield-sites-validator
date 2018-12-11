@@ -95,7 +95,9 @@ def start():
 @frontend.route('/local-authority', methods=['GET','POST'])
 def local_authority():
     if request.method == 'GET':
-        registers = BrownfieldSiteRegister.query.order_by("name").all()
+        registers = db.session.query(BrownfieldSiteRegister.organisation,
+                                     BrownfieldSiteRegister.name).order_by(
+            asc(BrownfieldSiteRegister.name)).all()
         return render_template('select-la.html', registers=registers)
     else:
         return redirect(url_for('frontend.validate', local_authority=request.form['local-authority-selector']))
