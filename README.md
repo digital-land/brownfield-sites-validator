@@ -1,5 +1,16 @@
 # Prototype Brownfield sites validator
 
+
+## Update
+
+Rewrite all of this just using - [goodtables](https://github.com/frictionlessdata/goodtables-py)
+
+This was a bit of an experiment that I think has run it's course. The validaton and fix approach is a yak shave 
+and I think not worth effort. A better approach would be to just use goodtables for validation as in 
+section-106-prototype coupled with good guidance, and if possible a simplified model for the brownfield data.
+
+***
+
 This prototype is being used to explore approaches to validating geospatial data publications, starting with the [brownfield site register standard](https://www.gov.uk/government/publications/brownfield-land-registers-data-standard).
 
 The work here builds upon existing tools and services, such as [csvlint.io](http://csvlint.io/) from the ODI and 
