@@ -43,7 +43,7 @@ def index():
 
 
 @frontend.route('/results')
-# @flask_optimize.optimize()
+@flask_optimize.optimize()
 def validate_results():
     page = StaticContent.query.get('results-static')
     if page is not None:
