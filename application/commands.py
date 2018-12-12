@@ -18,7 +18,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from application.extensions import db
 from application.frontend.views import get_data_and_validate
-from application.models import BrownfieldSiteRegister
+from application.models import BrownfieldSiteRegister, StaticContent
 
 json_to_geo_query = "SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326);"
 
@@ -111,7 +111,7 @@ def load():
 @click.command()
 @with_appcontext
 def validate():
-    registers = BrownfieldSiteRegister.query.all()
+    registers = BrownfieldSiteRegister.query.all()[:5]
     for register in registers:
         try:
             if register.register_url is not None:
@@ -121,13 +121,30 @@ def validate():
         except Exception as e:
             print('error', e)
 
-    print('Writing report file')
+    print('Writing report')
     client = current_app.test_client()
     output = client.get('/results-dynamic').data.decode('utf-8')
-    path = Path(__file__).parents[1]
-    static_file = os.path.join(path, 'static-html', 'results-static.html')
-    with open(static_file, 'w') as f:
-        f.write(output)
+
+    page = StaticContent.query.get('results-static')
+    if page is None:
+        page = StaticContent(filename='results-static', content=output)
+    else:
+        page.content = output
+
+    db.session.add(page)
+    db.session.commit()
+
+    print('Writing report map')
+    output = client.get('/results/map-dynamic').data.decode('utf-8')
+
+    page = StaticContent.query.get('results-map-static')
+    if page is None:
+        page = StaticContent(filename='results-map-static', content=output)
+    else:
+        page.content = output
+
+    db.session.add(page)
+    db.session.commit()
 
     print('Done')
 

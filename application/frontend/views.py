@@ -30,8 +30,7 @@ from application.validators.validators import (
     ValidationWarning
 )
 
-from application.models import BrownfieldSiteRegister
-
+from application.models import BrownfieldSiteRegister, StaticContent
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
 
@@ -49,12 +48,12 @@ def index():
 
 @frontend.route('/results')
 def validate_results():
-    path = Path(__file__).parents[2]
-    static_file_dir = os.path.join(path, 'static-html')
-    if os.path.exists(os.path.join(static_file_dir, 'results-static.html')):
-        return send_from_directory(static_file_dir, 'results-static.html')
+    page = StaticContent.query.get('results-static')
+    if page is not None:
+        return page.content
     else:
         return render_template('no-results-yet.html')
+
 
 @frontend.route('/results-dynamic')
 def validate_results_dynamic():
@@ -66,9 +65,17 @@ def validate_results_dynamic():
     return render_template('results.html', registers=registers)
 
 
-
 @frontend.route('/results/map')
 def all_results_map():
+    page = StaticContent.query.get('results-map-static')
+    if page is not None:
+        return page.content
+    else:
+        return render_template('no-results-yet.html')
+
+
+@frontend.route('/results/map-dynamic')
+def all_results_map_dynamic():
     return render_template('results-map.html', resultdata=get_all_boundaries_and_results())
 
 

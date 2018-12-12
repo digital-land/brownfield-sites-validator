@@ -4,13 +4,16 @@ import io
 
 import pyproj
 from geoalchemy2 import Geometry
-from sqlalchemy import ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, JSON, JSONB
-from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import JSON
 
 from application.extensions import db
 from application.utils import ordered_brownfield_register_fields
 
+
+class StaticContent(db.Model):
+
+    filename = db.Column(db.Text, primary_key=True)
+    content = db.Column(db.Text)
 
 class BrownfieldSiteRegister(db.Model):
 
