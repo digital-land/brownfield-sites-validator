@@ -112,7 +112,7 @@ def load():
 @click.command()
 @with_appcontext
 def validate():
-    registers = BrownfieldSiteRegister.query.all()[:5]
+    registers = BrownfieldSiteRegister.query.all()
     for register in registers:
         try:
             if register.register_url is not None:
