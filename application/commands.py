@@ -5,6 +5,7 @@ from contextlib import closing
 from pathlib import Path
 from urllib.request import urlopen
 
+import htmlmin
 import ijson
 from flask import current_app
 from ijson import common
@@ -124,24 +125,26 @@ def validate():
     print('Writing report')
     client = current_app.test_client()
     output = client.get('/results-dynamic').data.decode('utf-8')
+    minified = htmlmin.minify(output, remove_empty_space=True)
 
     page = StaticContent.query.get('results-static')
     if page is None:
-        page = StaticContent(filename='results-static', content=output)
+        page = StaticContent(filename='results-static', content=minified)
     else:
-        page.content = output
+        page.content = minified
 
     db.session.add(page)
     db.session.commit()
 
     print('Writing report map')
     output = client.get('/results/map-dynamic').data.decode('utf-8')
+    minified = htmlmin.minify(output, remove_empty_space=True)
 
     page = StaticContent.query.get('results-map-static')
     if page is None:
-        page = StaticContent(filename='results-map-static', content=output)
+        page = StaticContent(filename='results-map-static', content=minified)
     else:
-        page.content = output
+        page.content = minified
 
     db.session.add(page)
     db.session.commit()

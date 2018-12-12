@@ -25,6 +25,8 @@ csvkit = "*"
 furl = "*"
 pyproj = "*"
 flask-debugtoolbar = "*"
+flask-optimize = "*"
+htmlmin = "*"
 
 [dev-packages]
 pytest = "*"

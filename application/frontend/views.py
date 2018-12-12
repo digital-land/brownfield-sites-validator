@@ -1,7 +1,4 @@
 import csv
-import os
-from pathlib import Path
-
 import requests
 import json
 
@@ -15,14 +12,13 @@ from flask import (
     Response,
     redirect,
     url_for,
-    current_app,
-    send_from_directory
+    current_app
 )
 
 from furl import furl
 from sqlalchemy import asc
 
-from application.extensions import db
+from application.extensions import db, flask_optimize
 from application.frontend.forms import UploadForm
 from application.validators.validators import (
     BrownfieldSiteValidationRunner,
@@ -47,10 +43,11 @@ def index():
 
 
 @frontend.route('/results')
+# @flask_optimize.optimize()
 def validate_results():
     page = StaticContent.query.get('results-static')
     if page is not None:
-        return page.content
+        return page.content.encode('utf-8').strip()
     else:
         return render_template('no-results-yet.html')
 
@@ -66,10 +63,11 @@ def validate_results_dynamic():
 
 
 @frontend.route('/results/map')
+@flask_optimize.optimize()
 def all_results_map():
     page = StaticContent.query.get('results-map-static')
     if page is not None:
-        return page.content
+        return page.content.encode('utf-8').strip()
     else:
         return render_template('no-results-yet.html')
 
