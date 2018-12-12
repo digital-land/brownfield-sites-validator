@@ -54,8 +54,7 @@ def validate_results():
     if os.path.exists(os.path.join(static_file_dir, 'results-static.html')):
         return send_from_directory(static_file_dir, 'results-static.html')
     else:
-        return 'no results yet'
-
+        return render_template('no-results-yet.html')
 
 @frontend.route('/results-dynamic')
 def validate_results_dynamic():

@@ -1,0 +1,27 @@
+{% extends "default.html" %}
+
+{% block beforeContent %}
+ {{ super() }}
+
+ {{ govukBreadcrumbs({
+   "items": [
+     {
+       "text": "Brownfield site data",
+       "href": url_for("frontend.index")
+     },
+     {
+       "text": "Validator"
+     }
+   ]
+ }) }}
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">No brownfield sites have been validated yet</h1>
+    </div>
+
+{% endblock %}
