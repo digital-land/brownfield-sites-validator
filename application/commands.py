@@ -6,6 +6,7 @@ from pathlib import Path
 from urllib.request import urlopen
 
 import ijson
+from flask import current_app
 from ijson import common
 
 import boto3
@@ -119,6 +120,15 @@ def validate():
                 print('Added data from',  register.register_url)
         except Exception as e:
             print('error', e)
+
+    print('Writing report file')
+    client = current_app.test_client()
+    output = client.get('/results-dynamic').data.decode('utf-8')
+    path = Path(__file__).parents[1]
+    static_file = os.path.join(path, 'static-html', 'results-static.html')
+    with open(static_file, 'w') as f:
+        f.write(output)
+
     print('Done')
 
 

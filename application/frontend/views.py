@@ -1,4 +1,7 @@
 import csv
+import os
+from pathlib import Path
+
 import requests
 import json
 
@@ -12,7 +15,8 @@ from flask import (
     Response,
     redirect,
     url_for,
-    current_app
+    current_app,
+    send_from_directory
 )
 
 from furl import furl
@@ -45,12 +49,23 @@ def index():
 
 @frontend.route('/results')
 def validate_results():
+    path = Path(__file__).parents[2]
+    static_file_dir = os.path.join(path, 'static-html')
+    if os.path.exists(os.path.join(static_file_dir, 'results-static.html')):
+        return send_from_directory(static_file_dir, 'results-static.html')
+    else:
+        return 'no results yet'
+
+
+@frontend.route('/results-dynamic')
+def validate_results_dynamic():
     registers = db.session.query(BrownfieldSiteRegister.organisation,
                                  BrownfieldSiteRegister.name,
                                  BrownfieldSiteRegister.geojson,
                                  BrownfieldSiteRegister.validation_result,
                                  BrownfieldSiteRegister.validation_created_date).order_by(asc(BrownfieldSiteRegister.name)).all()
     return render_template('results.html', registers=registers)
+
 
 
 @frontend.route('/results/map')
