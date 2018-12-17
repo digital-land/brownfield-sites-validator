@@ -20,7 +20,8 @@ class Config(object):
 class DevelopmentConfig(Config):
     DEBUG = True
     WTF_CSRF_ENABLED = False
-    DEBUG_TB_PROFILER_ENABLED = True
+    DEBUG_TB_ENABLED = False
+    DEBUG_TB_PROFILER_ENABLED = DEBUG_TB_ENABLED if DEBUG_TB_ENABLED else False
 
 
 class TestConfig(Config):

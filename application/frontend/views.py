@@ -16,7 +16,7 @@ from flask import (
 )
 
 from furl import furl
-from sqlalchemy import asc
+from sqlalchemy import asc, func
 
 from application.extensions import db, flask_optimize
 from application.frontend.forms import UploadForm
@@ -56,7 +56,6 @@ def validate_results():
 def validate_results_dynamic():
     registers = db.session.query(BrownfieldSiteRegister.organisation,
                                  BrownfieldSiteRegister.name,
-                                 BrownfieldSiteRegister.geojson,
                                  BrownfieldSiteRegister.validation_result,
                                  BrownfieldSiteRegister.validation_created_date).order_by(asc(BrownfieldSiteRegister.name)).all()
     return render_template('results.html', registers=registers)
@@ -80,11 +79,10 @@ def all_results_map_dynamic():
 def get_all_boundaries_and_results():
     registers = db.session.query(BrownfieldSiteRegister.organisation,
                                  BrownfieldSiteRegister.name,
-                                 BrownfieldSiteRegister.geojson,
+                                 func.ST_AsGeoJSON(func.ST_SimplifyVW(BrownfieldSiteRegister.geometry, 0.00001)).label('geojson'),
                                  BrownfieldSiteRegister.validation_result,
                                  BrownfieldSiteRegister.register_url,
-                                 BrownfieldSiteRegister.validation_created_date).order_by(
-        asc(BrownfieldSiteRegister.name)).all()
+                                 BrownfieldSiteRegister.validation_created_date).all()
     data = []
     for reg in registers:
         data.append(get_boundary_and_result(reg))
@@ -96,7 +94,7 @@ def get_boundary_and_result(register):
     package['org_id'] = register.organisation
     package['org_name'] = register.name
     if register.geojson:
-        package['feature'] = register.geojson
+        package['feature'] = json.loads(register.geojson)
     if register.validation_result:
         package['csv_url'] = register.register_url
         package['results'] = register.validation_result
@@ -129,7 +127,7 @@ def validate(local_authority):
         url = request.args.get('url').strip()
         try:
             register = BrownfieldSiteRegister.query.get(local_authority)
-            register = get_data_and_validate(register, url, cached=cached)
+            validated = get_data_and_validate(register, url, cached=cached)
         except FileTypeException as e:
             current_app.logger.exception(e)
             return render_template('not-available.html',
@@ -137,11 +135,11 @@ def validate(local_authority):
                                    local_authority=register,
                                    message=e.message)
         context = {'url': url,
-                   'result': register.validation_result,
+                   'result': validated.register.validation_result,
                    'register': register,
                    }
-        if register.validation_result is not None:
-            context['feature'] = register.validation_geojson()
+        if validated.register.validation_result is not None:
+            context['feature'] = validated.register.validation_geojson()
 
         return render_template('result.html', **context)
 
