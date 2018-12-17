@@ -5,9 +5,7 @@ from contextlib import closing
 from pathlib import Path
 from urllib.request import urlopen
 
-import htmlmin
 import ijson
-from flask import current_app
 from ijson import common
 
 import boto3
@@ -19,7 +17,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from application.extensions import db
 from application.frontend.views import get_data_and_validate
-from application.models import BrownfieldSiteRegister, StaticContent
+from application.models import BrownfieldSiteRegister
 
 json_to_geo_query = "SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326);"
 
@@ -117,38 +115,10 @@ def validate():
         try:
             if register.register_url is not None:
                 print('Validating', register.register_url)
-                validation = get_data_and_validate(register, register.register_url)
+                get_data_and_validate(register, register.register_url)
                 print('Added data from',  register.register_url)
         except Exception as e:
             print('error', e)
-
-    print('Writing report')
-    client = current_app.test_client()
-    output = client.get('/results-dynamic').data.decode('utf-8')
-    minified = htmlmin.minify(output, remove_empty_space=True)
-
-    page = StaticContent.query.get('results-static')
-    if page is None:
-        page = StaticContent(filename='results-static', content=minified)
-    else:
-        page.content = minified
-
-    db.session.add(page)
-    db.session.commit()
-
-    print('Writing report map')
-    output = client.get('/results/map-dynamic').data.decode('utf-8')
-    minified = htmlmin.minify(output, remove_empty_space=True)
-
-    page = StaticContent.query.get('results-map-static')
-    if page is None:
-        page = StaticContent(filename='results-map-static', content=minified)
-    else:
-        page.content = minified
-
-    db.session.add(page)
-    db.session.commit()
-
     print('Done')
 
 

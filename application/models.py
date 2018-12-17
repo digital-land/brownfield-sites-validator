@@ -10,12 +10,6 @@ from application.extensions import db
 from application.utils import ordered_brownfield_register_fields
 
 
-class StaticContent(db.Model):
-
-    filename = db.Column(db.Text, primary_key=True)
-    content = db.Column(db.Text)
-
-
 class BrownfieldSiteRegister(db.Model):
 
     organisation = db.Column(db.String(64), primary_key=True)

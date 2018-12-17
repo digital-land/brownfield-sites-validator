@@ -26,7 +26,7 @@ from application.validators.validators import (
     ValidationWarning
 )
 
-from application.models import BrownfieldSiteRegister, StaticContent
+from application.models import BrownfieldSiteRegister
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
 
@@ -45,34 +45,17 @@ def index():
 @frontend.route('/results')
 @flask_optimize.optimize()
 def validate_results():
-    page = StaticContent.query.get('results-static')
-    if page is not None:
-        return page.content.encode('utf-8').strip()
-    else:
-        return render_template('no-results-yet.html')
-
-
-@frontend.route('/results-dynamic')
-def validate_results_dynamic():
     registers = db.session.query(BrownfieldSiteRegister.organisation,
                                  BrownfieldSiteRegister.name,
                                  BrownfieldSiteRegister.validation_result,
-                                 BrownfieldSiteRegister.validation_created_date).order_by(asc(BrownfieldSiteRegister.name)).all()
+                                 BrownfieldSiteRegister.validation_created_date).order_by(
+        asc(BrownfieldSiteRegister.name)).all()
     return render_template('results.html', registers=registers)
 
 
 @frontend.route('/results/map')
 @flask_optimize.optimize()
 def all_results_map():
-    page = StaticContent.query.get('results-map-static')
-    if page is not None:
-        return page.content.encode('utf-8').strip()
-    else:
-        return render_template('no-results-yet.html')
-
-
-@frontend.route('/results/map-dynamic')
-def all_results_map_dynamic():
     return render_template('results-map.html', resultdata=get_all_boundaries_and_results())
 
 
