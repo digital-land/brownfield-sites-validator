@@ -118,11 +118,11 @@ def validate(local_authority):
                                    local_authority=register,
                                    message=e.message)
         context = {'url': url,
-                   'result': validated.register.validation_result,
+                   'result': register.validation_result,
                    'register': register,
                    }
-        if validated.register.validation_result is not None:
-            context['feature'] = validated.register.validation_geojson()
+        if register.validation_result is not None:
+            context['feature'] = register.validation_geojson()
 
         return render_template('result.html', **context)
 
