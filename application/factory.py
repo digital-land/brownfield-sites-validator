@@ -35,6 +35,9 @@ def register_blueprints(app):
     from application.frontend.views import frontend
     app.register_blueprint(frontend)
 
+    from application.brownfield_validation_results.views import brownfield_validation
+    app.register_blueprint(brownfield_validation)
+
 
 def register_extensions(app):
 

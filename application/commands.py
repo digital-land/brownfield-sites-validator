@@ -214,7 +214,7 @@ def build_report():
     repo = Repo.clone_from(remote_url, build_dir)
 
     with current_app.test_client() as client:
-        resp = client.get('/results?static_mode=true')
+        resp = client.get('/brownfield-sites/results?static_mode=true')
         html = resp.data.decode('utf-8')
         output = htmlmin.minify(html)
 
@@ -234,7 +234,7 @@ def build_report():
     repo.index.add([outfile])
 
     with current_app.test_client() as client:
-        resp = client.get('/results/map?static_mode=true')
+        resp = client.get('/brownfield-sites/results/map?static_mode=true')
         html = resp.data.decode('utf-8')
         output = htmlmin.minify(html)
 
@@ -252,7 +252,7 @@ def build_report():
             asc(BrownfieldSiteRegister.name)).all()
     for r in registers:
         with current_app.test_client() as client:
-            url = '/results/%s/?static_mode=true' % r.organisation
+            url = '/brownfield-sites/results/%s/?static_mode=true' % r.organisation
             resp = client.get(url)
             if resp.status_code == 200:
                 html = resp.data.decode('utf-8')

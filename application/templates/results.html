@@ -3,13 +3,9 @@
 {% if static_mode %}
     {%- set index_url = '/brownfield-sites' -%}
     {%- set start_url = 'https://brownfield-sites-validator.herokuapp.com/start' -%}
-    {%- set results_url = '/brownfield-sites/results' -%}
-    {%- set map_url = '/brownfield-sites/results/map' -%}
 {% else %}
     {%- set index_url = url_for('frontend.index') -%}
     {%- set start_url = url_for('frontend.start') -%}
-    {%- set results_url = url_for('frontend.validate_results') -%}
-    {%- set map_url = url_for('frontend.all_results_map' ) -%}
 {%  endif %}
 
 {% block header %}
@@ -26,7 +22,7 @@
         "text": "Validator"
       },
       {
-        "href": results_url,
+        "href": url_for('brownfield_validation.validate_results'),
         "text": "Results",
         "active": true
       }
@@ -60,7 +56,7 @@
           <h1 class="govuk-heading-xl">Validation results</h1>
           <p class="govuk-body-l">Each Planning Authority is expected to publish a brownfield site register that complies with the standard.</p>
           <p class="govuk-body">Below are the results when each register is run through a validator.</p>
-          <p class="govuk-body"><a href="{{ map_url }}">See results on a map</a>.</p>
+          <p class="govuk-body"><a href="{{ url_for('brownfield_validation.all_results_map') }}">See results on a map</a>.</p>
         </div>
       </div>
 
@@ -102,7 +98,7 @@
                         {%- set date = register.validation_created_date -%}
                       {% endif %}
 
-                    <p class="full-results-link">Last validated - {{ date | format_date_time }}. <a href="{{ static_path }}{{ url_for('frontend.static_validate', local_authority=la_id)}}">See full results</a></p>
+                    <p class="full-results-link">Last validated - {{ date | format_date_time }}. <a href="{{ static_path }}{{ url_for('brownfield_validation.static_validate', local_authority=la_id)}}">See full results</a></p>
                   {% endif %}
                 </td>
                 {% if register.validation_result is not none -%}
