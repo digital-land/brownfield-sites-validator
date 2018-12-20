@@ -91,7 +91,12 @@
               <tr class="govuk-table__row validation-result-row">
                 <td class="govuk-table__cell" colspan="2">{{ register.name }}
                   {% if register.validation_result %}
-                    <p class="full-results-link">Last validated - {{ register.validation_created_date | format_date_time }}. <a href="{{ static_path }}{{ url_for('frontend.static_validate', local_authority=register.organisation.replace(':', '-'))}}">See full results</a></p>
+                      {% if static_mode %}
+                        {%- set la_id = register.organisation.replace(':', '-') -%}
+                      {% else %}
+                          {%- set la_id = register.organisation -%}
+                      {% endif %}
+                    <p class="full-results-link">Last validated - {{ register.validation_created_date | format_date_time }}. <a href="{{ static_path }}{{ url_for('frontend.static_validate', local_authority=la_id)}}">See full results</a></p>
                   {% endif %}
                 </td>
                 {% if register.validation_result is not none -%}

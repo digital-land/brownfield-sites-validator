@@ -202,7 +202,7 @@
     if( org.results === "No results available") {
       boundary.bindPopup( L.Util.template(noresultsTemplate, { org_name: org.org_name }) );
     } else {
-      const url =  `/local-authority/` + org.org_id + `/validate?url=${encodeURIComponent(org.csv_url)}`;
+      const url =  `/results/` + org.org_id;
       const popupContent = L.Util.template(resultsTemplate,
         {
           org_name: org.org_name,

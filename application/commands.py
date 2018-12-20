@@ -205,8 +205,8 @@ def build_report():
 
     if os.path.exists(build_dir):
         shutil.rmtree(build_dir)
-    else:
-        os.makedirs(build_dir)
+
+    os.makedirs(build_dir)
 
     os.chdir(build_dir)
 
@@ -252,7 +252,7 @@ def build_report():
             asc(BrownfieldSiteRegister.name)).all()
     for r in registers:
         with current_app.test_client() as client:
-            url = '/results/%s/' % r.organisation
+            url = '/results/%s/?static_mode=true' % r.organisation
             resp = client.get(url)
             if resp.status_code == 200:
                 html = resp.data.decode('utf-8')

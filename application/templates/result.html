@@ -1,5 +1,17 @@
 {% extends "default.html" %}
 
+{% if static_mode %}
+    {%- set index_url = '/brownfield-sites' -%}
+    {%- set start_url = 'https://brownfield-sites-validator.herokuapp.com/start' -%}
+    {%- set results_url = '/brownfield-sites/results' -%}
+    {%- set map_url = '/brownfield-sites/results/map' -%}
+{% else %}
+    {%- set index_url = url_for('frontend.index') -%}
+    {%- set start_url = url_for('frontend.start') -%}
+    {%- set results_url = url_for('frontend.validate_results') -%}
+    {%- set map_url = url_for('frontend.all_results_map' ) -%}
+{%  endif %}
+
 {% from "macros/forms.html" import render_input_field %}
 
 {% block title %}{{ url }} validation result{% endblock %}
@@ -16,6 +28,30 @@
 
 {% endblock %}
 
+
+{% block header %}
+  {{ govukHeader({
+      "serviceName": "Brownfield sites",
+      "serviceUrl": index_url,
+      "navigation": [
+      {
+        "href": "https://www.gov.uk/government/publications/brownfield-land-registers-data-standard",
+        "text": "Guidance"
+      },
+      {
+        "href": start_url,
+        "text": "Validator"
+      },
+      {
+        "href": results_url,
+        "text": "Results",
+        "active": true
+      }
+      ]
+    })
+  }}
+{% endblock %}
+
 {% block beforeContent %}
  {{ super() }}
 
@@ -23,11 +59,7 @@
    "items": [
      {
        "text": "Brownfield site data",
-       "href": url_for("frontend.index")
-     },
-     {
-       "text": "Validator",
-       "href": url_for("frontend.start")
+       "href": index_url
      },
      {
        "text": "Result"
@@ -74,8 +106,12 @@
                 <td class="govuk-table__cell govuk-table__cell--numeric">{{ register.name }}</td>
               </tr>
               <tr class="govuk-table__row">
-                <th class="govuk-table__header" scope="row">Type of file</th>
-                <td class="govuk-table__cell govuk-table__cell--numeric">Uploaded</td>
+                <th class="govuk-table__header" scope="row">File analysed</th>
+                <td class="govuk-table__cell govuk-table__cell--numeric"><a href="{{ register.register_url }}">{{ register.register_url }}</a></td>
+              </tr>
+              <tr class="govuk-table__row">
+                <th class="govuk-table__header" scope="row">Date analysed</th>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ register.validation_created_date | format_date_time }}</td>
               </tr>
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Data rows in the register</th>
@@ -273,43 +309,47 @@
 
     <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-          {% if register.validation_result.errors or register.validation_result.warnings %}
+    {% if not static_mode %}
 
-          <h3 class="govuk-heading-l">Fixing the data</h3>
-          <p class="govuk-body">A lot of the common problems with the data can be automatically fixed.</p>
-          <details class="govuk-details">
-            <summary class="govuk-details__summary">
-              <span class="govuk-details__summary-text">
-                What we will fix
-              </span>
-            </summary>
-            <div class="govuk-details__text">
-              <ul class="govuk-list govuk-list--bullet">
-                <li>Dates to YYYY-MM-DD format</li>
-                <li>Change CoordinateReferenceSystem if coordinates given are a match for another system</li>
-                <li>Flip lat and lng if result is in Local Authority boundary</li>
-              </ul>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+              {% if register.validation_result.errors or register.validation_result.warnings %}
+
+              <h3 class="govuk-heading-l">Fixing the data</h3>
+              <p class="govuk-body">A lot of the common problems with the data can be automatically fixed.</p>
+              <details class="govuk-details">
+                <summary class="govuk-details__summary">
+                  <span class="govuk-details__summary-text">
+                    What we will fix
+                  </span>
+                </summary>
+                <div class="govuk-details__text">
+                  <ul class="govuk-list govuk-list--bullet">
+                    <li>Dates to YYYY-MM-DD format</li>
+                    <li>Change CoordinateReferenceSystem if coordinates given are a match for another system</li>
+                    <li>Flip lat and lng if result is in Local Authority boundary</li>
+                  </ul>
+                </div>
+              </details>
+              <a class="govuk-button button-load-data" href="{{ url_for('frontend.download_fixed', local_authority=register.organisation, validation_id=validation_id) }}">Download fixed CSV</a>
+              <div class="govuk-inset-text">
+                Any remaining issues will have to be fixed manually.
+              </div>
+              <p class="govuk-body">Once downloaded and any manually fixes are made you can <a href="{{ static_path }}{{ url_for('frontend.validate', local_authority=register.organisation )}}">retry validating the register</a>.</p>
+
+              {% else %}
+
+              <h3 class="govuk-heading-m">What next</h3>
+              <p class="govuk-body">
+                  {% if not register.validation_result.errors and not register.validation_result.warnings %}This brownfield site data is valid.{% endif %}
+                  The location of the sites can be downloaded as GeoJSON and used in other applications.</p>
+              <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', local_authority=register.organisation)}}">Download geojson</a>
+
+              {% endif %}
             </div>
-          </details>
-          <a class="govuk-button button-load-data" href="{{ url_for('frontend.download_fixed', local_authority=register.organisation, validation_id=validation_id) }}">Download fixed CSV</a>
-          <div class="govuk-inset-text">
-            Any remaining issues will have to be fixed manually.
-          </div>
-          <p class="govuk-body">Once downloaded and any manually fixes are made you can <a href="{{ static_path }}{{ url_for('frontend.validate', local_authority=register.organisation )}}">retry validating the register</a>.</p>
-
-          {% else %}
-
-          <h3 class="govuk-heading-m">What next</h3>
-          <p class="govuk-body">
-              {% if not register.validation_result.errors and not register.validation_result.warnings %}This brownfield site data is valid.{% endif %}
-              The location of the sites can be downloaded as GeoJSON and used in other applications.</p>
-          <a class="govuk-button button-load-data" href="{{ url_for('frontend.geojson_download', local_authority=register.organisation)}}">Download geojson</a>
-
-          {% endif %}
         </div>
-    </div>
+
+    {% endif %}
 
 {% endblock %}
 

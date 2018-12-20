@@ -64,10 +64,10 @@ def all_results_map():
 
     static_mode = _to_boolean(request.args.get('static_mode', False))
 
-    return render_template('results-map.html', resultdata=get_all_boundaries_and_results(), static_mode=static_mode)
+    return render_template('results-map.html', resultdata=get_all_boundaries_and_results(static_mode=static_mode), static_mode=static_mode)
 
 
-def get_all_boundaries_and_results():
+def get_all_boundaries_and_results(static_mode=False):
     registers = db.session.query(BrownfieldSiteRegister.organisation,
                                  BrownfieldSiteRegister.name,
                                  func.ST_AsGeoJSON(func.ST_SimplifyVW(BrownfieldSiteRegister.geometry, 0.00001)).label('geojson'),
@@ -76,13 +76,13 @@ def get_all_boundaries_and_results():
                                  BrownfieldSiteRegister.validation_created_date).all()
     data = []
     for reg in registers:
-        data.append(get_boundary_and_result(reg))
+        data.append(get_boundary_and_result(reg, static_mode=static_mode))
     return data
 
 
-def get_boundary_and_result(register):
+def get_boundary_and_result(register, static_mode=False):
     package = {}
-    package['org_id'] = register.organisation
+    package['org_id'] = register.organisation if not static_mode else register.organisation.replace(':', '-')
     package['org_name'] = register.name
     if register.geojson:
         package['feature'] = json.loads(register.geojson)
@@ -137,9 +137,10 @@ def validate(local_authority):
     return render_template('validate.html', local_authority=local_authority, form=UploadForm())
 
 
-
 @frontend.route('/results/<local_authority>/')
 def static_validate(local_authority):
+
+    static_mode = _to_boolean(request.args.get('static_mode', False))
 
     register = BrownfieldSiteRegister.query.get(local_authority)
 
@@ -147,7 +148,8 @@ def static_validate(local_authority):
 
         context = {'url': register.register_url,
                    'result': register.validation_result,
-                   'register': register
+                   'register': register,
+                   'static_mode': static_mode
                    }
         if register.validation_result is not None:
             context['feature'] = register.validation_geojson()
@@ -156,7 +158,6 @@ def static_validate(local_authority):
 
     else:
         abort(404)
-
 
 
 @frontend.route('/local-authority/<local_authority>/validate-file', methods=['POST'])
