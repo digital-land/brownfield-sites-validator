@@ -1,15 +1,16 @@
 {% extends "default.html" %}
 
 {% if static_mode %}
-    {%- set index_url = url_for('frontend.index') -%}
-    {%- set start_url = url_for('frontend.start') -%}
-    {%- set results_url = url_for('frontend.validate_results') -%}
-    {%- set map_url = url_for('frontend.all_results_map' ) -%}
-{% else %}
     {%- set index_url = '/brownfield-sites' -%}
     {%- set start_url = '/brownfield-sites' -%}
     {%- set results_url = '/brownfield-sites/results' -%}
     {%- set map_url = '/brownfield-sites/results/map' -%}
+{% else %}
+    {%- set index_url = url_for('frontend.index') -%}
+    {%- set start_url = url_for('frontend.start') -%}
+    {%- set results_url = url_for('frontend.validate_results') -%}
+    {%- set map_url = url_for('frontend.all_results_map' ) -%}
+
 {%  endif %}
 
 {% block header %}
