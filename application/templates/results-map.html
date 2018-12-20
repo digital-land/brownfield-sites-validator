@@ -3,11 +3,9 @@
 {% if static_mode %}
     {%- set index_url = '/brownfield-sites' -%}
     {%- set start_url = 'https://brownfield-sites-validator.herokuapp.com/start' -%}
-    {%- set results_url = '/brownfield-sites/results' -%}
 {% else %}
     {%- set index_url = url_for('frontend.index') -%}
     {%- set start_url = url_for('frontend.start') -%}
-    {%- set results_url = url_for('brownfield_validation.validate_results') -%}
 {%  endif %}
 
 {% block headEnd %}
@@ -36,7 +34,7 @@
         "text": "Validator"
       },
       {
-        "href": results_url,
+        "href": url_for('brownfield_validation.validate_results'),
         "text": "Results",
         "active": true
       }
