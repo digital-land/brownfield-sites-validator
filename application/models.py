@@ -29,6 +29,7 @@ class BrownfieldSiteRegister(db.Model):
     validation_result = db.Column(JSON)
     validation_data = db.Column(JSON)
     validation_created_date = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
+    validation_updated_date = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
 
     def validation_has_geo_fixes(self):
         return self.validation_result['has_geo_fixes']
