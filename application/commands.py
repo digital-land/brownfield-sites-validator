@@ -116,7 +116,7 @@ def load():
 @click.command()
 @with_appcontext
 def validate():
-    registers = BrownfieldSiteRegister.query.all()
+    registers = BrownfieldSiteRegister.query.filter(BrownfieldSiteRegister.validation_updated_date < datetime.date.today()).all()
     for register in registers:
         try:
             if register.register_url is not None:
