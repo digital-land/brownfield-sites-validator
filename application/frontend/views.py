@@ -61,7 +61,10 @@ def validate_results():
 @frontend.route('/results/map')
 # @flask_optimize.optimize()
 def all_results_map():
-    return render_template('results-map.html', resultdata=get_all_boundaries_and_results())
+
+    static_mode = _to_boolean(request.args.get('static_mode', False))
+
+    return render_template('results-map.html', resultdata=get_all_boundaries_and_results(), static_mode=static_mode)
 
 
 def get_all_boundaries_and_results():

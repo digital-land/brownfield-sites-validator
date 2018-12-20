@@ -2,7 +2,7 @@
 
 {% if static_mode %}
     {%- set index_url = '/brownfield-sites' -%}
-    {%- set start_url = '/brownfield-sites' -%}
+    {%- set start_url = 'https://brownfield-sites-validator.herokuapp.com/start' -%}
     {%- set results_url = '/brownfield-sites/results' -%}
     {%- set map_url = '/brownfield-sites/results/map' -%}
 {% else %}
@@ -10,7 +10,6 @@
     {%- set start_url = url_for('frontend.start') -%}
     {%- set results_url = url_for('frontend.validate_results') -%}
     {%- set map_url = url_for('frontend.all_results_map' ) -%}
-
 {%  endif %}
 
 {% block header %}
