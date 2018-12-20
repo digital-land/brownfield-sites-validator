@@ -425,6 +425,7 @@ class ValidationRunner:
         self.register.data_source = url
         self.register.validation_result = self.to_dict()
         self.register.validation_data = self.validated_rows
+        self.register.validation_updated_date = datetime.datetime.utcnow()
 
         db.session.add(self.register)
         db.session.commit()

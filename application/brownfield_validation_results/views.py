@@ -18,7 +18,9 @@ def validate_results():
     registers = db.session.query(BrownfieldSiteRegister.organisation,
                                  BrownfieldSiteRegister.name,
                                  BrownfieldSiteRegister.validation_result,
-                                 BrownfieldSiteRegister.validation_created_date).order_by(
+                                 BrownfieldSiteRegister.validation_created_date,
+                                 BrownfieldSiteRegister.validation_updated_date
+                                 ).order_by(
         asc(BrownfieldSiteRegister.name)).all()
     return render_template('results.html', registers=registers, static_mode=static_mode)
 
@@ -61,7 +63,8 @@ def get_all_boundaries_and_results(static_mode=False):
                                  func.ST_AsGeoJSON(func.ST_SimplifyVW(BrownfieldSiteRegister.geometry, 0.00001)).label('geojson'),
                                  BrownfieldSiteRegister.validation_result,
                                  BrownfieldSiteRegister.register_url,
-                                 BrownfieldSiteRegister.validation_created_date).all()
+                                 BrownfieldSiteRegister.validation_created_date,
+                                 BrownfieldSiteRegister.validation_updated_date).all()
     data = []
     for reg in registers:
         data.append(get_boundary_and_result(reg, static_mode=static_mode))
