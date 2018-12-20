@@ -96,7 +96,13 @@
                       {% else %}
                           {%- set la_id = register.organisation -%}
                       {% endif %}
-                    <p class="full-results-link">Last validated - {{ register.validation_updated_date | format_date_time }}. <a href="{{ static_path }}{{ url_for('frontend.static_validate', local_authority=la_id)}}">See full results</a></p>
+                      {% if register.validation_updated_date %}
+                        {%- set date = register.validation_updated_date -%}
+                      {% else %}
+                        {%- set date = register.validation_created_date -%}
+                      {% endif %}
+
+                    <p class="full-results-link">Last validated - {{ date | format_date_time }}. <a href="{{ static_path }}{{ url_for('frontend.static_validate', local_authority=la_id)}}">See full results</a></p>
                   {% endif %}
                 </td>
                 {% if register.validation_result is not none -%}

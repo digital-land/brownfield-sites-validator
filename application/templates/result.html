@@ -111,7 +111,12 @@
               </tr>
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Date analysed</th>
-                <td class="govuk-table__cell govuk-table__cell--numeric">{{ register.validation_updated_date | format_date_time }}</td>
+                  {% if register.validation_updated_date %}
+                        {%- set date = register.validation_updated_date -%}
+                      {% else %}
+                        {%- set date = register.validation_created_date -%}
+                  {% endif %}
+                <td class="govuk-table__cell govuk-table__cell--numeric">{{ date | format_date_time }}</td>
               </tr>
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Data rows in the register</th>
