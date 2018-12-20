@@ -202,7 +202,7 @@
     if( org.results === "No results available") {
       boundary.bindPopup( L.Util.template(noresultsTemplate, { org_name: org.org_name }) );
     } else {
-      const url =  `/results/` + org.org_id;
+      const url =  `/brownfield-sites/results/` + org.org_id;
       const popupContent = L.Util.template(resultsTemplate,
         {
           org_name: org.org_name,
