@@ -32,6 +32,8 @@ frontend = Blueprint('frontend', __name__, template_folder='templates')
 
 
 def _to_boolean(value):
+    if value is None:
+        return False
     if str(value).lower() in ['1', 't', 'true', 'y', 'yes', 'on']:
         return True
     return False
@@ -45,12 +47,15 @@ def index():
 @frontend.route('/results')
 # @flask_optimize.optimize()
 def validate_results():
+
+    static_mode = _to_boolean(request.args.get('static_mode', False))
+
     registers = db.session.query(BrownfieldSiteRegister.organisation,
                                  BrownfieldSiteRegister.name,
                                  BrownfieldSiteRegister.validation_result,
                                  BrownfieldSiteRegister.validation_created_date).order_by(
         asc(BrownfieldSiteRegister.name)).all()
-    return render_template('results.html', registers=registers)
+    return render_template('results.html', registers=registers, static_mode=static_mode)
 
 
 @frontend.route('/results/map')

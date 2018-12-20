@@ -1,20 +1,32 @@
 {% extends "default.html" %}
 
+{% if static_mode %}
+    {%- set index_url = url_for('frontend.index') -%}
+    {%- set start_url = url_for('frontend.start') -%}
+    {%- set results_url = url_for('frontend.validate_results') -%}
+    {%- set map_url = url_for('frontend.all_results_map' ) -%}
+{% else %}
+    {%- set index_url = '/brownfield-sites' -%}
+    {%- set start_url = '/brownfield-sites' -%}
+    {%- set results_url = '/brownfield-sites/results' -%}
+    {%- set map_url = '/brownfield-sites/results/map' -%}
+{%  endif %}
+
 {% block header %}
   {{ govukHeader({
       "serviceName": "Brownfield sites",
-      "serviceUrl": url_for('frontend.index'),
+      "serviceUrl": index_url,
       "navigation": [
       {
         "href": "https://www.gov.uk/government/publications/brownfield-land-registers-data-standard",
         "text": "Guidance"
       },
       {
-        "href": url_for('frontend.start'),
+        "href": start_url,
         "text": "Validator"
       },
       {
-        "href": url_for('frontend.validate_results'),
+        "href": results_url,
         "text": "Results",
         "active": true
       }
@@ -30,7 +42,7 @@
    "items": [
      {
        "text": "Brownfield site data",
-       "href": url_for("frontend.index")
+       "href": index_url
      },
      {
        "text": "All results"
@@ -48,7 +60,7 @@
           <h1 class="govuk-heading-xl">Validation results</h1>
           <p class="govuk-body-l">Each Planning Authority is expected to publish a brownfield site register that complies with the standard.</p>
           <p class="govuk-body">Below are the results when each register is run through a validator.</p>
-          <p class="govuk-body"><a href="{{ url_for('frontend.all_results_map' ) }}">See results on a map</a>.</p>
+          <p class="govuk-body"><a href="{{ map_url }}">See results on a map</a>.</p>
         </div>
       </div>
 

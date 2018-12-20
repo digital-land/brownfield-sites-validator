@@ -213,10 +213,9 @@ def build_report():
     repo = Repo.clone_from(remote_url, build_dir)
 
     with current_app.test_client() as client:
-        resp = client.get('/results')
+        resp = client.get('/results?static_mode=true')
         html = resp.data.decode('utf-8')
-        # output = htmlmin.minify(html)
-        output = html
+        output = htmlmin.minify(html)
 
     if not os.path.exists(build_dir):
         os.makedirs(build_dir)
@@ -234,7 +233,7 @@ def build_report():
     repo.index.add([outfile])
 
     with current_app.test_client() as client:
-        resp = client.get('/results/map')
+        resp = client.get('/results/map?static_mode=true')
         html = resp.data.decode('utf-8')
         output = htmlmin.minify(html)
 
