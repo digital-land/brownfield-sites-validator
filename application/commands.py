@@ -1,11 +1,16 @@
 import csv
+import datetime
 import json
 import os
+import shutil
 from contextlib import closing
 from pathlib import Path
 from urllib.request import urlopen
 
+import htmlmin
 import ijson
+from flask import current_app, url_for
+from git import Repo
 from ijson import common
 
 import boto3
@@ -13,6 +18,7 @@ import click
 import frontmatter
 import requests
 from flask.cli import with_appcontext
+from sqlalchemy import asc
 from sqlalchemy.orm.exc import NoResultFound
 
 from application.extensions import db
@@ -184,3 +190,91 @@ def update_brownfield_urls():
                 print('Updated:', row['brownfield_register_publication'], 'to', row['brownfield_register_url'])
             except NoResultFound as e:
                 print('Found no publication for:', row['brownfield_register_publication'])
+
+
+@click.command()
+@with_appcontext
+def build_report():
+
+    @current_app.context_processor
+    def static_path():
+        return {'static_path': '/brownfield-sites'}
+
+    current_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+    build_dir = os.path.join(current_dir.parent, 'build')
+    if not os.path.exists(build_dir):
+        os.makedirs(build_dir)
+    else:
+        shutil.rmtree(build_dir)
+
+    os.chdir(build_dir)
+
+    remote_url = 'https://%s@github.com/digital-land/brownfield-sites.git' % current_app.config['GH_TOKEN']
+    repo = Repo.clone_from(remote_url, build_dir)
+
+    with current_app.test_client() as client:
+        resp = client.get('/results')
+        html = resp.data.decode('utf-8')
+        # output = htmlmin.minify(html)
+        output = html
+
+    if not os.path.exists(build_dir):
+        os.makedirs(build_dir)
+
+    docs_dir = os.path.join(build_dir, 'docs')
+
+    results_dir = os.path.join(docs_dir, 'results')
+    if not os.path.exists(results_dir):
+        os.makedirs(results_dir)
+
+    outfile = os.path.join(build_dir, results_dir, 'index.html')
+    with open(outfile, 'w') as f:
+        f.write(output)
+
+    repo.index.add([outfile])
+
+    with current_app.test_client() as client:
+        resp = client.get('/results/map')
+        html = resp.data.decode('utf-8')
+        output = htmlmin.minify(html)
+
+    map_dir = os.path.join(results_dir, 'map')
+    if not os.path.exists(map_dir):
+        os.makedirs(map_dir)
+
+    outfile = os.path.join(map_dir, 'index.html')
+    with open(outfile, 'w') as f:
+        f.write(output)
+
+    repo.index.add([outfile])
+
+    registers = db.session.query(BrownfieldSiteRegister.organisation).order_by(
+            asc(BrownfieldSiteRegister.name)).all()
+    for r in registers:
+        with current_app.test_client() as client:
+            url = '/results/%s/' % r.organisation
+            resp = client.get(url)
+            if resp.status_code == 200:
+                html = resp.data.decode('utf-8')
+                output = htmlmin.minify(html)
+                la_dir = os.path.join(results_dir, r.organisation.replace(':', '-'))
+                if not os.path.exists(la_dir):
+                    os.makedirs(la_dir)
+                outfile = os.path.join(la_dir, 'index.html')
+                with open(outfile, 'w') as f:
+                    f.write(output)
+                repo.index.add([outfile])
+
+    static_src = os.path.join(current_dir, 'static')
+    static_dest = os.path.join(docs_dir, 'static')
+    if os.path.exists(static_dest):
+        shutil.rmtree(static_dest)
+
+    shutil.copytree(static_src, static_dest)
+
+    repo.index.add([static_dest])
+    message = 'Updated %s' % datetime.datetime.utcnow().isoformat()
+    repo.index.commit(message)
+    repo.remotes.origin.push()
+
+    shutil.rmtree(build_dir)

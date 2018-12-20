@@ -27,6 +27,7 @@ pyproj = "*"
 flask-debugtoolbar = "*"
 flask-optimize = "*"
 htmlmin = "*"
+gitpython = "*"
 
 [dev-packages]
 pytest = "*"

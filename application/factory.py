@@ -49,11 +49,12 @@ def register_extensions(app):
 
 
 def register_commands(app):
-    from application.commands import load, validate, clear, update_brownfield_urls
+    from application.commands import load, validate, clear, update_brownfield_urls, build_report
     app.cli.add_command(load, name='load')
     app.cli.add_command(validate, name='validate')
     app.cli.add_command(clear, name='clear')
     app.cli.add_command(update_brownfield_urls, name='update-urls')
+    app.cli.add_command(build_report, name='build-report')
 
 
 def register_filters(app):

@@ -297,7 +297,7 @@
           <div class="govuk-inset-text">
             Any remaining issues will have to be fixed manually.
           </div>
-          <p class="govuk-body">Once downloaded and any manually fixes are made you can <a href="{{ url_for('frontend.validate', local_authority=register.organisation )}}">retry validating the register</a>.</p>
+          <p class="govuk-body">Once downloaded and any manually fixes are made you can <a href="{{ static_path }}{{ url_for('frontend.validate', local_authority=register.organisation )}}">retry validating the register</a>.</p>
 
           {% else %}
 
@@ -314,7 +314,7 @@
 {% endblock %}
 
 {% block bodyEnd %}
-    <script src="/static/javascripts/mhclg-maps.js"></script>
+    <script src="{{ static_path }}/static/javascripts/mhclg-maps.js"></script>
     <script>
 
       // initialise MHCLGMaps with mapbox access token

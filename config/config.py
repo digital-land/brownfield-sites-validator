@@ -15,7 +15,7 @@ class Config(object):
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
     UPLOAD_FOLDER = '/tmp'
-
+    GH_TOKEN = os.getenv('GH_TOKEN')
 
 class DevelopmentConfig(Config):
     DEBUG = True

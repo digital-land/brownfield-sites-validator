@@ -12,8 +12,8 @@ from flask import (
     Response,
     redirect,
     url_for,
-    current_app
-)
+    current_app,
+    abort)
 
 from furl import furl
 from sqlalchemy import asc, func
@@ -43,7 +43,7 @@ def index():
 
 
 @frontend.route('/results')
-@flask_optimize.optimize()
+# @flask_optimize.optimize()
 def validate_results():
     registers = db.session.query(BrownfieldSiteRegister.organisation,
                                  BrownfieldSiteRegister.name,
@@ -54,7 +54,7 @@ def validate_results():
 
 
 @frontend.route('/results/map')
-@flask_optimize.optimize()
+# @flask_optimize.optimize()
 def all_results_map():
     return render_template('results-map.html', resultdata=get_all_boundaries_and_results())
 
@@ -127,6 +127,28 @@ def validate(local_authority):
         return render_template('result.html', **context)
 
     return render_template('validate.html', local_authority=local_authority, form=UploadForm())
+
+
+
+@frontend.route('/results/<local_authority>/')
+def static_validate(local_authority):
+
+    register = BrownfieldSiteRegister.query.get(local_authority)
+
+    if register.validation_result:
+
+        context = {'url': register.register_url,
+                   'result': register.validation_result,
+                   'register': register
+                   }
+        if register.validation_result is not None:
+            context['feature'] = register.validation_geojson()
+
+        return render_template('result.html', **context)
+
+    else:
+        abort(404)
+
 
 
 @frontend.route('/local-authority/<local_authority>/validate-file', methods=['POST'])
@@ -205,7 +227,7 @@ def asset_path_context_processor():
 
 
 @frontend.context_processor
-def asset_path_context_processor():
+def assetPath_context_processor():
     return {'assetPath': '/static/govuk-frontend/assets'}
 
 
