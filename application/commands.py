@@ -202,10 +202,11 @@ def build_report():
 
     current_dir = Path(os.path.dirname(os.path.realpath(__file__)))
     build_dir = os.path.join(current_dir.parent, 'build')
-    if not os.path.exists(build_dir):
-        os.makedirs(build_dir)
-    else:
+
+    if os.path.exists(build_dir):
         shutil.rmtree(build_dir)
+    else:
+        os.makedirs(build_dir)
 
     os.chdir(build_dir)
 
