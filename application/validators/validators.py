@@ -296,10 +296,13 @@ class IntValidator(BaseFieldValidator):
         super(IntValidator, self).__init__(**kwargs)
 
     def validate(self, field, row):
-        data = int(row.get(field))
-        if data is not None and not isinstance(data, int):
-            logger.info('Found error with', data)
-            return {'data': data, 'error': ValidationError.INVALID_INTEGER.to_dict()}
+        data = row.get(field)
+        if data is not None:
+            try:
+                data = int(data)
+            except:
+                logger.info('Found error with', data)
+                return {'data': data, 'error': ValidationError.INVALID_INTEGER.to_dict()}
 
         return {'data': data}
 
