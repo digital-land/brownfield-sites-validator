@@ -129,8 +129,9 @@ class ISO8601DateValidator(BaseFieldValidator):
 
     def validate(self, field, row):
 
-        data = row.get(field).replace('"', '').replace("'", '')
+        data = row.get(field)
         if data is not None and not self.allow_empty:
+            data = data.replace('"', '').replace("'", '')
             try:
                 datetime.datetime.strptime(data, '%Y-%m-%d')
             except ValueError as e:
@@ -161,7 +162,7 @@ class FloatValidator(BaseFieldValidator):
     def validate(self, field, row):
         data = row.get(field)
         try:
-            if data is not None and not self.allow_empty :
+            if data is not None and not self.allow_empty:
                 float(data)
         except ValueError as e:
             logger.info('Found error with', data)
