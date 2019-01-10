@@ -41,7 +41,7 @@ class BrownfieldSiteRegister(db.Model):
                 content = d['content']
             else:
                 content = d
-                
+
             geoX = content.get('GeoX', '').strip()
             geoY = content.get('GeoY', '').strip()
 
@@ -87,7 +87,7 @@ class BrownfieldSiteRegister(db.Model):
                 }
                 geo['features'].append(feature)
 
-            return geo
+        return geo
 
     def get_fixed_data(self):
         output = io.StringIO()
