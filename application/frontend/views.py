@@ -13,7 +13,8 @@ from flask import (
     redirect,
     url_for,
     current_app,
-    abort)
+    abort
+)
 
 from furl import furl
 from sqlalchemy import asc, func
@@ -36,9 +37,11 @@ frontend = Blueprint('frontend', __name__, template_folder='templates')
 def index():
     return render_template('index.html')
 
+
 @frontend.route('/start')
 def start():
     return render_template('start.html')
+
 
 @frontend.route('/local-authority', methods=['GET','POST'])
 def local_authority():
@@ -85,7 +88,8 @@ def validate_file(local_authority):
         register = BrownfieldSiteRegister.query.get(local_authority)
         _validate_from_file(register, f)
         context = {'url': f.filename,
-                   'register': register
+                   'register': register,
+                   'validation_file': f.filename
                    }
         if register.validation_result is not None:
             context['feature'] = register.validation_geojson()

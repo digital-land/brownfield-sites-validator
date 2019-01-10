@@ -103,7 +103,9 @@
               </tr>
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">File analysed</th>
-                <td class="govuk-table__cell govuk-table__cell--numeric"><a href="{{ register.register_url }}">{{ register.register_url }}</a></td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">{% if validation_file %}{{ validation_file }}
+
+                {% else %}<a href="{{ register.register_url }}">{{ register.register_url }}</a>{% endif %}</td>
               </tr>
               <tr class="govuk-table__row">
                 <th class="govuk-table__header" scope="row">Date analysed</th>
