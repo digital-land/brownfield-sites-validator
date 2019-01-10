@@ -181,6 +181,9 @@ class GeoFieldValidator(BaseFieldValidator):
         self.check_against = check_against
 
     def validate(self, field, row):
+        data = row.get('field')
+        if data is None or data.strip() == '':
+            return {'data': field, 'error': ValidationError.REQUIRED_FIELD.to_dict()}
 
         if field == 'GeoX':
             geoX = float(row[field].strip())
