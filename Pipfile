@@ -28,6 +28,7 @@ flask-debugtoolbar = "*"
 flask-optimize = "*"
 htmlmin = "*"
 gitpython = "*"
+jinja2 = ">2.10"
 
 [dev-packages]
 pytest = "*"
