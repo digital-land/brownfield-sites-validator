@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/communitiesuk/digital-land-explorer#readme",
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.1",
     "gulp-clean": "^0.4.0",
-    "gulp-sass": "^4.0.1"
+    "gulp-sass": "^4.0.2"
   }
 }
