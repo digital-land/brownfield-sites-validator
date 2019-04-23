@@ -18,8 +18,17 @@ gulp.task('clean-css', function () {
     .pipe(clean());
 });
 
+gulp.task('copy', gulp.series(['clean-css'], function() {
+  gulp.src('src/govuk_elements/assets/images/*.png')
+    .pipe(gulp.dest(config.imgDestPath));
+  gulp.src('src/govuk-frontend/assets/**/*')
+    .pipe(gulp.dest(config.govukAssetPath));
+  return gulp.src('src/stylesheets/**/*')
+    .pipe(gulp.dest(config.destPath));
+}));
+
 // compile scss to CSS
-gulp.task("scss", ['copy'], function() {
+gulp.task("scss", gulp.series(['copy'], function() {
 	return gulp.src( config.scssPath + '/*.scss')
 	.pipe(sass({outputStyle: 'expanded',
 		includePaths: [ 'src/govuk_frontend_toolkit/stylesheets',
@@ -27,21 +36,12 @@ gulp.task("scss", ['copy'], function() {
 			'src/govuk_elements/assets/sass',
       'src/govuk-frontend']})).on('error', sass.logError)
 	.pipe(gulp.dest(config.destPath))
-})
+}));
 
 // Watch src folder for changes
-gulp.task("watch", ["scss"], function () {
-  gulp.watch("src/scss/**/*", ["scss"])
-});
-
-gulp.task('copy', ['clean-css'], function() {
-  gulp.src('src/govuk_elements/assets/images/*.png')
-    .pipe(gulp.dest(config.imgDestPath));
-  gulp.src('src/govuk-frontend/assets/**/*')
-    .pipe(gulp.dest(config.govukAssetPath));
-  gulp.src('src/stylesheets/**/*')
-    .pipe(gulp.dest(config.destPath));
-});
+gulp.task("watch", gulp.series(["scss"], function () {
+  return gulp.watch("src/scss/**/*", gulp.parallel(["scss"]));
+}));
 
 // Set watch as default task
-gulp.task("default", ["watch"]);
+gulp.task("default", gulp.series(["watch"]));
