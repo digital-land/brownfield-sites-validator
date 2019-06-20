@@ -46,8 +46,8 @@ class BrownfieldSiteRegister(db.Model):
             geoY = content.get('GeoY', '').strip()
 
             if geoX != '' and geoY != '':
-                longitude = float(geoX)
-                latitude = float(geoY)
+                longitude = float(geoX.replace(',',''))
+                latitude = float(geoY.replace(',',''))
                 coord_ref_system = content.get('CoordinateReferenceSystem')
                 if coord_ref_system == 'ETRS89' and not (-5.5 < longitude < 2):
                     if (-5.5 < latitude < 2) and (49 < longitude < 60):

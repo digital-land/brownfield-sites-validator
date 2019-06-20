@@ -7,6 +7,9 @@ from contextlib import closing
 from pathlib import Path
 from urllib.request import urlopen
 
+from bs4 import UnicodeDammit
+from furl import furl
+
 import htmlmin
 import ijson
 from flask import current_app, url_for
@@ -18,11 +21,12 @@ import click
 import frontmatter
 import requests
 from flask.cli import with_appcontext
+from requests import HTTPError
 from sqlalchemy import asc
 from sqlalchemy.orm.exc import NoResultFound
 
 from application.extensions import db
-from application.frontend.views import get_data_and_validate
+from application.frontend.views import get_data_and_validate, _convert_to_csv_if_needed
 from application.models import BrownfieldSiteRegister
 
 json_to_geo_query = "SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326);"
@@ -115,6 +119,58 @@ def load():
 
 @click.command()
 @with_appcontext
+def get_brownfield_files():
+    registers = BrownfieldSiteRegister.query.order_by(BrownfieldSiteRegister.organisation).all()
+    for register in registers:
+        if register.register_url is not None:
+            try:
+                resp = requests.get(register.register_url)
+                resp.raise_for_status()
+                file_name = f"{register.organisation.replace(':', '-')}.csv"
+                dammit = UnicodeDammit(resp.content)
+                encoding = dammit.original_encoding
+                path = os.path.join(Path(os.path.dirname(os.path.realpath(__file__))), 'spreadsheets', file_name)
+                content, _ = _convert_to_csv_if_needed(resp.content, file_name, encoding=encoding)
+                with open(path, 'w') as f:
+                    f.write(content)
+
+            except HTTPError as e:
+                if resp.status_code == 404:
+                    print(f'{register.organisation},{register.register_url}')
+            except Exception as e:
+                pass
+
+@click.command()
+def join_files():
+    file_dir = os.path.join(Path(os.path.dirname(os.path.realpath(__file__))), 'spreadsheets')
+
+    fieldnames = ["OrganisationURI", "OrganisationLabel", "SiteReference", "PreviouslyPartOf", "SiteNameAddress",
+                   "SiteplanURL", "CoordinateReferenceSystem", "GeoX", "GeoY", "Hectares", "OwnershipStatus",
+                   "Deliverable", "PlanningStatus", "PermissionType", "PermissionDate", "PlanningHistory",
+                   "ProposedForPIP", "MinNetDwellings", "DevelopmentDescription", "NonHousingDevelopment",
+                   "Part2", "NetDwellingsRangeFrom", "NetDwellingsRangeTo", "HazardousSubstances", "SiteInformation",
+                   "Notes", "FirstAddedDate", "LastUpdatedDate", "Northing", "Easting"]
+
+    joined_file = os.path.join('/Users/adam/brownfield.csv')
+    with open(joined_file, 'w') as outfile:
+
+        writer = csv.DictWriter(outfile, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
+        writer.writeheader()
+
+        for f in os.listdir(file_dir):
+            file = os.path.join(file_dir, f)
+            try:
+                with open(file) as infile:
+                    reader = csv.DictReader(infile)
+                    for row in reader:
+                        writer.writerow(row)
+                        
+            except Exception as e:
+                print(e)
+
+
+@click.command()
+@with_appcontext
 def validate():
     registers = BrownfieldSiteRegister.query.filter(BrownfieldSiteRegister.validation_updated_date < datetime.date.today()).all()
     for register in registers:
@@ -183,13 +239,15 @@ def update_brownfield_urls():
         reader = csv.DictReader(file)
         for row in reader:
             try:
-                register = BrownfieldSiteRegister.query.filter_by(publication=row['brownfield_register_publication']).one()
-                register.brownfield_register_url = row['brownfield_register_url']
+                register = BrownfieldSiteRegister.query.filter_by(organisation=row['local_authority']).one()
+                url = row['updated'].strip()
+                url = url if url != '' else None
+                register.brownfield_register_url = url
                 db.session.add(register)
                 db.session.commit()
-                print('Updated:', row['brownfield_register_publication'], 'to', row['brownfield_register_url'])
+                print('Updated:', row['local_authority'], 'to', url)
             except NoResultFound as e:
-                print('Found no publication for:', row['brownfield_register_publication'])
+                print('Found no publication for:', row['local_authority'])
 
 
 @click.command()

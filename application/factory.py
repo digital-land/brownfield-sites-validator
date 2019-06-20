@@ -52,12 +52,14 @@ def register_extensions(app):
 
 
 def register_commands(app):
-    from application.commands import load, validate, clear, update_brownfield_urls, build_report
+    from application.commands import load, validate, clear, update_brownfield_urls, build_report, get_brownfield_files, join_files
     app.cli.add_command(load, name='load')
     app.cli.add_command(validate, name='validate')
     app.cli.add_command(clear, name='clear')
     app.cli.add_command(update_brownfield_urls, name='update-urls')
     app.cli.add_command(build_report, name='build-report')
+    app.cli.add_command(get_brownfield_files, name='get-brownfield')
+    app.cli.add_command(join_files, name='join-files')
 
 
 def register_filters(app):
