@@ -46,47 +46,51 @@ class BrownfieldSiteRegister(db.Model):
             geoY = content.get('GeoY', '').strip()
 
             if geoX != '' and geoY != '':
-                longitude = float(geoX.replace(',',''))
-                latitude = float(geoY.replace(',',''))
-                coord_ref_system = content.get('CoordinateReferenceSystem')
-                if coord_ref_system == 'ETRS89' and not (-5.5 < longitude < 2):
-                    if (-5.5 < latitude < 2) and (49 < longitude < 60):
-                        # probably a swapped lat/long
-                        longitude, latitude = latitude, longitude
-                    else:
-                        etrs89 = pyproj.Proj(init='epsg:3035')
+                geoX = geoX.replace(',', '')
+                geoY= geoY.replace(',', '')
+                try:
+                    longitude = float(geoX.replace(',',''))
+                    latitude = float(geoY.replace(',',''))
+                    coord_ref_system = content.get('CoordinateReferenceSystem')
+                    if coord_ref_system == 'ETRS89' and not (-5.5 < longitude < 2):
+                        if (-5.5 < latitude < 2) and (49 < longitude < 60):
+                            # probably a swapped lat/long
+                            longitude, latitude = latitude, longitude
+                        else:
+                            etrs89 = pyproj.Proj(init='epsg:3035')
+                            wgs84 = pyproj.Proj(init='epsg:4326')
+                            longitude, latitude = pyproj.transform(etrs89, wgs84, longitude, latitude)
+
+                    if coord_ref_system == 'OSGB36' or (longitude > 10000.0 and coord_ref_system != 'ETRS89'):
+                        bng = pyproj.Proj(init='epsg:27700')
                         wgs84 = pyproj.Proj(init='epsg:4326')
-                        longitude, latitude = pyproj.transform(etrs89, wgs84, longitude, latitude)
+                        longitude, latitude = pyproj.transform(bng, wgs84, longitude, latitude)
 
-                if coord_ref_system == 'OSGB36' or (longitude > 10000.0 and coord_ref_system != 'ETRS89'):
-                    bng = pyproj.Proj(init='epsg:27700')
-                    wgs84 = pyproj.Proj(init='epsg:4326')
-                    longitude, latitude = pyproj.transform(bng, wgs84, longitude, latitude)
+                    if with_fixes and self.has_geo_fixes():
+                        lng_fix = [f for f in d['validation_result']['GeoX'] if f.get('warning') and f.get('warning').get('type') == 'LOCATION_WARNING']
+                        lat_fix = [f for f in d['validation_result']['GeoY'] if f.get('warning') and f.get('warning').get('type') == 'LOCATION_WARNING']
 
-                if with_fixes and self.has_geo_fixes():
-                    lng_fix = [f for f in d['validation_result']['GeoX'] if f.get('warning') and f.get('warning').get('type') == 'LOCATION_WARNING']
-                    lat_fix = [f for f in d['validation_result']['GeoY'] if f.get('warning') and f.get('warning').get('type') == 'LOCATION_WARNING']
+                        longitude = lng_fix[0]['fix'] if lng_fix else longitude
+                        latitude = lat_fix[0]['fix'] if lat_fix else latitude
 
-                    longitude = lng_fix[0]['fix'] if lng_fix else longitude
-                    latitude = lat_fix[0]['fix'] if lat_fix else latitude
-
-                feature = {
-                    'geometry': {
-                        'coordinates': [
-                            longitude,
-                            latitude
-                        ],
-                        'type': 'Point'
-                    },
-                    'properties': {
-                        'SiteReference': content.get('SiteReference', ''),
-                        'SiteNameAddress': content.get('SiteNameAddress', ''),
-                        'PlanningStatus': content.get('PlanningStatus', '')
-                    },
-                    'type': 'Feature'
-                }
-                geo['features'].append(feature)
-
+                    feature = {
+                        'geometry': {
+                            'coordinates': [
+                                longitude,
+                                latitude
+                            ],
+                            'type': 'Point'
+                        },
+                        'properties': {
+                            'SiteReference': content.get('SiteReference', ''),
+                            'SiteNameAddress': content.get('SiteNameAddress', ''),
+                            'PlanningStatus': content.get('PlanningStatus', '')
+                        },
+                        'type': 'Feature'
+                    }
+                    geo['features'].append(feature)
+                except Exception as e:
+                    print(e)
         return geo
 
     def get_fixed_data(self):
