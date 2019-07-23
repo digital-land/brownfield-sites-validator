@@ -1,5 +1,7 @@
 # Prototype Brownfield sites validator
 
+### This prototype is no longer active. An new version is being worked on at [https://github.com/digital-land/brownfield-sites-status](https://github.com/digital-land/brownfield-sites-status)
+
 
 ## Update
 
@@ -7,7 +9,7 @@ Rewrite all of this just using - [goodtables](https://github.com/frictionlessdat
 
 This was a bit of an experiment that I think has run it's course. The validaton and fix approach is a yak shave 
 and I think not worth effort. A better approach would be to just use goodtables for validation as in 
-section-106-prototype coupled with good guidance, and if possible a simplified model for the brownfield data.
+[section-106-prototype](https://github.com/digital-land/section-106-prototype) coupled with good guidance, and if possible a simplified model for the brownfield data.
 
 ***
 
