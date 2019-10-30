@@ -44,10 +44,8 @@ def register_commands(app):
     pass
 
 def register_filters(app):
-    from application.filters import format_error, format_warning, healthcheck, \
+    from application.filters import healthcheck, \
         format_date_time, count_fields_with_errors, count_fields_with_warnings
-    app.add_template_filter(format_error)
-    app.add_template_filter(format_warning)
     app.add_template_filter(healthcheck)
     app.add_template_filter(format_date_time)
     app.add_template_filter(count_fields_with_errors)

@@ -1,13 +1,3 @@
-from application.validators.validators import ValidationError, ValidationWarning
-
-
-def format_error(error):
-    return ValidationError[error].value
-
-
-def format_warning(warning):
-    return ValidationWarning[warning].value
-
 
 def healthcheck(validation_dict):
     # @colm this is just a silly idea about how to indicate health of data in index page, maybe a score instead?
