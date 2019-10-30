@@ -43,6 +43,7 @@ def register_extensions(app):
 def register_commands(app):
     pass
 
+
 def register_filters(app):
     from application.filters import healthcheck, \
         format_date_time, count_fields_with_errors, count_fields_with_warnings
