@@ -1,0 +1,11 @@
+{% macro validationResultPanel(class, text, la_name) %}
+<div class="govuk-panel {{ class }}">
+    <h2 class="govuk-panel__title">
+        Validation {{ text }}
+    </h2>
+    <div class="govuk-panel__body">
+        <p>For<br><strong class="url">{{ la_name }}</strong></p>
+        {#<p><a class="govuk-panel__link" href="{{ url }}">Go to register</a></p>#}
+    </div>
+</div>
+{% endmacro %}

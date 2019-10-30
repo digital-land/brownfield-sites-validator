@@ -28,6 +28,13 @@ ordered_brownfield_register_fields = ['OrganisationURI',
                                       'LastUpdatedDate']
 
 
+temp_fields_seen_in_register = ['OrganisationURI',
+                                'OrganisationLabel',
+                                'SiteReference',
+                                'name',
+                                'notes',
+                                'FirstaddedDate']
+
 def to_boolean(value):
     if value is None:
         return False

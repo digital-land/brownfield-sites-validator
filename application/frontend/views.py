@@ -11,7 +11,7 @@ from flask import (
 
 from furl import furl
 from application.frontend.forms import UploadForm
-from application.utils import to_boolean
+from application.utils import to_boolean, ordered_brownfield_register_fields, temp_fields_seen_in_register
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
 
@@ -27,6 +27,11 @@ def upload():
     if form.validate_on_submit():
         return 'OK'
     return render_template('upload.html', form=form)
+
+
+@frontend.route('/validation-result')
+def validation_result():
+    return render_template('validation-result.html', expected=ordered_brownfield_register_fields, seen=temp_fields_seen_in_register)
 
 
 @frontend.context_processor

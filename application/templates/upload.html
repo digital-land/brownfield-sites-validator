@@ -15,7 +15,8 @@
 				{{ form.upload(class='govuk-file-upload') }}
 				{{ form.csrf_token }}
 			</div>
-			<button class="govuk-button button-validate" type="submit">Upload</button>
+			<!--<button class="govuk-button button-validate" type="submit">Upload</button>-->
+			<a href="{{ url_for('frontend.validation_result') }}" class="govuk-button">Upload</a>
 		</form>
 	</div>
 </div>
