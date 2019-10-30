@@ -1,3 +1,5 @@
+from application.validation.schema import brownfield_site_schema
+
 
 class FileTypeException(Exception):
 
@@ -5,35 +7,34 @@ class FileTypeException(Exception):
         self.message = message
 
 
-ordered_brownfield_register_fields = ['OrganisationURI',
-                                      'OrganisationLabel',
-                                      'SiteReference',
-                                      'PreviouslyPartOf',
-                                      'SiteNameAddress',
-                                      'SiteplanURL',
-                                      'CoordinateReferenceSystem',
-                                      'GeoX',
-                                      'GeoY',
-                                      'Hectares',
-                                      'OwnershipStatus',
-                                      'Deliverable',
-                                      'PlanningStatus',
-                                      'PermissionType',
-                                      'PermissionDate',
-                                      'PlanningHistory',
-                                      'ProposedForPIP',
-                                      'MinNetDwellings',
-                                      'DevelopmentDescription',
-                                      'NonHousingDevelopment',
-                                      'Part2',
-                                      'NetDwellingsRangeFrom',
-                                      'NetDwellingsRangeTo',
-                                      'HazardousSubstances',
-                                      'SiteInformation',
-                                      'Notes',
-                                      'FirstAddedDate',
-                                      'LastUpdatedDate']
-
+original_brownfield_register_fields = ['OrganisationURI',
+                                       'OrganisationLabel',
+                                       'SiteReference',
+                                       'PreviouslyPartOf',
+                                       'SiteNameAddress',
+                                       'SitePlanURL',
+                                       'CoordinateReferenceSystem',
+                                       'GeoX',
+                                       'GeoY',
+                                       'Hectares',
+                                       'OwnershipStatus',
+                                       'Deliverable',
+                                       'PlanningStatus',
+                                       'PermissionType',
+                                       'PermissionDate',
+                                       'PlanningHistory',
+                                       'ProposedForPIP',
+                                       'MinNetDwellings',
+                                       'DevelopmentDescription',
+                                       'NonHousingDevelopment',
+                                       'Part2',
+                                       'NetDwellingsRangeFrom',
+                                       'NetDwellingsRangeTo',
+                                       'HazardousSubstances',
+                                       'SiteInformation',
+                                       'Notes',
+                                       'FirstAddedDate',
+                                       'LastUpdatedDate']
 
 temp_fields_seen_in_register = ['OrganisationURI',
                                 'OrganisationLabel',
@@ -41,6 +42,7 @@ temp_fields_seen_in_register = ['OrganisationURI',
                                 'name',
                                 'notes',
                                 'FirstaddedDate']
+
 
 def to_boolean(value):
     if value is None:
@@ -53,16 +55,16 @@ def to_boolean(value):
 def convert_to_csv_if_needed(filename):
     import subprocess
     try:
-        if filename.endswith('.xls') or filename.endswith('.xlsx'):
+        if filename.endswith('.xls'):
             with open(f'{filename}.csv', 'w') as out:
                 subprocess.check_call(['in2csv', filename], stdout=out)
-            return f'{filename}.csv'
+            return f'{filename}.csv', filename.split('.')[-1]
         elif filename.endswith('.xlsm'):
             with open(f'{filename}.csv', 'w') as out:
                 subprocess.check_call(['xlsx2csv', filename], stdout=out)
-            return f'{filename}.csv'
+            return f'{filename}.csv' 'xlsm'
         else:
-            return filename
+            return filename, 'csv'
     except Exception as e:
         msg = 'Could not convert %s into csv' % filename
         raise FileTypeException(msg)
