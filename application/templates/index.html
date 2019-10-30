@@ -9,22 +9,28 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
 
-        <h1 class="govuk-heading-xl">Check your brownfield site data</h1>
+        <h1 class="govuk-heading-xl">Check your brownfield land register</h1>
 
         <p class="govuk-body">Use this service to:</p>
 
-        <ulx class="govuk-list govuk-list--bullet">
-          <li>check your brownfield site register is complete and formatted correctly</li>
-          <li>easily correct errors and omissions</li>
-          <li>generate GeoJSON data from your existing data</li>
-        </ulx>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>check your brownfield site register is contains the expected headers</li>
+          <li>check your brownfield site register is formatted correctly</li>
+          <li>identify errors and omissions</li>
+        </ul>
 
-        <p style="margin-top: 10px">
-            <a href="{{ url_for('frontend.upload') }}" role="button" class="govuk-button govuk-button--start">
-            Start now
-            </a>
-        </p>
+        <p class="govuk-body">Checking your data will take a couple of minutes.</p>
 
+        <a href="{{ url_for('frontend.upload') }}" role="button" draggable="false" class="govuk-button govuk-!-margin-top-2 govuk-!-margin-bottom-8 govuk-button--start">
+          Start now
+          <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" role="presentation" focusable="false">
+            <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
+          </svg>
+        </a>
+
+        <h2 class="govuk-heading-m">Before you start</h2>
+
+        <p class="govuk-body">You need to have a copy of your Brownfield land register ready to upload. It should have been created following the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">Brownfield land registers data standard</a>.</p>
       </div>
 
       <div class="govuk-grid-column-one-third">
