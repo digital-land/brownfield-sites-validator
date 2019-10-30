@@ -1,12 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "dlf-base.html" %}
 
-{{ form }}
-
-</body>
-</html>
+{% block content %}
+<div class="govuk-grid-row">
+	<div class="govuk-grid-column-two-thirds">
+		<h1 class="govuk-heading-xl">Upload register</h1>
+		<form class="govuk-form" method="POST" action="#"  enctype="multipart/form-data">
+			<div class="govuk-form-group">
+				<label class="govuk-label" for="file-upload-1">
+				Select your Brownfield land register
+				</label>
+				<span id="event-name-hint" class="govuk-hint">
+    			The register should be a .csv, .xls, .xlsx or .xlsm file
+  				</span>
+				{{ form.upload(class='govuk-file-upload') }}
+				{{ form.csrf_token }}
+			</div>
+			<button class="govuk-button button-validate" type="submit">Upload</button>
+		</form>
+	</div>
+</div>
+{% endblock %}
