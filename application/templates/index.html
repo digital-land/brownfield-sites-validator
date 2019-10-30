@@ -1,37 +1,29 @@
 {% extends "default.html" %}
 
-{% block header %}
-  {{ govukHeader({
-      "serviceName": "Brownfield sites",
-      "serviceUrl": url_for('frontend.index'),
-      "navigation": [
-      {
-        "href": "https://www.gov.uk/government/publications/brownfield-land-registers-data-standard",
-        "text": "Guidance"
-      },
-      {
-        "href": url_for('frontend.start'),
-        "text": "Validator"
-      },
-      {
-        "href": "https://digital-land.github.io/brownfield-sites",
-        "text": "Results"
-      }
-      ]
-    }) 
-  }}
+{% block beforeContent %}
+ {{ super() }}
 {% endblock %}
 
 {% block content %}
 
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
 
-        <h1 class="govuk-heading-xl">Brownfield site data</h1>
+        <h1 class="govuk-heading-xl">Check your brownfield site data</h1>
 
-        <p class="govuk-body">Use the <a href="{{ url_for('frontend.start' )}}">validate a brownfield site register service</a> to test your dataset against the standard.</p>
+        <p class="govuk-body">Use this service to:</p>
 
-        <p class="govuk-body"><a href="https://digital-land.github.io/brownfield-sites">View the results</a> for the brownfield site registers that have been run through the validator.</p>
+        <ulx class="govuk-list govuk-list--bullet">
+          <li>check your brownfield site register is complete and formatted correctly</li>
+          <li>easily correct errors and omissions</li>
+          <li>generate GeoJSON data from your existing data</li>
+        </ulx>
+
+        <p style="margin-top: 10px">
+            <a href="{{ url_for('frontend.upload') }}" role="button" class="govuk-button govuk-button--start">
+            Start now
+            </a>
+        </p>
 
       </div>
 
@@ -45,12 +37,8 @@
           </h2>
           <nav role="navigation" aria-labelledby="subsection-title">
             <ul class="govuk-list govuk-!-font-size-16">
-              <li>
-                <a class="govuk-link" href="https://www.gov.uk/guidance/brownfield-land-registers">Brownfield land registers</a>
-              </li>
-              <li>
-                <a class="govuk-link" href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard">Brownfield land registers data standard</a>
-              </li>
+              <li><a href="https://www.gov.uk/guidance/brownfield-land-registers" class="govuk-link">Brownfield land registers</a></li>
+              <li><a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">Brownfield land registers data standard</a></li>
             </ul>
           </nav>
         </aside>

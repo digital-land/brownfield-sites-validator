@@ -35,32 +35,13 @@ def register_blueprints(app):
     from application.frontend.views import frontend
     app.register_blueprint(frontend)
 
-    from application.brownfield_validation_results.views import brownfield_validation
-    app.register_blueprint(brownfield_validation)
-
 
 def register_extensions(app):
-
-    from application.extensions import db
-    db.init_app(app)
-
-    from application.extensions import migrate
-    migrate.init_app(app=app)
-
-    from flask_debugtoolbar import DebugToolbarExtension
-    toolbar = DebugToolbarExtension(app)
+    pass
 
 
 def register_commands(app):
-    from application.commands import load, validate, clear, update_brownfield_urls, build_report, get_brownfield_files, join_files
-    app.cli.add_command(load, name='load')
-    app.cli.add_command(validate, name='validate')
-    app.cli.add_command(clear, name='clear')
-    app.cli.add_command(update_brownfield_urls, name='update-urls')
-    app.cli.add_command(build_report, name='build-report')
-    app.cli.add_command(get_brownfield_files, name='get-brownfield')
-    app.cli.add_command(join_files, name='join-files')
-
+    pass
 
 def register_filters(app):
     from application.filters import format_error, format_warning, healthcheck, \
