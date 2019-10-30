@@ -1,0 +1,84 @@
+//
+// Mixin for creating different coloured buttons in the style of the 
+// GOVUK ones
+//
+// Simple usage:
+//   .button-filter-table {
+//     @include govuk-style-button($button-colour:  govuk-colour(blue));
+//   }
+//
+@mixin govuk-style-button(
+  $button-text-colour: #ffffff,
+  $button-colour: govuk-colour("green"),
+  $button-hover-colour: darken($button-colour, 5%),
+  $button-shadow-colour: darken($button-colour, 15%),
+  $button-shadow-size: $govuk-border-width-form-element
+) {
+   
+  color: $button-text-colour;
+  background-color: $button-colour;
+  box-shadow: 0 $button-shadow-size 0 $button-shadow-colour;
+
+  &:link,
+  &:visited,
+  &:active,
+  &:hover {
+    color: $button-text-colour;
+    text-decoration: none;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: $button-hover-colour;
+  }
+}
+
+
+// Button styles
+// -------------
+.dlf-load-button,
+.dlf-filter-button {
+  @include govuk-style-button($button-colour:  govuk-colour("blue"));
+  margin-top: 5px;
+}
+
+.dlf-secondary-button {
+  @include govuk-style-button($button-text-colour: $govuk-text-colour, $button-colour:  govuk-colour("light-grey", $legacy: "grey-3"));
+}
+
+// Allows you to align an anchor next to the button
+// Used for buttons such as form cancel/reset
+.link-align-btn,
+.cancel-btn {
+  display: none;
+
+  @include govuk-font($size: 16, $line-height: 16px);
+  @include govuk-link-common;
+
+  width: 100%;
+  padding: 14px 10px 11px;
+  border: 0;
+  color: govuk-colour("blue");
+  background: transparent;
+  text-align: center;
+  vertical-align: top;
+  cursor: pointer;
+  -webkit-appearance: none;
+
+  @include govuk-media-query($from: tablet) {
+    width: auto;
+  }
+
+  &:link,
+  &:visited,
+  &:active,
+  &:hover {
+    color: $govuk-link-colour;
+    text-decoration: underline;
+  }
+
+  .js-enabled &,
+  &.non-js-button {
+    display: inline-block;
+  }
+}

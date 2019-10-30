@@ -5,7 +5,7 @@
 // -------
 .button-load-data,
 .button-filter-table {
-  @include govuk-style-button($button-colour:  govuk-colour(blue));
+  @include govuk-style-button($button-colour:  govuk-colour("blue"));
   margin-top: 5px;
 }
 

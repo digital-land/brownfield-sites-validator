@@ -15,19 +15,19 @@ $govuk-green-colour: 	#006435;
 
   .full-results-link {
     display: inline-block;
-    font-size: govuk-em(16, 19);
     margin-bottom: 0;
+    font-size: govuk-em(16, 19);
   }
 
   .validation-result-numeric-cell,
   .center-align-cell {
-    text-align: center;
     padding-right: 0;
+    text-align: center;
   }
 
   .center-align-cell {
-    padding-left: 10px;
     padding-right: 10px;
+    padding-left: 10px;
   }
 
   .validation-result-not-available {
@@ -36,20 +36,21 @@ $govuk-green-colour: 	#006435;
 
   .successful {
     color: $govuk-green-colour;
+    background: rgba($govuk-green-colour, .1);
     font-weight: 700;
-    background: rgba($govuk-green-colour, 0.1);
   }
 
-  .unsuccessful, .error {
+  .unsuccessful,
+  .error {
     color: govuk-colour("red");
+    background: rgba(govuk-colour("red") , .1);
     font-weight: 700;
-    background: rgba( govuk-colour("red") , 0.1);
   }
 
   .warning {
     color: govuk-colour("yellow");
+    background: rgba(govuk-colour("yellow"), .1);
     font-weight: 700;
-    background: rgba(govuk-colour("yellow"), 0.1);
   }
 
 }
