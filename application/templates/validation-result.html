@@ -202,6 +202,7 @@
   </div>
 </div>
 
+{% if report.valid() %}
 <!-- should only be shown if able to plot brownfield sites -->
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
@@ -210,7 +211,9 @@
     <div id="map-original" style="height: 1px;"></div>
   </div>
 </div>
+{% endif %}
 
+<h2 class="govuk-heading-l govuk-!-margin-top-9">Raw results, temporary</h2>
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <details>
@@ -220,13 +223,5 @@
     </div>
 </div>
 
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <details>
-            <summary class="govuk-body">Raw validation results</summary>
-            <pre>{{ report.errors() }}</pre>
-        </details>
-    </div>
-</div>
 
 {% endblock %}
