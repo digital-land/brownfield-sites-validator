@@ -6,6 +6,7 @@ from application.validation.schema import brownfield_site_schema
 
 current_standard_fields = [item['name'] for item in brownfield_site_schema['fields']]
 
+
 class FileTypeException(Exception):
 
     def __init__(self, message):
@@ -94,7 +95,7 @@ def extract_and_normalise_data(upload_data):
         try:
             file, file_type = convert_to_csv_if_needed(file)
             data, additional_fields = process_csv_file(file)
-            return data, additional_fields
+            return data, additional_fields, file_type
         except Exception as e:
             print(e)
             return {'error': str(e)}, {}

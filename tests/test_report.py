@@ -16,12 +16,12 @@ def results():
 
 
 def test_report_shows_total_number_of_errors(results):
-    report = Report(results, {})
+    report = Report(results, {}, 'csv')
     assert 102 == report.error_count()
 
 
 def test_column_number_to_field_name(results):
-    report = Report(results, {})
+    report = Report(results, {}, 'csv')
     assert report.column_number_to_field_name(1) == 'Deliverable'
     assert report.column_number_to_field_name(2) == 'FirstAddedDate'
     assert report.column_number_to_field_name(3) == 'GeoX'
@@ -40,15 +40,14 @@ def test_column_number_to_field_name(results):
     assert report.column_number_to_field_name(16) == 'PlanningStatus'
     assert report.column_number_to_field_name(17) == 'SiteNameAddress'
     assert report.column_number_to_field_name(18) == 'SiteReference'
-
+    # TODO change this when column name fixup is done
     assert report.column_number_to_field_name(19) == 'SiteplanURL'
-
     assert report.column_number_to_field_name(0) == 'unknown'
     assert report.column_number_to_field_name(20) == 'unknown'
 
 
 def test_field_name_to_column_number(results):
-    report = Report(results, {})
+    report = Report(results, {}, 'csv')
     assert 1 == report.field_name_to_column_number('Deliverable')
     assert 2 == report.field_name_to_column_number("FirstAddedDate")
     assert 3 == report.field_name_to_column_number('GeoX')
@@ -67,30 +66,18 @@ def test_field_name_to_column_number(results):
     assert 16 == report.field_name_to_column_number('PlanningStatus')
     assert 17 == report.field_name_to_column_number('SiteNameAddress')
     assert 18 == report.field_name_to_column_number('SiteReference')
-
+    # TODO change this when column name fixup is done
     assert 19 == report.field_name_to_column_number('SiteplanURL')
-
     assert -1 == report.field_name_to_column_number('unknown')
 
 
 def test_report_shows_error_counts_by_first_added_date(results):
-
-    report = Report(results, {})
-    expected ={'field': 'FirstAddedDate',
-               'type-or-format-error': {'count': 27,
-                                        'message-data': {'value': '26/02/2018',
-                                                         'field_type': 'date',
-                                                         'field_format': 'default'}}}
-
+    report = Report(results, {}, 'csv')
+    expected = {'field': 'FirstAddedDate', 'errors': [{'count': 27, 'type': 'type-or-format-error'}], }
     assert expected == report.errors_by_field('FirstAddedDate')
 
 
 def test_report_shows_error_counts_by_deliverable(results):
-
-    report = Report(results, {})
-    expected ={'field': 'Deliverable',
-               'pattern-constraint': {'count': 27,
-                                      'message-data': {'constraint': 'Y',
-                                                       'value': 'Yes'}}}
-
+    report = Report(results, {}, 'csv')
+    expected = {'field': 'Deliverable', 'errors': [{'count': 27, 'type': 'pattern-constraint'}]}
     assert expected == report.errors_by_field('Deliverable')

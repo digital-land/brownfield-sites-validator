@@ -11,10 +11,10 @@
 <!-- show overall result -->
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-full">
-  {% if results_json.valid %}
+  {% if report.valid() %}
   {{ validationResultPanel2(true) }}
   {% else %}
-  {{ validationResultPanel2(false, results_json["error-count"]) }}
+  {{ validationResultPanel2(false, report.error_count()) }}
   {% endif %}
   </div>
 </div>
@@ -29,7 +29,7 @@
           <!-- what type of file was uploaded -->
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">File type</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">csv|xls|xlsx|xlsm</td>
+            <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.file_type }}</td>
           </tr>
 
           <!-- were we able to extract name of Local Authority -->
@@ -92,7 +92,7 @@
     <h4 class="govuk-heading-s">Expected</h4>
     <ul class="govuk-list field-list">
       {% for header in fields.expected %}
-      <li {% if not header in results_json.tables[0].headers %}class="error"{% endif %}>{{ header }}</li>
+      <li {% if not header in report.headers() %}class="error"{% endif %}>{{ header }}</li>
       {% endfor %}
     </ul>
 
@@ -117,7 +117,7 @@
     <h4 class="govuk-heading-s">Accepted</h4>
     <ul class="govuk-list field-list">
       {% for header in fields.expected %}
-      <li>{% if header in results_json.tables[0].headers %}<span>{{ header }}<span class="govuk-visually-hidden"> field is present in CSV</span> &#10004;</span>{% else %}<span class="dlf-secondary-text">{{ header }}</span><span class="govuk-visually-hidden"> field is not present in CSV</span>{% endif %}</li>
+      <li>{% if header in report.headers() %}<span>{{ header }}<span class="govuk-visually-hidden"> field is present in CSV</span> &#10004;</span>{% else %}<span class="dlf-secondary-text">{{ header }}</span><span class="govuk-visually-hidden"> field is not present in CSV</span>{% endif %}</li>
       {% endfor %}
     </ul>
 
@@ -130,7 +130,7 @@
       </div>
     </details>
     <ul class="govuk-list field-list">
-      {% for header in results_json["additional-fields"] %}
+      {% for header in report.additional_fields() %}
       <li>{{ header }}</li>
       {% endfor %}
     </ul>
@@ -145,6 +145,8 @@
     <p class="govuk-body">Content errors occur when the data is not in the expected format as layed out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">brownfield site standard</a>.</p>
 
     <div class="govuk-details__text">
+
+    <!--
       <ol class="govuk-list govuk-list--number">
         <li>
           <h3 class="govuk-heading-s">GeoX</h3>
@@ -175,7 +177,27 @@
           <p>Across <span class="row-value">1 rows</span>.</p>
           <p>[List rows, show examples of data entered]</p>
         </li>
+
+        <li>
+          <h3 class="govuk-heading-s">GeoX</h3>
+          <p class="no-margin">Required data is missing</p> <p>Across <span class="row-value">13 rows</span>.</p>
+          <p>[List rows, show examples of data entered]</p>
+        </li>
       </ol>
+      -->
+
+
+       <ol class="govuk-list govuk-list--number">
+           {% for error in report.errors() %}
+               <li>
+                <h3 class="govuk-heading-s">{{ error.field }}</h3>
+                 {% for e in error.errors %}
+                    <p class="no-margin">{{ e.type }}</p>
+                    <p>Across <span class="row-value">{{ e.count }} rows</span>.</p>
+                 {% endfor %}
+               </li>
+           {% endfor %}
+       </ol>
     </div>
   </div>
 </div>
@@ -193,7 +215,7 @@
     <div class="govuk-grid-column-two-thirds">
         <details>
             <summary class="govuk-body">Raw validation results</summary>
-            <pre>{{ results }}</pre>
+            <pre>{{ report.raw_data() }}</pre>
         </details>
     </div>
 </div>

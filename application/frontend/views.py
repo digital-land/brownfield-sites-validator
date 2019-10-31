@@ -23,14 +23,12 @@ def index():
 def validate():
     form = UploadForm()
     if form.validate_on_submit():
-        results = handle_upload_and_validate(form)
+        report = handle_upload_and_validate(form)
         return render_template('validation-result.html',
                                fields=brownfield_standard_fields(),
                                seen=temp_fields_seen_in_register,
-                               results_json=results,
-                               results=json.dumps(results,
-                                                  sort_keys=False,
-                                                  indent = 2))
+                               report=report)
+
     return render_template('upload.html', form=form)
 
 

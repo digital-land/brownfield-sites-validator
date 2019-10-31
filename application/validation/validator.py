@@ -1,13 +1,16 @@
+import json
+
 import goodtables
 from bidict import bidict
 
-from application.utils import extract_and_normalise_data, updated_brownfield_register_fields
+from application.utils import extract_and_normalise_data
 from application.validation.schema import brownfield_site_schema
 
 
 def handle_upload_and_validate(form):
-    data, additional_fields = extract_and_normalise_data(form.upload.data)
-    return check(data, additional_fields)
+    data, additional_fields, file_type = extract_and_normalise_data(form.upload.data)
+    results = check(data, additional_fields)
+    return Report(results, data, file_type)
 
 
 def check(data, additional_fields):
@@ -19,26 +22,40 @@ def check(data, additional_fields):
 
 class Report:
 
-    def __init__(self, results, data):
+    def __init__(self, results, data, file_type):
         self.results = results
         self.data = data
+        self.file_type = file_type
         cols_to_fields = {}
         for column_number, header in enumerate(self.results['tables'][0]['headers']):
             cols_to_fields[column_number + 1] = header
         self.columns_to_fields = bidict(cols_to_fields)
 
+    def valid(self):
+        return self.results['valid']
+
+    def headers(self):
+        return self.results['tables'][0]['headers']
+
+    def additional_fields(self):
+        return self.results['additional-fields']
+
     def error_count(self):
         return self.results['error-count']
 
+    # TODO map error types to better names and work out what to extract from messages and values
     def errors_by_field(self, field):
         column_number = self.field_name_to_column_number(field)
-        errors = {'field': field}
-        for error in self.results['tables'][0]['errors']:
-            if error['column-number'] == column_number:
-                if errors.get(error['code']) is None:
-                    errors[error['code']] = {'count': 1, 'message-data': error['message-data']}
+        errors = {'field': field, 'errors': []}
+        for e in self.results['tables'][0]['errors']:
+            if e['column-number'] == column_number:
+                for err in errors['errors']:
+                    if err['type'] == e['code']:
+                        err['count'] += 1
+                        break
                 else:
-                    errors[error['code']]['count'] += 1
+                    err = {'type': e['code'], 'count': 1}
+                    errors['errors'].append(err)
         return errors
 
     def column_number_to_field_name(self, index):
@@ -52,4 +69,18 @@ class Report:
             return self.columns_to_fields.inverse[field]
         except KeyError as e:
             return -1
+
+    def errors(self):
+        errs = []
+        for field in self.headers():
+            e = self.errors_by_field(field)
+            if e['errors']:
+                errs.append(e)
+        return errs
+
+    def raw_data(self):
+        return json.dumps(self.results,
+                          sort_keys=False,
+                          indent=2)
+
 
