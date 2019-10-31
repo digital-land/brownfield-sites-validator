@@ -49,9 +49,11 @@ class Report:
     # TODO map error types to better names and work out what to extract from messages and values
     def errors_by_field(self, field):
         column_number = self.field_name_to_column_number(field)
-        errors = {'field': field, 'errors': []}
+        errors = {'field': field, 'errors': [], 'rows': []}
         for e in self.results['tables'][0]['errors']:
             if e['column-number'] == column_number:
+                if 'row-number' in e.keys():
+                    errors['rows'].append(e['row-number'])
                 for err in errors['errors']:
                     if err['type'] == e['code']:
                         err['count'] += 1
@@ -59,6 +61,7 @@ class Report:
                 else:
                     err = {'type': e['code'], 'count': 1}
                     errors['errors'].append(err)
+        errors['rows'] = set(errors['rows'])
         return errors
 
     def column_number_to_field_name(self, index):

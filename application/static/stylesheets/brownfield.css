@@ -7738,6 +7738,12 @@
   color: #6f777b;
 }
 
+.inline-error-text {
+  color: #d4351c;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
 a {
   font-family: "GDS Transport", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

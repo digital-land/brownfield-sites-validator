@@ -52,6 +52,12 @@ $using-helvetica: false;
   color: govuk-colour("dark-grey");
 }
 
+.inline-error-text {
+  color: $govuk-error-colour;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
 // default link style should
 // match govuk link style
 a {
