@@ -90,14 +90,20 @@
     <h3 class="govuk-heading-m">Data standard headers</h3>
     <p class="govuk-body">Below are the fields that are part of the brownfield land registers data standard.</p>
     <h4 class="govuk-heading-s">Expected</h4>
-    <ul class="govuk-list">
+    <ul class="govuk-list field-list">
       {% for header in fields.expected %}
-      <li>{{ header }}</li>
+      <li {% if not header in results_json.tables[0].headers %}class="error"{% endif %}>{{ header }}</li>
       {% endfor %}
     </ul>
 
     <h4 class="govuk-heading-s">Deprecated</h4>
-    <ul class="govuk-list">
+    <details class="govuk-details govuk-details--close">
+      <summary class="govuk-details__summary">Why are some fields deprecated?</summary>
+      <div class="govuk-details__text">
+        <p class="govuk-body">Between versions 1 and 2 of the Brownfield land register standard some fields were deprecated. These fields were deprecated after analysing data collected and concluding they were not useful.</p>
+      </div>
+    </details>
+    <ul class="govuk-list field-list">
       {% for header in fields.deprecated %}
       <li>{{ header }}</li>
       {% endfor %}
@@ -109,14 +115,21 @@
     <h3 class="govuk-heading-m">Headers in CSV</h3>
     <p class="govuk-body">Below are the fields observed when processing the file you uploaded.</p>
     <h4 class="govuk-heading-s">Accepted</h4>
-    <ul class="govuk-list">
-      {% for header in results_json.tables[0].headers %}
-      <li>{{ header }}</li>
+    <ul class="govuk-list field-list">
+      {% for header in fields.expected %}
+      <li>{% if header in results_json.tables[0].headers %}<span>{{ header }}<span class="govuk-visually-hidden"> field is present in CSV</span> &#10004;</span>{% else %}<span class="dlf-secondary-text">{{ header }}</span><span class="govuk-visually-hidden"> field is not present in CSV</span>{% endif %}</li>
       {% endfor %}
     </ul>
 
     <h4 class="govuk-heading-s">Additional</h4>
-    <ul class="govuk-list">
+    <details class="govuk-details govuk-details--close">
+      <summary class="govuk-details__summary">Why are there some fields from the standard?</summary>
+      <div class="govuk-details__text">
+        <p class="govuk-body">Some fields have been deprecated. You no longer need to include them. You can still include them if you want but we display them below to warn you that they are no longer needed.</p>
+        <p class="govuk-body">You must not include any fields that are neither part of the standard or deprecated. Any additional fields will be shown here.</p>
+      </div>
+    </details>
+    <ul class="govuk-list field-list">
       {% for header in results_json["additional-fields"] %}
       <li>{{ header }}</li>
       {% endfor %}

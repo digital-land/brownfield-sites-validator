@@ -7734,6 +7734,10 @@
   margin-bottom: 10px;
 }
 
+.dlf-secondary-text {
+  color: #6f777b;
+}
+
 a {
   font-family: "GDS Transport", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -7943,4 +7947,22 @@ a:focus {
 
 .leaflet-pane .bfs-popup p:last-child {
   margin-bottom: 0;
+}
+
+.govuk-details--close {
+  margin-bottom: 15px;
+}
+
+.field-list {
+  padding: 5px 0;
+  border: 1px solid #6f777b;
+}
+
+.field-list > li {
+  padding: 0 10px;
+}
+
+.field-list > .error {
+  color: #d4351c;
+  font-weight: 700;
 }
