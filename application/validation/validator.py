@@ -34,6 +34,9 @@ class Report:
     def valid(self):
         return self.results['valid']
 
+    def row_count(self):
+        return self.results['tables'][0]['row-count']
+
     def headers(self):
         return self.results['tables'][0]['headers']
 
@@ -82,5 +85,15 @@ class Report:
         return json.dumps(self.results,
                           sort_keys=False,
                           indent=2)
+
+    def valid_row_count(self):
+        return self.row_count() - len(self.invalid_rows())
+
+    def invalid_rows(self):
+        rows = []
+        for error in self.results['tables'][0]['errors']:
+            if 'row-number' in error.keys():
+                rows.append(error['row-number'])
+        return set(rows)
 
 

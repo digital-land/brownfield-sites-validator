@@ -53,7 +53,7 @@
           <!-- is the data valid -->
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">Data valid (rows seen/validated)</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#data-issues-section">0/0</a></td>
+            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#data-issues-section">{{ report.row_count() }}/{{ report.valid_row_count() }}</a></td>
           </tr>
 
         </tbody>
@@ -216,6 +216,15 @@
         <details>
             <summary class="govuk-body">Raw validation results</summary>
             <pre>{{ report.raw_data() }}</pre>
+        </details>
+    </div>
+</div>
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <details>
+            <summary class="govuk-body">Raw validation results</summary>
+            <pre>{{ report.invalid_rows() }}</pre>
         </details>
     </div>
 </div>
