@@ -7,7 +7,8 @@ from flask import (
 )
 
 from application.frontend.forms import UploadForm
-from application.utils import original_brownfield_register_fields, temp_fields_seen_in_register
+
+from application.utils import brownfield_standard_fields, temp_fields_seen_in_register
 from application.validation.validator import handle_upload_and_validate
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
@@ -24,8 +25,9 @@ def validate():
     if form.validate_on_submit():
         results = handle_upload_and_validate(form)
         return render_template('validation-result.html',
-                               expected=original_brownfield_register_fields,
+                               fields=brownfield_standard_fields(),
                                seen=temp_fields_seen_in_register,
+                               results_json=results,
                                results=json.dumps(results,
                                                   sort_keys=False,
                                                   indent = 2))

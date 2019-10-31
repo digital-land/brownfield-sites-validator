@@ -4,6 +4,7 @@ import tempfile
 from werkzeug.utils import secure_filename
 from application.validation.schema import brownfield_site_schema
 
+current_standard_fields = [item['name'] for item in brownfield_site_schema['fields']]
 
 class FileTypeException(Exception):
 
@@ -48,7 +49,12 @@ temp_fields_seen_in_register = ['OrganisationURI',
                                 'FirstaddedDate']
 
 
-updated_brownfield_register_fields = [item['name'] for item in brownfield_site_schema['fields']]
+def brownfield_standard_fields():
+  deprecated_fields = set(original_brownfield_register_fields) - set(current_standard_fields)
+  return {
+    "expected": sorted(current_standard_fields),
+    "deprecated": deprecated_fields
+  }
 
 
 def to_boolean(value):
@@ -100,7 +106,7 @@ def process_csv_file(csv_file):
 
     # TODO fixup column names
 
-    columns_to_ignore = set(original_brownfield_register_fields) - set(updated_brownfield_register_fields)
-    additional_columns = set(df.columns) - set(updated_brownfield_register_fields)
+    columns_to_ignore = set(original_brownfield_register_fields) - set(current_standard_fields)
+    additional_columns = set(df.columns) - set(current_standard_fields)
     df.drop(columns_to_ignore, axis=1, inplace=True)
     return df.to_dict(orient='records'), list(additional_columns)

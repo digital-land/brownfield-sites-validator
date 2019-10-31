@@ -42,8 +42,14 @@ $using-helvetica: false;
 // Additional styles
 // =================
 
-* {
-  font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
+@if $using-helvetica == true {
+  * {
+    font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
+  }
+}
+
+.dlf-secondary-text {
+  color: govuk-colour("dark-grey");
 }
 
 // default link style should
@@ -80,6 +86,10 @@ a {
 .panel-warning {
   border-color: govuk-colour("yellow");
   background: govuk-colour("dark-grey");
+}
+
+.govuk-panel__title--l {
+  @include govuk-font($size: 36, $weight: bold);
 }
 
 .list-bullet-coloured {
@@ -222,5 +232,25 @@ a {
     &:last-child {
       margin-bottom: 0;
     }
+  }
+}
+
+// Field list
+// ======================
+.govuk-details--close {
+  margin-bottom: 15px;
+}
+
+.field-list {
+  padding: 5px 0;
+  border: 1px solid govuk-colour("dark-grey");
+
+  > li {
+    padding: 0 10px;
+  }
+
+  > .error {
+    color:  $govuk-error-colour;
+    font-weight: 700;
   }
 }
