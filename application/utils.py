@@ -1,5 +1,6 @@
 from application.validation.schema import brownfield_site_schema
 
+current_standard_fields = [item['name'] for item in brownfield_site_schema['fields']]
 
 class FileTypeException(Exception):
 
@@ -42,6 +43,14 @@ temp_fields_seen_in_register = ['OrganisationURI',
                                 'name',
                                 'notes',
                                 'FirstaddedDate']
+
+
+def brownfield_standard_fields():
+  deprecated_fields = set(original_brownfield_register_fields) - set(current_standard_fields)
+  return {
+    "expected": current_standard_fields,
+    "deprecated": deprecated_fields
+  }
 
 
 def to_boolean(value):
