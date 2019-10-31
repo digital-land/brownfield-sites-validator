@@ -194,6 +194,12 @@
                {% for e in error.errors %}
                   <p class="no-margin">{{ e.type }}</p>
                   <p>Across <span class="row-value">{{ e.count }} {{ "row"|pluralise("", "s", e.count) }}</span>.</p>
+                  <details class="govuk-details">
+                    <summary class="govuk-details__summary">See all incorrect rows</summary>
+                    <div class="govuk-details__text">
+                      {% for row in error.rows %}Row {{ row }}{{ ", " if not loop.last }}{% endfor %}
+                    </div>
+                  </details>
                {% endfor %}
              </li>
          {% endfor %}
