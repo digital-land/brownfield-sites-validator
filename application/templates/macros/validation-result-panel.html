@@ -15,7 +15,7 @@
     <h2 class="govuk-panel__title govuk-panel__title--l">
     	Validation
     	{% if valid %} complete
-    	{% else %} incomplete: {{ error_count }} errors found
+    	{% else %} incomplete: {{ error_count }} {{ "error"|pluralise("", "s", error_count) }} found
     	{% endif %}
     </h2>
 </div>
