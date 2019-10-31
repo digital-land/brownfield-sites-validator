@@ -9,3 +9,14 @@
     </div>
 </div>
 {% endmacro %}
+
+{% macro validationResultPanel2(valid, error_count) %}
+<div class="govuk-panel {% if valid %}govuk-panel--confirmation{% else %}govuk-panel--error{% endif %}">
+    <h2 class="govuk-panel__title govuk-panel__title--l">
+    	Validation
+    	{% if valid %} complete
+    	{% else %} incomplete: {{ error_count }} errors found
+    	{% endif %}
+    </h2>
+</div>
+{% endmacro %}

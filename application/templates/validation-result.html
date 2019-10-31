@@ -1,19 +1,27 @@
 {% extends "dlf-base.html" %}
-{% from "macros/validation-result-panel.html" import validationResultPanel %}
+{% from "macros/validation-result-panel.html" import validationResultPanel2 %}
+
+{% block beforeContent %}
+  {{ super() }}
+  <a href="{{ url_for('frontend.validate') }}" class="govuk-back-link">Back</a>
+{% endblock %}
 
 {% block content %}
-<h1 class="govuk-heading-xl">Validation result</h1>
 
 <!-- show overall result -->
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-full">
-  {{ validationResultPanel("govuk-panel--error", "found errors", "Barnsley Metropolitan Borough Council") }}
+  {% if results_json.valid %}
+  {{ validationResultPanel2(true) }}
+  {% else %}
+  {{ validationResultPanel2(false, results_json["error-count"]) }}
+  {% endif %}
   </div>
 </div>
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-      <h2 class="govuk-heading-l govuk-!-margin-top-9">Overview</h2>
+      <h1 class="govuk-heading-xl govuk-!-margin-top-6">Validation overview</h1>
 
       <table class="govuk-table">
         <tbody class="govuk-table__body">

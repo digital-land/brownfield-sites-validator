@@ -7734,10 +7734,6 @@
   margin-bottom: 10px;
 }
 
-* {
-  font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
-}
-
 a {
   font-family: "GDS Transport", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -7786,6 +7782,37 @@ a:focus {
 .panel-warning {
   border-color: #ffdd00;
   background: #6f777b;
+}
+
+.govuk-panel__title--l {
+  font-family: "GDS Transport", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 700;
+  font-size: 24px;
+  font-size: 1.5rem;
+  line-height: 1.04167;
+}
+
+@media print {
+  .govuk-panel__title--l {
+    font-family: sans-serif;
+  }
+}
+
+@media (min-width: 40.0625em) {
+  .govuk-panel__title--l {
+    font-size: 36px;
+    font-size: 2.25rem;
+    line-height: 1.11111;
+  }
+}
+
+@media print {
+  .govuk-panel__title--l {
+    font-size: 24pt;
+    line-height: 1.05;
+  }
 }
 
 .list-bullet-coloured li {

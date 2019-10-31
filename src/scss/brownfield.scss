@@ -42,8 +42,10 @@ $using-helvetica: false;
 // Additional styles
 // =================
 
-* {
-  font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
+@if $using-helvetica == true {
+  * {
+    font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif !important;
+  }
 }
 
 // default link style should
@@ -80,6 +82,10 @@ a {
 .panel-warning {
   border-color: govuk-colour("yellow");
   background: govuk-colour("dark-grey");
+}
+
+.govuk-panel__title--l {
+  @include govuk-font($size: 36, $weight: bold);
 }
 
 .list-bullet-coloured {
