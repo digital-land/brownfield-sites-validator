@@ -27,6 +27,7 @@ def validate():
         return render_template('validation-result.html',
                                fields=brownfield_standard_fields(),
                                seen=temp_fields_seen_in_register,
+                               results_json=results,
                                results=json.dumps(results,
                                                   sort_keys=False,
                                                   indent = 2))

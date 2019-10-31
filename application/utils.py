@@ -52,7 +52,7 @@ temp_fields_seen_in_register = ['OrganisationURI',
 def brownfield_standard_fields():
   deprecated_fields = set(original_brownfield_register_fields) - set(current_standard_fields)
   return {
-    "expected": current_standard_fields,
+    "expected": sorted(current_standard_fields),
     "deprecated": deprecated_fields
   }
 

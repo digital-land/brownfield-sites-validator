@@ -80,12 +80,14 @@
 
   <div class="govuk-grid-column-one-half">
     <h3 class="govuk-heading-m">Data standard headers</h3>
+    <p class="govuk-body">Below are the fields that are part of the brownfield land registers data standard.</p>
     <h4 class="govuk-heading-s">Expected</h4>
     <ul class="govuk-list">
       {% for header in fields.expected %}
       <li>{{ header }}</li>
       {% endfor %}
     </ul>
+
     <h4 class="govuk-heading-s">Deprecated</h4>
     <ul class="govuk-list">
       {% for header in fields.deprecated %}
@@ -97,9 +99,18 @@
 
   <div class="govuk-grid-column-one-half">
     <h3 class="govuk-heading-m">Headers in CSV</h3>
+    <p class="govuk-body">Below are the fields observed when processing the file you uploaded.</p>
+    <h4 class="govuk-heading-s">Accepted</h4>
     <ul class="govuk-list">
-      {% for header in seen %}
-          <li>{{ header }}</li>
+      {% for header in results_json.tables[0].headers %}
+      <li>{{ header }}</li>
+      {% endfor %}
+    </ul>
+
+    <h4 class="govuk-heading-s">Additional</h4>
+    <ul class="govuk-list">
+      {% for header in results_json["additional-fields"] %}
+      <li>{{ header }}</li>
       {% endfor %}
     </ul>
   </div>
