@@ -1,0 +1,1140 @@
+{
+  "additional-fields": [
+    "CoordinateReferenceSystem",
+    "PreviouslyPartOf",
+    "MinNetDwellings",
+    "DevelopmentDescription",
+    "OrganisationLabel",
+    "Part2",
+    "ProposedForPIP",
+    "NonHousingDevelopment",
+    "SiteplanURL",
+    "SiteInformation"
+  ],
+  "error-count": 102,
+  "preset": "table",
+  "table-count": 1,
+  "tables": [
+    {
+      "error-count": 102,
+      "errors": [
+        {
+          "code": "non-matching-header",
+          "column-number": 19,
+          "message": "Header in column 19 doesn't match field name \"SitePlanURL\" in the schema",
+          "message-data": {
+            "field_name": "SitePlanURL",
+            "header": "SiteplanURL"
+          }
+        },
+        {
+          "code": "missing-header",
+          "column-number": 20,
+          "message": "There is a missing header in column 20",
+          "message-data": {
+            "field_name": "EndDate"
+          }
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 1 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 1
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 1 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 1
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 1 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 1
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 2 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 2
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 2 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 2
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 2 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 2
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 12,
+          "message": "The value \"owned by public authority\" in row 2 and column 12 does not conform to the pattern constraint of \"(?i)(owned by a public authority|mixed ownership|not owned by a public authority)\"",
+          "message-data": {
+            "constraint": "(?i)(owned by a public authority|mixed ownership|not owned by a public authority)",
+            "value": "owned by public authority"
+          },
+          "row-number": 2
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 3 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 3
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 3 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 3
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 3 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 3
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"08/12/2016\" in row 3 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "08/12/2016"
+          },
+          "row-number": 3
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 4 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 4
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 4 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 4
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 4 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 4
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"29/09/2015\" in row 4 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "29/09/2015"
+          },
+          "row-number": 4
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 5 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 5
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 5 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 5
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 5 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 5
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"13/01/2016\" in row 5 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "13/01/2016"
+          },
+          "row-number": 5
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 6 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 6
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 6 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 6
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 6 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 6
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"24/10/2014\" in row 6 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "24/10/2014"
+          },
+          "row-number": 6
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 7 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 7
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 7 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 7
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 7 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 7
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 8 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 8
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 8 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 8
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 8 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 8
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 9 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 9
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 9 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 9
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 9 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 9
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"15/06/2016\" in row 9 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "15/06/2016"
+          },
+          "row-number": 9
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 10 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 10
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 10 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 10
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 10 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 10
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"15/06/2016\" in row 10 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "15/06/2016"
+          },
+          "row-number": 10
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 11 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 11
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 11 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 11
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 11 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 11
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 12 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 12
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 12 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 12
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 12 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 12
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 13 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 13
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 13 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 13
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 13 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 13
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"10/04/2017\" in row 13 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "10/04/2017"
+          },
+          "row-number": 13
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 14 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 14
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 14 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 14
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 14 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 14
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 15 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 15
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 15 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 15
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 15 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 15
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 12,
+          "message": "The value \"owned by public authority\" in row 15 and column 12 does not conform to the pattern constraint of \"(?i)(owned by a public authority|mixed ownership|not owned by a public authority)\"",
+          "message-data": {
+            "constraint": "(?i)(owned by a public authority|mixed ownership|not owned by a public authority)",
+            "value": "owned by public authority"
+          },
+          "row-number": 15
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 16 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 16
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 16 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 16
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 16 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 16
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"16/11/2017\" in row 16 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "16/11/2017"
+          },
+          "row-number": 16
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 17 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 17
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 17 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 17
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 17 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 17
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"16/11/2016\" in row 17 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "16/11/2016"
+          },
+          "row-number": 17
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 18 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 18
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 18 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 18
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 18 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 18
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 19 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 19
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 19 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 19
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 19 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 19
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 12,
+          "message": "The value \"owned by public authority\" in row 19 and column 12 does not conform to the pattern constraint of \"(?i)(owned by a public authority|mixed ownership|not owned by a public authority)\"",
+          "message-data": {
+            "constraint": "(?i)(owned by a public authority|mixed ownership|not owned by a public authority)",
+            "value": "owned by public authority"
+          },
+          "row-number": 19
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 20 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 20
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 20 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 20
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 20 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 20
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 21 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 21
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 21 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 21
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 21 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 21
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"20/09/2017\" in row 21 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "20/09/2017"
+          },
+          "row-number": 21
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 22 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 22
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 22 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 22
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 22 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 22
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 23 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 23
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 23 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 23
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 23 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 23
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"13/02/2015\" in row 23 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "13/02/2015"
+          },
+          "row-number": 23
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 24 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 24
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 24 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 24
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 24 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 24
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 12,
+          "message": "The value \"owned by public authority\" in row 24 and column 12 does not conform to the pattern constraint of \"(?i)(owned by a public authority|mixed ownership|not owned by a public authority)\"",
+          "message-data": {
+            "constraint": "(?i)(owned by a public authority|mixed ownership|not owned by a public authority)",
+            "value": "owned by public authority"
+          },
+          "row-number": 24
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"12/06/2015\" in row 24 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "12/06/2015"
+          },
+          "row-number": 24
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 25 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 25
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 25 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 25
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 25 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 25
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"30/09/2016\" in row 25 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "30/09/2016"
+          },
+          "row-number": 25
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 26 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 26
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 26 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 26
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 26 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 26
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"06/01/2017\" in row 26 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "06/01/2017"
+          },
+          "row-number": 26
+        },
+        {
+          "code": "pattern-constraint",
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 27 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "constraint": "Y",
+            "value": "Yes"
+          },
+          "row-number": 27
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 27 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 27
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 7,
+          "message": "The value \"26/02/2018\" in row 27 and column 7 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "26/02/2018"
+          },
+          "row-number": 27
+        },
+        {
+          "code": "type-or-format-error",
+          "column-number": 13,
+          "message": "The value \"13/09/2017\" in row 27 and column 13 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "field_format": "default",
+            "field_type": "date",
+            "value": "13/09/2017"
+          },
+          "row-number": 27
+        }
+      ],
+      "format": "inline",
+      "headers": [
+        "Deliverable",
+        "FirstAddedDate",
+        "GeoX",
+        "GeoY",
+        "HazardousSubstances",
+        "Hectares",
+        "LastUpdatedDate",
+        "NetDwellingsRangeFrom",
+        "NetDwellingsRangeTo",
+        "Notes",
+        "OrganisationURI",
+        "OwnershipStatus",
+        "PermissionDate",
+        "PermissionType",
+        "PlanningHistory",
+        "PlanningStatus",
+        "SiteNameAddress",
+        "SiteReference",
+        "SiteplanURL"
+      ],
+      "row-count": 27,
+      "schema": "table-schema",
+      "source": "inline",
+      "time": 0.063,
+      "valid": false
+    }
+  ],
+  "time": 0.123,
+  "valid": false,
+  "warnings": []
+}

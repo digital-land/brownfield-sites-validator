@@ -1,3 +1,7 @@
+import os
+import tempfile
+
+from werkzeug.utils import secure_filename
 from application.validation.schema import brownfield_site_schema
 
 current_standard_fields = [item['name'] for item in brownfield_site_schema['fields']]
@@ -77,3 +81,32 @@ def convert_to_csv_if_needed(filename):
     except Exception as e:
         msg = 'Could not convert %s into csv' % filename
         raise FileTypeException(msg)
+
+
+def extract_and_normalise_data(upload_data):
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output_dir = f'{temp_dir}/data'
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        filename = secure_filename(upload_data.filename)
+        file = os.path.join(output_dir, filename)
+        upload_data.save(file)
+        try:
+            file, file_type = convert_to_csv_if_needed(file)
+            data, additional_fields = process_csv_file(file)
+            return data, additional_fields
+        except Exception as e:
+            print(e)
+            return {'error': str(e)}, {}
+
+
+def process_csv_file(csv_file):
+    import pandas as pd
+    df = pd.read_csv(csv_file, na_filter= False, encoding='ISO-8859-1')
+
+    # TODO fixup column names
+
+    columns_to_ignore = set(original_brownfield_register_fields) - set(current_standard_fields)
+    additional_columns = set(df.columns) - set(current_standard_fields)
+    df.drop(columns_to_ignore, axis=1, inplace=True)
+    return df.to_dict(orient='records'), list(additional_columns)
