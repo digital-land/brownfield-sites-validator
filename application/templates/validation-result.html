@@ -152,13 +152,14 @@
              <li>
                  <h3 class="govuk-heading-s">{{ error.field }}</h3>
                  <p class="no-margin">{{ error.message }}</p>
-                 <p>Across <span
-                         class="row-value">{{ error.errors|count }} {{ "row"|pluralise("", "s", error.errors|count) }}</span>.
+                 <p>Across <span class="row-value">{{ error.errors|count }} {{ "row"|pluralise("", "s", error.errors|count) }}</span>.
                  </p>
                  <details class="govuk-details">
                     <summary class="govuk-details__summary">See all incorrect rows</summary>
                     <div class="govuk-details__text">
-                        {% for e in error.errors %}Row {{ e.row }} {{ e.message }}{{ ", " if not loop.last }}{% endfor %}
+                      <ul class="govuk-list">
+                        {% for e in error.errors %}<li><span class="govuk-tag govuk-tag--error">Row {{ e.row }}</span> {{ e.message }}</li>{% endfor %}
+                      </ul>
                     </div>
                   </details>
              </li>
