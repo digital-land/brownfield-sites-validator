@@ -143,7 +143,7 @@
 <div id="data-issues-section" class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     <h2 class="govuk-heading-l govuk-!-margin-top-9">Field content</h2>
-    <p class="govuk-body">Content errors occur when the data is not in the expected format as layed out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">brownfield site standard</a>.</p>
+    <p class="govuk-body">Content errors occur when the data is not in the expected format as laid out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">brownfield site standard</a>.</p>
 
     {% set number_of_errors = report.error_count() %}
     <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }} across {{ report.errors()|length }} fields</span>. The fields are:</p>
