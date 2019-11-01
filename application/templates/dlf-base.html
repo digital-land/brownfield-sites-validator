@@ -9,14 +9,8 @@
 
 {% block header %}
 	{{ govukHeader({
-	  "serviceName": "Brownfield sites",
-	  "serviceUrl": url_for('frontend.index'),
-	  "navigation": [
-	  {
-	    "href": "https://www.gov.uk/government/publications/brownfield-land-registers-data-standard",
-	    "text": "Guidance"
-	  }
-	  ]
+	  "serviceName": "Check you brownfield site register",
+	  "serviceUrl": url_for('frontend.index')
 	}) }}
 {% endblock %}
 
