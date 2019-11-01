@@ -25,24 +25,39 @@ class ErrorMapper:
         self.raw_error = raw_error
 
     def overall_error_message(self):
+        message = 'Unknown error message'
         if self.raw_error['code'] == 'type-or-format-error':
             if self.raw_error['message-data']['field_type'] == 'date':
                 today = datetime.today()
                 today_human = today.strftime('%d/%m/%Y')
                 today_iso = today.strftime('%Y-%m-%d')
-                return f'Some dates in the file are not in the format YYYY-MM-DD. For example {today_human} should be {today_iso}'
-        if self.raw_error['code'] == 'pattern-constraint':
-            return f"Some entries in this columns don't match the value '{self.raw_error['message-data']['constraint']}'"
+                message = f'Some dates in the file are not in the format YYYY-MM-DD. For example {today_human} should be {today_iso}'
+        elif self.raw_error['code'] == 'pattern-constraint':
+            cleaned_up = self._clean_up(self.raw_error['message-data']['constraint'])
+            message = f"Some entries in this columns don't match the value '{cleaned_up}'"
+        elif self.raw_error['code'] == 'non-matching-header':
+            message = f"The header should have been {self.raw_error['message-data']['field_name']}"
+        return message
 
     def field_error_message(self):
-        message = 'Cannot map error message'
+        message = 'Unknown error message'
         if self.raw_error['code'] == 'type-or-format-error':
             if self.raw_error['message-data']['field_type'] == 'date':
                 date_provided = self.raw_error['message-data']['value']
                 d = dateparser.parse(date_provided)
                 valid_date = d.strftime('%Y-%m-%d')
                 message = f'The date {date_provided} should be entered as {valid_date}'
-        if self.raw_error['code'] == 'pattern-constraint':
-            message = f"The field contained '{self.raw_error['message-data']['value']}' but should have been '{self.raw_error['message-data']['constraint']}'"
+        elif self.raw_error['code'] == 'pattern-constraint':
+            cleaned_up = self._clean_up(self.raw_error['message-data']['constraint'])
+            message = f"The field contained '{self.raw_error['message-data']['value']}' but should have been '{cleaned_up}'"
+        elif self.raw_error['code'] == 'non-matching-header':
+            message = f"The header {self.raw_error['message-data']['header']} should have been {self.raw_error['message-data']['field_name']}"
 
         return message
+
+    def _clean_up(self, pattern):
+        return ' or '.join(self.raw_error['message-data']['constraint']\
+            .replace('(?i)', '')\
+            .replace('(', '')\
+            .replace(')', '')\
+            .split('|'))
