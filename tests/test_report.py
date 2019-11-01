@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pytest
 
-from application.validation.validator import Report
+from application.validation.reporter import Report
 
 
 @pytest.fixture(scope='session')
@@ -25,12 +25,12 @@ def date_error_message():
 
 
 def test_report_shows_total_number_of_errors(results):
-    report = Report(results, {}, 'csv')
+    report = Report(results)
     assert 7 == report.error_count()
 
 
 def test_column_number_to_field_name(results):
-    report = Report(results, {}, 'csv')
+    report = Report(results)
     assert report.column_number_to_field_name(1) == 'Deliverable'
     assert report.column_number_to_field_name(2) == 'FirstAddedDate'
     assert report.column_number_to_field_name(3) == 'GeoX'
@@ -56,7 +56,7 @@ def test_column_number_to_field_name(results):
 
 
 def test_field_name_to_column_number(results):
-    report = Report(results, {}, 'csv')
+    report = Report(results)
     assert 1 == report.field_name_to_column_number('Deliverable')
     assert 2 == report.field_name_to_column_number("FirstAddedDate")
     assert 3 == report.field_name_to_column_number('GeoX')
@@ -81,7 +81,7 @@ def test_field_name_to_column_number(results):
 
 
 def test_report_shows_error_counts_by_first_added_date(results, date_error_message):
-    report = Report(results, {}, 'csv')
+    report = Report(results)
     expected = {'field': 'FirstAddedDate',
                 'message': date_error_message,
                 'errors': [
@@ -103,5 +103,5 @@ def test_report_shows_error_counts_by_deliverable(results):
                         'field': 'Deliverable',
                         'message': "Some entries in this columns don't match the value 'Y'",
                         'rows': [1, 3]}
-    report = Report(results, {}, 'csv')
+    report = Report(results)
     assert report.errors_by_field('Deliverable') == expected_message
