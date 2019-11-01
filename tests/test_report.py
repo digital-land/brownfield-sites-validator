@@ -1,7 +1,8 @@
+import json
 import os
+from datetime import datetime
 
 import pytest
-import json
 
 from application.validation.validator import Report
 
@@ -15,9 +16,17 @@ def results():
     return data
 
 
+@pytest.fixture(scope='session')
+def date_error_message():
+    today = datetime.today()
+    today_human = today.strftime('%d/%m/%Y')
+    today_iso = today.strftime('%Y-%m-%d')
+    return f'Some dates in the file are not in the format YYYY-MM-DD. For example {today_human} should be {today_iso}'
+
+
 def test_report_shows_total_number_of_errors(results):
     report = Report(results, {}, 'csv')
-    assert 102 == report.error_count()
+    assert 7 == report.error_count()
 
 
 def test_column_number_to_field_name(results):
@@ -71,13 +80,28 @@ def test_field_name_to_column_number(results):
     assert -1 == report.field_name_to_column_number('unknown')
 
 
-def test_report_shows_error_counts_by_first_added_date(results):
+def test_report_shows_error_counts_by_first_added_date(results, date_error_message):
     report = Report(results, {}, 'csv')
-    expected = {'field': 'FirstAddedDate', 'errors': [{'count': 27, 'type': 'type-or-format-error'}], }
+    expected = {'field': 'FirstAddedDate',
+                'message': date_error_message,
+                'errors': [
+                        {'row': 3, 'message': 'The date 18/03/2018 should be entered as 2018-03-18', 'type': 'type-or-format-error'},
+                        {'row': 8, 'message': 'The date 26/02/2018 should be entered as 2018-02-26', 'type': 'type-or-format-error'}
+                    ],
+                'rows': [3, 8]
+                }
     assert expected == report.errors_by_field('FirstAddedDate')
 
 
 def test_report_shows_error_counts_by_deliverable(results):
+    expected_message = {'errors': [{'message': "The field contained 'Yes' but should have been 'Y'",
+                                    'row': 1,
+                                    'type': 'pattern-constraint'},
+                                   {'message': "The field contained 'Yes' but should have been 'Y'",
+                                    'row': 3,
+                                    'type': 'pattern-constraint'}],
+                        'field': 'Deliverable',
+                        'message': "Some entries in this columns don't match the value 'Y'",
+                        'rows': [1, 3]}
     report = Report(results, {}, 'csv')
-    expected = {'field': 'Deliverable', 'errors': [{'count': 27, 'type': 'pattern-constraint'}]}
-    assert expected == report.errors_by_field('Deliverable')
+    assert report.errors_by_field('Deliverable') == expected_message

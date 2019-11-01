@@ -22,6 +22,7 @@ goodtables = "*"
 pandas = "*"
 pytest = "*"
 bidict = "*"
+dateparser = "*"
 
 [dev-packages]
 pytest = "*"

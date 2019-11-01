@@ -4,6 +4,7 @@ import goodtables
 from bidict import bidict
 
 from application.utils import extract_and_normalise_data
+from application.validation.error_mapper import ErrorMapper
 from application.validation.schema import brownfield_site_schema
 
 
@@ -51,17 +52,15 @@ class Report:
         column_number = self.field_name_to_column_number(field)
         errors = {'field': field, 'errors': [], 'rows': []}
         for e in self.results['tables'][0]['errors']:
+            mapper = ErrorMapper(e)
             if e['column-number'] == column_number:
                 if 'row-number' in e.keys():
                     errors['rows'].append(e['row-number'])
-                for err in errors['errors']:
-                    if err['type'] == e['code']:
-                        err['count'] += 1
-                        break
-                else:
-                    err = {'type': e['code'], 'count': 1}
-                    errors['errors'].append(err)
-        errors['rows'] = set(errors['rows'])
+                if errors.get('message') is None:
+                    errors['message'] = mapper.overall_error_message()
+                err = {'type': e['code'], 'message': mapper.field_error_message(), 'row': e.get('row-number', 0)}
+                errors['errors'].append(err)
+        errors['rows'] = list(dict.fromkeys(errors['rows']))
         return errors
 
     def column_number_to_field_name(self, index):
@@ -98,5 +97,4 @@ class Report:
             if 'row-number' in error.keys():
                 rows.append(error['row-number'])
         return set(rows)
-
 
