@@ -7,11 +7,12 @@ from application.validation.error_mapper import ErrorMapper
 
 class Report:
 
-    def __init__(self, results, data={}, additional=None, file_type='csv'):
+    def __init__(self, results, data):
         self.results = results
-        self.data = data
-        self.additional = additional
-        self.file_type = file_type
+        self.data = data['data']
+        self.additional = data.get('additional_fields', [])
+        self.file_type =  data.get('file_type', 'csv')
+        self.planning_authority =  data.get('planning_authority', 'Not known')
         cols_to_fields = {}
         for column_number, header in enumerate(self.results['tables'][0]['headers']):
             cols_to_fields[column_number + 1] = header

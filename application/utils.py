@@ -94,8 +94,11 @@ def extract_and_normalise_data(upload_data):
         upload_data.save(file)
         try:
             file, file_type = convert_to_csv_if_needed(file)
-            data, additional_fields = process_csv_file(file)
-            return data, additional_fields, file_type
+            data, additional_fields, planning_authority = process_csv_file(file)
+            return {'data': data,
+                    'additional_fields': additional_fields,
+                    'file_type': file_type,
+                    'planning_authority': planning_authority}
         except Exception as e:
             print(e)
             return {'error': str(e)}, {}
@@ -104,10 +107,10 @@ def extract_and_normalise_data(upload_data):
 def process_csv_file(csv_file):
     import pandas as pd
     df = pd.read_csv(csv_file, na_filter= False, encoding='ISO-8859-1')
-
+    planning_authority = df.iloc[0].get('OrganisationLabel', 'not known')
     # TODO fixup column names
 
     columns_to_ignore = set(original_brownfield_register_fields) - set(current_standard_fields)
     additional_columns = set(df.columns) - set(current_standard_fields)
     df.drop(columns_to_ignore, axis=1, inplace=True)
-    return df.to_dict(orient='records'), list(additional_columns)
+    return df.to_dict(orient='records'), list(additional_columns), planning_authority
