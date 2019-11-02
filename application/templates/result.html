@@ -323,7 +323,7 @@
               <details class="govuk-details">
                 <summary class="govuk-details__summary">
                   <span class="govuk-details__summary-text">
-                    What we will fix
+                    What should be fixed
                   </span>
                 </summary>
                 <div class="govuk-details__text">
@@ -334,12 +334,13 @@
                   </ul>
                 </div>
               </details>
+              <!--
               <a class="govuk-button button-load-data" href="{{ url_for('frontend.download_fixed', local_authority=register.organisation, validation_id=validation_id) }}">Download fixed CSV</a>
               <div class="govuk-inset-text">
                 Any remaining issues will have to be fixed manually.
               </div>
               <p class="govuk-body">Once downloaded and any manually fixes are made you can <a href="{{ static_path }}{{ url_for('frontend.validate', local_authority=register.organisation )}}">retry validating the register</a>.</p>
-
+              -->
               {% else %}
 
               <h3 class="govuk-heading-m">What next</h3>
