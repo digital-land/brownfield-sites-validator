@@ -83,7 +83,7 @@ def test_field_name_to_column_number(results):
 def test_report_shows_error_counts_by_first_added_date(results, date_error_message):
     report = Report(results)
     expected = {'field': 'FirstAddedDate',
-                'message': date_error_message,
+                'messages': ['Some dates in the file are not in the format YYYY-MM-DD. For example 02/11/2019 should be 2019-11-02'],
                 'errors': [
                         {'row': 3, 'message': 'The date 18/03/2018 should be entered as 2018-03-18', 'type': 'type-or-format-error'},
                         {'row': 8, 'message': 'The date 26/02/2018 should be entered as 2018-02-26', 'type': 'type-or-format-error'}
@@ -101,7 +101,7 @@ def test_report_shows_error_counts_by_deliverable(results):
                                     'row': 3,
                                     'type': 'pattern-constraint'}],
                         'field': 'Deliverable',
-                        'message': "Some entries in this columns don't match the value 'Y'",
+                        'messages': ["Some entries in this columns don't match the value 'Y'"],
                         'rows': [1, 3]}
     report = Report(results)
     assert report.errors_by_field('Deliverable') == expected_message
