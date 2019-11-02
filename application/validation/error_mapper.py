@@ -33,14 +33,14 @@ class ErrorMapper:
                 today_iso = today.strftime('%Y-%m-%d')
                 message = f'Some dates in the file are not in the format YYYY-MM-DD. For example {today_human} should be {today_iso}'
             elif self.raw_error['message-data']['field_type'] == 'number':
-                message = "This column should only have numeric data and some entries are non numeric"
+                message = "Some entries in this column are non numeric"
         elif self.raw_error['code'] == 'pattern-constraint':
             cleaned_up = self._clean_up(self.raw_error['message-data']['constraint'])
             message = f"Some entries in this columns don't match the value '{cleaned_up}'"
         elif self.raw_error['code'] == 'non-matching-header':
             message = f"The header should have been {self.raw_error['message-data']['field_name']}"
         elif self.raw_error['code'] == 'geo-error':
-            message = f"There was an error with geographic data"
+            message = f"GeoX or GeoY should represent a point in UK using the WGS84 or ETRS89 coordinate systems."
         return message
 
     def field_error_message(self):
