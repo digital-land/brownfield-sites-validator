@@ -1,6 +1,5 @@
 import goodtables
-from goodtables import check, Error
-from goodtables.config import CHECKS
+from goodtables import check
 
 from application.utils import extract_and_normalise_data
 from application.validation.reporter import Report

@@ -32,6 +32,9 @@ class ErrorMapper:
                 today_human = today.strftime('%d/%m/%Y')
                 today_iso = today.strftime('%Y-%m-%d')
                 message = f'Some dates in the file are not in the format YYYY-MM-DD. For example {today_human} should be {today_iso}'
+            elif self.raw_error['message-data']['field_type'] == 'number':
+                message = "This column should only have numeric data and some entries are non numeric"
+
         elif self.raw_error['code'] == 'pattern-constraint':
             cleaned_up = self._clean_up(self.raw_error['message-data']['constraint'])
             message = f"Some entries in this columns don't match the value '{cleaned_up}'"
@@ -49,6 +52,8 @@ class ErrorMapper:
                 d = dateparser.parse(date_provided)
                 valid_date = d.strftime('%Y-%m-%d')
                 message = f'The date {date_provided} should be entered as {valid_date}'
+            elif self.raw_error['message-data']['field_type'] == 'number':
+                message = f"{self.raw_error['message-data']['value']} is not a valid number"
         elif self.raw_error['code'] == 'pattern-constraint':
             cleaned_up = self._clean_up(self.raw_error['message-data']['constraint'])
             message = f"The field contained '{self.raw_error['message-data']['value']}' but should have been '{cleaned_up}'"

@@ -4,10 +4,13 @@ from goodtables import Error, check
 @check('geox-check', type='custom', context='body')
 def geox_check(cells):
     errors = []
+    geoX = None
     for cell in cells:
         if cell.get('header') is not None and cell.get('header') == 'GeoX':
             geoX = cell
             break
+    if geoX is None:
+        return errors
     try:
         geoX_value = float(geoX['value'])
     except Exception as e:
@@ -39,10 +42,14 @@ def geox_check(cells):
 @check('geoy-check', type='custom', context='body')
 def geoy_check(cells):
     errors = []
+    geoY = None
     for cell in cells:
         if cell.get('header') is not None and cell.get('header') == 'GeoY':
             geoY = cell
             break
+
+    if geoY is None:
+        return errors
     try:
         geoY_value = float(geoY['value'])
     except Exception as e:
