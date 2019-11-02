@@ -1,7 +1,6 @@
 import json
 
 from bidict import bidict
-
 from application.validation.error_mapper import ErrorMapper
 
 

@@ -37,6 +37,8 @@ class ErrorMapper:
             message = f"Some entries in this columns don't match the value '{cleaned_up}'"
         elif self.raw_error['code'] == 'non-matching-header':
             message = f"The header should have been {self.raw_error['message-data']['field_name']}"
+        elif self.raw_error['code'] == 'geo-error':
+            message = f"There was a {self.raw_error['code']}"
         return message
 
     def field_error_message(self):
@@ -52,6 +54,8 @@ class ErrorMapper:
             message = f"The field contained '{self.raw_error['message-data']['value']}' but should have been '{cleaned_up}'"
         elif self.raw_error['code'] == 'non-matching-header':
             message = f"The header {self.raw_error['message-data']['header']} should have been {self.raw_error['message-data']['field_name']}"
+        elif self.raw_error['code'] == 'geo-error':
+            message = self.raw_error['message']
 
         return message
 
