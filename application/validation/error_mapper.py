@@ -59,7 +59,7 @@ class ErrorMapper:
         elif self.raw_error['code'] == 'non-matching-header':
             message = f"The header {self.raw_error['message-data']['header']} should have been {self.raw_error['message-data']['field_name']}"
         elif self.raw_error['code'] == 'geo-error':
-            message = f"There was an error in geographic data"
+            message = self.raw_error['message']
 
         return message
 
