@@ -152,7 +152,9 @@
          {% for error in report.errors() %}
              <li>
                  <h3 class="govuk-heading-s">{{ error.field }}</h3>
-                 <p class="no-margin">{{ error.message }}</p>
+                 {% for msg in error.messages %}
+                    <p class="no-margin">{{ msg}}</p>
+                 {% endfor %}
                  <p>Across <span class="row-value">{{ error.errors|count }} {{ "row"|pluralise("", "s", error.errors|count) }}</span>.
                  </p>
                  <details class="govuk-details">

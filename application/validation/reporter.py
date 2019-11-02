@@ -36,16 +36,17 @@ class Report:
     def errors_by_field(self, field):
         column_number = self.field_name_to_column_number(field)
         errors = {'field': field, 'errors': [], 'rows': []}
+        messages = set([])
         for e in self.results['tables'][0]['errors']:
             mapper = ErrorMapper(e)
             if e['column-number'] == column_number:
                 if 'row-number' in e.keys():
                     errors['rows'].append(e['row-number'])
-                if errors.get('message') is None:
-                    errors['message'] = mapper.overall_error_message()
+                messages.add(mapper.overall_error_message())
                 err = {'type': e['code'], 'message': mapper.field_error_message(), 'row': e.get('row-number', 0)}
                 errors['errors'].append(err)
         errors['rows'] = list(dict.fromkeys(errors['rows']))
+        errors['messages'] = list(messages)
         return errors
 
     def column_number_to_field_name(self, index):
