@@ -6,5 +6,5 @@ class UploadForm(FlaskForm):
 
     upload = FileField('file', validators=[
         FileRequired(),
-        FileAllowed(['csv', 'xls', 'xlsx', 'xlsm'], "We couldn't process that file. Only csv or excel files allowed.")
+        FileAllowed(['csv', 'xls', 'xlsx', 'xlsm'], "We couldn't process the file. Only csv or excel files allowed.")
     ])
