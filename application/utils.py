@@ -4,7 +4,6 @@ import csv
 import os
 import tempfile
 
-import pandas
 from cchardet import UniversalDetector
 from flask import current_app
 from werkzeug.utils import secure_filename
