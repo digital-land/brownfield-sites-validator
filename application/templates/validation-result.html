@@ -163,7 +163,7 @@
           <summary class="govuk-details__summary">See all incorrect rows</summary>
           <div class="govuk-details__text">
             <ul class="govuk-list">
-              {% for e in error.errors %}<li><span class="govuk-tag govuk-tag--error">Row {{ e.row }}</span> {{ e.message }}</li>{% endfor %}
+              {% for e in error.errors %}<li><span class="govuk-tag govuk-tag--error">{% if e.row == 0 %}Header row{% else %}Row {{ e.row }}{% endif %}</span> {{ e.message }}</li>{% endfor %}
             </ul>
           </div>
         </details>
