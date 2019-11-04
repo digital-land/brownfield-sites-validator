@@ -26,10 +26,10 @@ def test_error_mapper_returns_overall_error_message(date_error):
     today_iso = today.strftime('%Y-%m-%d')
     expected = f'Some dates in the file are not in the format YYYY-MM-DD. For example {today_human} should be {today_iso}'
 
-    error_mapper = ErrorMapper(date_error)
+    error_mapper = ErrorMapper(date_error, 'some-field')
     assert error_mapper.overall_error_messages() == expected
 
 
 def test_error_mapper_returns_specfic_error_message_for_field(date_error):
-    error_mapper = ErrorMapper(date_error)
+    error_mapper = ErrorMapper(date_error, 'some-field')
     assert error_mapper.field_error_message() == 'The date 26/02/2018 should be entered as 2018-02-26'
