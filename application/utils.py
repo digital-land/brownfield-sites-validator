@@ -1,10 +1,14 @@
+import codecs
+import collections
+import csv
 import os
 import tempfile
 
+import pandas
+from cchardet import UniversalDetector
+from flask import current_app
 from werkzeug.utils import secure_filename
 from application.validation.schema import brownfield_site_schema
-
-current_standard_fields = [item['name'] for item in brownfield_site_schema['fields']]
 
 
 class FileTypeException(Exception):
@@ -57,6 +61,9 @@ def brownfield_standard_fields():
     "deprecated": deprecated_fields
   }
 
+current_standard_fields = [item['name'] for item in brownfield_site_schema['fields']]
+columns_to_ignore = set(original_brownfield_register_fields) - set(current_standard_fields)
+
 
 def to_boolean(value):
     if value is None:
@@ -94,23 +101,43 @@ def extract_and_normalise_data(upload_data):
         upload_data.save(file)
         try:
             file, file_type = convert_to_csv_if_needed(file)
-            data, additional_fields, planning_authority = process_csv_file(file)
+            data, headers_found, additional_headers, planning_authority = process_csv_file(file)
             return {'data': data,
-                    'additional_fields': additional_fields,
+                    'headers_found': headers_found,
+                    'additional_headers': additional_headers,
                     'file_type': file_type,
                     'planning_authority': planning_authority}
         except Exception as e:
-            print(e)
-            return {'error': str(e)}, {}
+            current_app.logger.exception(e)
+            raise e
 
 
 def process_csv_file(csv_file):
-    import pandas as pd
-    df = pd.read_csv(csv_file, na_filter= False, encoding='ISO-8859-1')
-    planning_authority = df.iloc[0].get('OrganisationLabel', 'not known')
     # TODO fixup column names
+    # TODO get planning authority name from opendatacommunities
+    rows = []
+    encoding = detect_encoding(csv_file)
+    planning_authority = None
+    with codecs.open(csv_file, encoding=encoding['encoding']) as f:
+        reader = csv.DictReader(f)
+        additional_headers = set(reader.fieldnames) - set(current_standard_fields)
+        for row in reader:
+            r = collections.OrderedDict()
+            if planning_authority is None:
+                planning_authority = row.get('OrganisationLabel', 'Unknown')
+            for column in brownfield_standard_fields()['expected']:
+                r[column] = row.get(column, None)
+            rows.append(r)
+    return rows, reader.fieldnames, list(additional_headers), planning_authority
 
-    columns_to_ignore = set(original_brownfield_register_fields) - set(current_standard_fields)
-    additional_columns = set(df.columns) - set(current_standard_fields)
-    df.drop(columns_to_ignore, axis=1, inplace=True)
-    return df.to_dict(orient='records'), list(additional_columns), planning_authority
+
+def detect_encoding(file):
+    detector = UniversalDetector()
+    detector.reset()
+    with open(file, 'rb') as f:
+        for row in f:
+            detector.feed(row)
+            if detector.done:
+                break
+    detector.close()
+    return detector.result

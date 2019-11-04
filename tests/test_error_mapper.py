@@ -27,7 +27,7 @@ def test_error_mapper_returns_overall_error_message(date_error):
     expected = f'Some dates in the file are not in the format YYYY-MM-DD. For example {today_human} should be {today_iso}'
 
     error_mapper = ErrorMapper(date_error)
-    assert error_mapper.overall_error_message() == expected
+    assert error_mapper.overall_error_messages() == expected
 
 
 def test_error_mapper_returns_specfic_error_message_for_field(date_error):

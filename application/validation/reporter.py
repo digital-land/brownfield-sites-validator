@@ -9,7 +9,8 @@ class Report:
     def __init__(self, results, data=None):
         self.results = results
         self.data = data.get('data', None) if data is not None else None
-        self.additional = data.get('additional_fields', []) if data is not None else []
+        self.headers_found = data.get('headers_found', []) if data is not None else []
+        self.additional = data.get('additional_headers', []) if data is not None else []
         self.file_type =  data.get('file_type', 'csv') if data is not None else 'csv'
         self.planning_authority =  data.get('planning_authority', 'Not known') if data is not None else 'Not known'
         cols_to_fields = {}
@@ -24,9 +25,9 @@ class Report:
         return self.results['tables'][0]['row-count']
 
     def headers(self):
-        return self.results['tables'][0]['headers']
+        return self.headers_found
 
-    def additional_fields(self):
+    def additional_headers(self):
         return self.additional
 
     def error_count(self):
@@ -38,11 +39,11 @@ class Report:
         errors = {'field': field, 'errors': [], 'rows': []}
         messages = set([])
         for e in self.results['tables'][0]['errors']:
-            mapper = ErrorMapper(e)
-            if e['column-number'] == column_number:
+            mapper = ErrorMapper(e, field)
+            if e.get('column-number') is not None and e.get('column-number') == column_number:
                 if 'row-number' in e.keys():
                     errors['rows'].append(e['row-number'])
-                messages.add(mapper.overall_error_message())
+                messages.add(mapper.overall_error_messages())
                 err = {'type': e['code'], 'message': mapper.field_error_message(), 'row': e.get('row-number', 0)}
                 errors['errors'].append(err)
         errors['rows'] = list(dict.fromkeys(errors['rows']))

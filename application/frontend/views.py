@@ -3,8 +3,8 @@ import json
 from flask import (
     Blueprint,
     render_template,
-    jsonify
-)
+    jsonify,
+    flash)
 
 from application.frontend.forms import UploadForm
 
@@ -23,11 +23,14 @@ def index():
 def validate():
     form = UploadForm()
     if form.validate_on_submit():
-        report = handle_upload_and_validate(form)
-        return render_template('validation-result.html',
-                               fields=brownfield_standard_fields(),
-                               seen=temp_fields_seen_in_register,
-                               report=report)
+        try:
+            report = handle_upload_and_validate(form)
+            return render_template('validation-result.html',
+                                   fields=brownfield_standard_fields(),
+                                   seen=temp_fields_seen_in_register,
+                                   report=report)
+        except Exception as e:
+            flash('There was an error processing the file you uploaded', category='error')
 
     return render_template('upload.html', form=form)
 

@@ -21,10 +21,11 @@ class ErrorMapper:
         "maximum-length-constraint": "A length of this field value should be less or equal than schema constraint value"
     }
 
-    def __init__(self, raw_error):
+    def __init__(self, raw_error, field):
         self.raw_error = raw_error
+        self.field = field
 
-    def overall_error_message(self):
+    def overall_error_messages(self):
         message = 'Unknown error message'
         if self.raw_error['code'] == 'type-or-format-error':
             if self.raw_error['message-data']['field_type'] == 'date':
@@ -41,6 +42,8 @@ class ErrorMapper:
             message = f"The header should have been {self.raw_error['message-data']['field_name']}"
         elif self.raw_error['code'] == 'geo-error':
             message = f"GeoX or GeoY should represent a point in UK using the WGS84 or ETRS89 coordinate systems."
+        elif self.raw_error['code'] == 'required-constraint':
+            message = "Some entries in this column are empty"
         return message
 
     def field_error_message(self):
@@ -60,6 +63,8 @@ class ErrorMapper:
             message = f"The header {self.raw_error['message-data']['header']} should have been {self.raw_error['message-data']['field_name']}"
         elif self.raw_error['code'] == 'geo-error':
             message = self.raw_error['message']
+        elif self.raw_error['code'] == 'required-constraint':
+            message = f"{self.field} can't be empty"
 
         return message
 
