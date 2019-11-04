@@ -3,15 +3,21 @@
 {% block content %}
 <div class="govuk-grid-row">
 	<div class="govuk-grid-column-two-thirds">
+		<span class="govuk-caption-xl">Brownfield sites</span>
 		<h1 class="govuk-heading-xl">Upload register</h1>
 		<form class="govuk-form" method="POST" action="{{ url_for('frontend.validate') }}"  enctype="multipart/form-data">
-			<div class="govuk-form-group">
+			<div class="govuk-form-group{% if form.errors %} govuk-form-group--error{% endif %}">
 				<label class="govuk-label" for="file-upload-1">
 				Select your Brownfield land register
 				</label>
-				<span id="event-name-hint" class="govuk-hint">
+				<span id="file-upload-hint" class="govuk-hint">
     			The register should be a .csv, .xls, .xlsx or .xlsm file
   				</span>
+  				{% if form.upload.errors %}
+  				<span id="file-upload-error" class="govuk-error-message">
+      				<span class="govuk-visually-hidden">Error:</span> {{ form.upload.errors[0] }}
+    			</span>
+    			{% endif %}
 				{{ form.upload(class='govuk-file-upload') }}
 				{{ form.csrf_token }}
 			</div>
