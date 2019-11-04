@@ -148,26 +148,26 @@
     {% set number_of_errors = report.error_count() %}
     <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }} across {{ report.errors()|length }} fields</span>. The fields are:</p>
 
-     <ul class="govuk-list govuk-list--bullet">
-         {% for error in report.errors() %}
-             <li>
-                 <h3 class="govuk-heading-s">{{ error.field }}</h3>
-                 {% for msg in error.messages %}
-                    <p class="no-margin">{{ msg}}</p>
-                 {% endfor %}
-                 <p>Across <span class="row-value">{{ error.errors|count }} {{ "row"|pluralise("", "s", error.errors|count) }}</span>.
-                 </p>
-                 <details class="govuk-details">
-                    <summary class="govuk-details__summary">See all incorrect rows</summary>
-                    <div class="govuk-details__text">
-                      <ul class="govuk-list">
-                        {% for e in error.errors %}<li><span class="govuk-tag govuk-tag--error">Row {{ e.row }}</span> {{ e.message }}</li>{% endfor %}
-                      </ul>
-                    </div>
-                  </details>
-             </li>
-         {% endfor %}
-     </ul>
+    <ul class="govuk-list">
+      {% for error in report.errors() %}
+      <li>
+        <h3 class="govuk-heading-s">{{ error.field }}</h3>
+        {% for msg in error.messages %}
+          <p class="no-margin">{{ msg}}</p>
+        {% endfor %}
+        <p>Across <span class="row-value">{{ error.errors|count }} {{ "row"|pluralise("", "s", error.errors|count) }}</span>.
+        </p>
+        <details class="govuk-details">
+          <summary class="govuk-details__summary">See all incorrect rows</summary>
+          <div class="govuk-details__text">
+            <ul class="govuk-list">
+              {% for e in error.errors %}<li><span class="govuk-tag govuk-tag--error">Row {{ e.row }}</span> {{ e.message }}</li>{% endfor %}
+            </ul>
+          </div>
+        </details>
+      </li>
+      {% endfor %}
+    </ul>
 
   </div>
 </div>
