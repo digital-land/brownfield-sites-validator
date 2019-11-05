@@ -116,10 +116,11 @@ def extract_and_normalise_data(upload_data):
         upload_data.save(file)
         try:
             file, file_type = convert_to_csv_if_needed(file)
-            data, headers_found, additional_headers, planning_authority = process_csv_file(file)
+            data, headers_found, additional_headers, planning_authority, missing_headers = process_csv_file(file)
             return {'data': data,
                     'headers_found': headers_found,
                     'additional_headers': additional_headers,
+                    'missing_headers': missing_headers,
                     'file_type': file_type,
                     'planning_authority': planning_authority}
         except Exception as e:
@@ -136,6 +137,7 @@ def process_csv_file(csv_file):
     with codecs.open(csv_file, encoding=encoding['encoding']) as f:
         reader = csv.DictReader(f)
         additional_headers = set(reader.fieldnames) - set(current_standard_fields)
+        missing_headers = set(current_standard_fields) - set(reader.fieldnames)
         for row in reader:
             r = collections.OrderedDict()
             if planning_authority is None:
@@ -143,7 +145,7 @@ def process_csv_file(csv_file):
             for column in brownfield_standard_fields()['expected']:
                 r[column] = row.get(column, None)
             rows.append(r)
-    return rows, reader.fieldnames, list(additional_headers), planning_authority
+    return rows, reader.fieldnames, list(additional_headers), planning_authority, list(missing_headers)
 
 
 def detect_encoding(file):
