@@ -11,6 +11,7 @@ class Report:
         self.data = data.get('data', None) if data is not None else None
         self.headers_found = data.get('headers_found', []) if data is not None else []
         self.additional = data.get('additional_headers', []) if data is not None else []
+        self.missing = data.get('missing_headers', []) if data is not None else []
         self.file_type =  data.get('file_type', 'csv') if data is not None else 'csv'
         self.planning_authority =  data.get('planning_authority', 'Not known') if data is not None else 'Not known'
         cols_to_fields = {}
@@ -29,6 +30,9 @@ class Report:
 
     def additional_headers(self):
         return self.additional
+
+    def missing_headers(self):
+        return self.missing
 
     def error_count(self):
         return self.results['error-count']

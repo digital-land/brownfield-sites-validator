@@ -161,7 +161,8 @@
     <h2 class="govuk-heading-l govuk-!-margin-top-9">Column content</h2>
     <p class="govuk-body">Content errors occur when the data is not in the expected format as laid out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">brownfield land standard</a>.</p>
 
-    {% set number_of_errors = report.error_count() %}
+    {#- subtract number of missing headers times number of rows from overall error count displayed here -#}
+    {% set number_of_errors = report.error_count() - (report.row_count() * report.missing_headers()|length) %}
     <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }} across {{ report.errors()|length }} columns</span>. The columns are:</p>
 
     <ul class="govuk-list">
