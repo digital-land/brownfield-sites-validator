@@ -1,0 +1,22 @@
+{% macro validationResultPanel(class, text, la_name) %}
+<div class="govuk-panel {{ class }}">
+    <h2 class="govuk-panel__title">
+        Validation {{ text }}
+    </h2>
+    <div class="govuk-panel__body">
+        <p>For<br><strong class="url">{{ la_name }}</strong></p>
+        {#<p><a class="govuk-panel__link" href="{{ url }}">Go to register</a></p>#}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro validationResultPanel2(valid, error_count) %}
+<div class="govuk-panel {% if valid %}govuk-panel--confirmation{% else %}govuk-panel--error{% endif %}">
+    <h2 class="govuk-panel__title govuk-panel__title--l">
+    	Validation
+    	{% if valid %} complete
+    	{% else %} incomplete: {{ error_count }} {{ "error"|pluralise("", "s", error_count) }} found
+    	{% endif %}
+    </h2>
+</div>
+{% endmacro %}

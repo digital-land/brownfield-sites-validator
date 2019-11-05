@@ -1,47 +1,125 @@
 'use strict';
 
 const gulp = require("gulp"),
-    sass = require("gulp-sass"),
-    clean = require('gulp-clean');
+      sass = require("gulp-sass"),
+      sassLint = require('gulp-sass-lint'),
+      rollup = require('gulp-better-rollup'),
+      clean = require('gulp-clean');
 
 // set paths ...
 const config = {
-	scssPath: "src/scss",
-	destPath: "application/static/stylesheets",
-  imgDestPath: "application/static/govuk_template/images",
-  govukAssetPath: "application/static/govuk-frontend/assets"
+  scssPath: "src/scss",
+  jsDestPath: "application/static/javascripts",
+  destPath: "application/static/stylesheets",
+  govukAssetPath: "application/static/govuk/assets"
 }
 
-// Delete our old stylesheets files
-gulp.task('clean-css', function () {
-  return gulp.src('application/static/stylesheets/**/*', {read: false})
-    .pipe(clean());
-});
 
-gulp.task('copy', gulp.series(['clean-css'], function() {
-  gulp.src('src/govuk_elements/assets/images/*.png')
-    .pipe(gulp.dest(config.imgDestPath));
-  gulp.src('src/govuk-frontend/assets/**/*')
-    .pipe(gulp.dest(config.govukAssetPath));
-  return gulp.src('src/stylesheets/**/*')
-    .pipe(gulp.dest(config.destPath));
-}));
+// Tasks used to generate latest stylesheets
+// =========================================
+const cleanCSS = () => 
+  gulp
+    .src('application/static/stylesheets/**/*', {read: false})
+    .pipe(clean());
+cleanCSS.description = `Delete old stylesheets files`;
 
 // compile scss to CSS
-gulp.task("scss", gulp.series(['copy'], function() {
-	return gulp.src( config.scssPath + '/*.scss')
-	.pipe(sass({outputStyle: 'expanded',
-		includePaths: [ 'src/govuk_frontend_toolkit/stylesheets',
-			'application/static/govuk_template/stylesheets',
-			'src/govuk_elements/assets/sass',
-      'src/govuk-frontend']})).on('error', sass.logError)
-	.pipe(gulp.dest(config.destPath))
-}));
+const compileStylesheets = () =>
+  gulp
+    .src( config.scssPath + '/*.scss')
+    .pipe(sass({outputStyle: 'expanded',
+      includePaths: [ 'src/scss', 'src/govuk']}))
+      .on('error', sass.logError)
+    .pipe(gulp.dest(config.destPath));
 
-// Watch src folder for changes
-gulp.task("watch", gulp.series(["scss"], function () {
-  return gulp.watch("src/scss/**/*", gulp.parallel(["scss"]));
-}));
+// check .scss files against .sass-lint.yml config
+const lintSCSS = () => 
+  gulp
+    .src('src/scss/**/*.s+(a|c)ss')
+    .pipe(sassLint({
+      files: {ignore: 'src/scss/styleguide/_highlight-style.scss'},
+      configFile: '.sass-lint.yml'
+    }))
+    .pipe(sassLint.format())
+    .pipe(sassLint.failOnError());
+
+
+// Tasks for copying assets to application
+// ======================================
+const copyVendorStylesheets = () =>
+  gulp
+    .src('src/stylesheets/**/*')
+    .pipe(gulp.dest(config.destPath));
+
+const copyGovukAssets = () => 
+  gulp
+    .src('src/govuk/assets/**/*')
+    .pipe(gulp.dest(config.govukAssetPath));
+
+const copyVendorJS = () => 
+  gulp
+    .src('src/js/vendor/*.js')
+    .pipe(gulp.dest(`${config.jsDestPath}/vendor`));
+
+const copyGovukJS = () => 
+  gulp
+    .src('src/js/govuk/*.js')
+    .pipe(gulp.dest(`${config.jsDestPath}/govuk`));
+
+// copy MHCLG specific js to application
+// To Do: build js in similar way to govuk frontend
+const copyMHCLGJS = () =>
+  gulp
+    .src('src/js/application.js')
+    .pipe(gulp.dest(`${config.jsDestPath}`));
+
+
+// Compile application.js
+// ======================
+gulp.task('js:compile', () => {
+  return gulp.src([
+    'src/js/dl-frontend.js'
+  ])
+    .pipe(rollup({
+      // set the 'window' global
+      name: 'DLFrontend',
+      // Legacy mode is required for IE8 support
+      legacy: true,
+      // UMD allows the published bundle to work in CommonJS and in the browser.
+      format: 'umd'
+    }))
+    .pipe(gulp.dest(`${config.jsDestPath}`))
+})
+
+
+// Tasks to expose to CLI
+// ======================
+const copyAllAssets = gulp.parallel(
+  copyVendorStylesheets,
+  copyGovukAssets,
+  copyVendorJS,
+  copyGovukJS,
+  copyMHCLGJS
+);
+copyAllAssets.description = `Copy all vendor and 3rd party assets to application`;
+
+const latestStylesheets = gulp.series(
+  cleanCSS,
+  lintSCSS,
+  compileStylesheets,
+  gulp.parallel(
+    copyVendorStylesheets,
+    copyGovukAssets
+  )
+);
+latestStylesheets.description = `Generate the latest stylesheets`;
+
+// Watch for scss changes
+const watch = () => gulp.watch("src/scss/**/*", latestStylesheets);
+watch.description = `Watch all project .scss for changes, then rebuild stylesheets.`;
 
 // Set watch as default task
-gulp.task("default", gulp.series(["watch"]));
+exports.default = watch;
+exports.stylesheets = latestStylesheets;
+exports.copyAssets = copyAllAssets;
+exports.copyJS = copyMHCLGJS;

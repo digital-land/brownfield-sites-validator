@@ -1,0 +1,225 @@
+{% extends "dlf-base.html" %}
+{% from "macros/validation-result-panel.html" import validationResultPanel2 %}
+
+{% block beforeContent %}
+  {{ super() }}
+  <a href="{{ url_for('frontend.validate') }}" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- show overall result -->
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+  {% if report.valid() %}
+  {{ validationResultPanel2(true) }}
+  {% else %}
+  {{ validationResultPanel2(false, report.error_count()) }}
+  {% endif %}
+  </div>
+</div>
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h1 class="govuk-heading-xl govuk-!-margin-top-6">Validation overview</h1>
+
+      <table class="govuk-table">
+        <tbody class="govuk-table__body">
+
+          <!-- what type of file was uploaded -->
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">File type</th>
+            <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.file_type }}</td>
+          </tr>
+
+          <!-- were we able to extract name of Local Authority -->
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">Local Authority</th>
+            <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.planning_authority }}</td>
+          </tr>
+
+          <!-- were there issues with the file, e.g. empty rows, additional text, bad headers -->
+          <!--
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">Issues with file</th>
+            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#file-issues-section">Yes|No</a></td>
+          </tr>-->
+
+          {# 
+            If all headers are correct
+            do we still need a header section?
+            If not use:
+            {% if header_status = "Headers correct" %}
+            {{ header_status }}
+            {% else %}
+            <a href="...">{{ header_status }}</a>
+            {% endif %} #}
+
+          <!-- check column headers (row 1) against expected columns -->
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">Correct column headers</th>
+            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#column-issues-section">{{ header_status }}</a></td>
+          </tr>
+
+          <!-- is the data valid -->
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">Data valid (rows seen/validated)</th>
+            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#data-issues-section">{{ report.row_count() }}/{{ report.valid_row_count() }}</a></td>
+          </tr>
+
+        </tbody>
+      </table>
+
+    </div>
+</div>
+
+{% if not report.valid() %}
+<!-- section to highlight issues with the file -->
+<!--
+<div id="file-issues-section" class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+    <h2 class="govuk-heading-l govuk-!-margin-top-9">File content</h2>
+    <p class="govuk-body">The file contains things that are not part of the standard. These are:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>empty rows</li>
+      <li>additional content</li>
+    </ul>
+  </div>
+</div>-->
+
+
+<!-- section for listing issues with columns -->
+<div id="column-issues-section" class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h2 class="govuk-heading-l govuk-!-margin-top-9">Column headings</h2>
+    <p class="govuk-body">There are problems with the column names in the register. They need to match the names contained in the guidance exactly.</p>
+    <div class="govuk-inset-text">
+        The column headings outlined in the <a href="https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/653657/BrownfieldLandRegisters_-_DataStandard.pdf">data standard</a> are case sensitive. Avoid common issues by checking spelling and case.
+    </div>
+  </div>
+
+
+  <div class="govuk-grid-column-one-half">
+    <h3 class="govuk-heading-m">Data standard headers</h3>
+    <p class="govuk-body">Below are the fields that are part of the brownfield land registers data standard.</p>
+    <h4 class="govuk-heading-s">Expected</h4>
+    <ul class="govuk-list field-list">
+      {% for header in fields.expected %}
+      <li {% if not header in report.headers() %}class="error"{% endif %}>{{ header }}</li>
+      {% endfor %}
+    </ul>
+
+    <h4 class="govuk-heading-s">Deprecated</h4>
+    <details class="govuk-details govuk-details--close">
+      <summary class="govuk-details__summary">Why are some fields deprecated?</summary>
+      <div class="govuk-details__text">
+        <p class="govuk-body">Between versions 1 and 2 of the Brownfield land register standard some fields were deprecated.</p><p>These fields were deprecated after analysing historical data and determining which fields were not regularly used.</p>
+      </div>
+    </details>
+    <ul class="govuk-list field-list">
+      {% for header in fields.deprecated %}
+      <li>{{ header }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+
+  <div class="govuk-grid-column-one-half">
+    <h3 class="govuk-heading-m">Headers in CSV</h3>
+    <p class="govuk-body">Below are the fields observed when processing the file you uploaded.</p>
+    <h4 class="govuk-heading-s">Matched</h4>
+    <ul class="govuk-list field-list">
+      {% for header in fields.expected %}
+      <li>{% if header in report.headers() %}<span>{{ header }}<span class="govuk-visually-hidden"> field is present in CSV</span> &#10004;</span>{% else %}<span class="missing-text">{{ header }}</span><span class="govuk-visually-hidden"> field is not present in CSV</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+
+    <h4 class="govuk-heading-s">Additional</h4>
+    <details class="govuk-details govuk-details--close">
+      <summary class="govuk-details__summary">Why are there some fields from the standard?</summary>
+      <div class="govuk-details__text">
+        <p class="govuk-body">Some fields have been deprecated. You no longer need to include them. You can still include them if you want but we display them below to warn you that they are no longer needed.</p>
+        <p class="govuk-body">You must not include any fields that are neither part of the standard or deprecated. Any additional fields will be shown here.</p>
+      </div>
+    </details>
+    <ul class="govuk-list field-list">
+      {% for header in report.additional_headers() %}
+      <li>{{ header }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+</div>
+
+<!-- section for listing issues with the data -->
+<div id="data-issues-section" class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h2 class="govuk-heading-l govuk-!-margin-top-9">Field content</h2>
+    <p class="govuk-body">Content errors occur when the data is not in the expected format as laid out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">brownfield site standard</a>.</p>
+
+    {% set number_of_errors = report.error_count() %}
+    <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }} across {{ report.errors()|length }} fields</span>. The fields are:</p>
+
+    <ul class="govuk-list">
+      {% for error in report.errors() %}
+      <li>
+        <h3 class="govuk-heading-s">{{ error.field }}</h3>
+        {% for msg in error.messages %}
+          <p class="no-margin">{{ msg}}</p>
+        {% endfor %}
+        <p>Across <span class="row-value">{{ error.errors|count }} {{ "row"|pluralise("", "s", error.errors|count) }}</span>.
+        </p>
+        <details class="govuk-details">
+          <summary class="govuk-details__summary">See all incorrect rows</summary>
+          <div class="govuk-details__text">
+            <ul class="govuk-list">
+              {% for e in error.errors %}<li><span class="govuk-tag govuk-tag--error">{% if e.row == 0 %}Header row{% else %}Row {{ e.row }}{% endif %}</span> {{ e.message }}</li>{% endfor %}
+            </ul>
+          </div>
+        </details>
+      </li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</div>
+{% endif %}
+
+{% if report.valid() %}
+<!-- should only be shown if able to plot brownfield sites -->
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <!--<h2 class="govuk-heading-l govuk-!-margin-top-9">Brownfield site locations</h2>
+    <p class="govuk-body">Using the data found we were able to plot these brownfield sites.</p>
+    <div id="map-original" style="height: 1px;"></div>-->
+    <h2 class="govuk-heading-m">What happens next</h2>
+    <p class="govuk-body">
+      Your register contains valid brownfield site data.
+    </p>
+    <p class="govuk-body">
+      You should now publish the register on your LPA website. If you already have a published register you should either update it with the new data or replace the file with the file you checked.
+    </p>
+
+    <div class="govuk-inset-text">You should not remove brownfield sites from your register. Old sites should be marked as such using the "EndDate" field.</div>
+
+    <!--<p class="govuk-body">
+      <a href="#" class="govuk-link">What did you think of this service?</a> (takes 30 seconds)
+    </p>-->
+  </div>
+</div>
+{% endif %}
+
+{% if config.ENV == 'development' %}
+    <h2 class="govuk-heading-l govuk-!-margin-top-9">Raw results</h2>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <details>
+                <summary class="govuk-body">Raw validation results</summary>
+                <pre>{{ report.raw_data() }}</pre>
+            </details>
+        </div>
+    </div>
+{% endif %}
+
+
+{% endblock %}

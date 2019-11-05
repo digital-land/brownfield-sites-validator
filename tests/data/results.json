@@ -1,0 +1,123 @@
+{
+  "time": 0.124,
+  "valid": false,
+  "error-count": 7,
+  "table-count": 1,
+  "tables": [
+    {
+      "time": 0.063,
+      "valid": false,
+      "error-count": 102,
+      "row-count": 27,
+      "source": "inline",
+      "headers": [
+        "Deliverable",
+        "FirstAddedDate",
+        "GeoX",
+        "GeoY",
+        "HazardousSubstances",
+        "Hectares",
+        "LastUpdatedDate",
+        "NetDwellingsRangeFrom",
+        "NetDwellingsRangeTo",
+        "Notes",
+        "OrganisationURI",
+        "OwnershipStatus",
+        "PermissionDate",
+        "PermissionType",
+        "PlanningHistory",
+        "PlanningStatus",
+        "SiteNameAddress",
+        "SiteReference",
+        "SiteplanURL"
+      ],
+      "format": "inline",
+      "schema": "table-schema",
+      "errors": [
+        {
+          "code": "non-matching-header",
+          "column-number": 19,
+          "message": "Header in column 19 doesn't match field name \"SitePlanURL\" in the schema",
+          "message-data": {
+            "field_name": "SitePlanURL",
+            "header": "SiteplanURL"
+          }
+        },
+        {
+          "code": "missing-header",
+          "column-number": 20,
+          "message": "There is a missing header in column 20",
+          "message-data": {
+            "field_name": "EndDate"
+          }
+        },
+        {
+          "code": "pattern-constraint",
+          "row-number": 1,
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 1 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "value": "Yes",
+            "constraint": "Y"
+          }
+        },
+        {
+          "code": "pattern-constraint",
+          "row-number": 2,
+          "column-number": 12,
+          "message": "The value \"owned by public authority\" in row 2 and column 12 does not conform to the pattern constraint of \"(?i)(owned by a public authority|mixed ownership|not owned by a public authority)\"",
+          "message-data": {
+            "value": "owned by public authority",
+            "constraint": "(?i)(owned by a public authority|mixed ownership|not owned by a public authority)"
+          }
+        },
+        {
+          "code": "pattern-constraint",
+          "row-number": 3,
+          "column-number": 1,
+          "message": "The value \"Yes\" in row 3 and column 1 does not conform to the pattern constraint of \"Y\"",
+          "message-data": {
+            "value": "Yes",
+            "constraint": "Y"
+          }
+        },
+        {
+          "code": "type-or-format-error",
+          "row-number": 3,
+          "column-number": 2,
+          "message": "The value \"18/03/2018\" in row 3 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "value": "18/03/2018",
+            "field_type": "date",
+            "field_format": "default"
+          }
+        },
+        {
+          "code": "type-or-format-error",
+          "row-number": 8,
+          "column-number": 2,
+          "message": "The value \"26/02/2018\" in row 8 and column 2 is not type \"date\" and format \"default\"",
+          "message-data": {
+            "value": "26/02/2018",
+            "field_type": "date",
+            "field_format": "default"
+          }
+        }
+      ]
+    }
+  ],
+  "warnings": [],
+  "preset": "table",
+  "additional-fields": [
+    "Part2",
+    "DevelopmentDescription",
+    "ProposedForPIP",
+    "NonHousingDevelopment",
+    "PreviouslyPartOf",
+    "CoordinateReferenceSystem",
+    "SiteInformation",
+    "SiteplanURL",
+    "OrganisationLabel",
+    "MinNetDwellings"
+  ]
+}
