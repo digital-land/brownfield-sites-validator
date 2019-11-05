@@ -57,14 +57,18 @@
 
           <!-- check column headers (row 1) against expected columns -->
           <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">Correct column headers</th>
+            <th class="govuk-table__header" scope="row">Column headers</th>
             <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#column-issues-section">{{ header_status }}</a></td>
           </tr>
 
           <!-- is the data valid -->
           <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">Data valid (rows seen/validated)</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#data-issues-section">{{ report.row_count() }}/{{ report.valid_row_count() }}</a></td>
+            <th class="govuk-table__header" scope="row">Total rows found</th>
+            <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.row_count() }}</td>
+          </tr>
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">Invalid rows</th>
+            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#data-issues-section">{{ report.row_count() - report.valid_row_count() }}</a></td>
           </tr>
 
         </tbody>
@@ -91,10 +95,10 @@
 <!-- section for listing issues with columns -->
 <div id="column-issues-section" class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h2 class="govuk-heading-l govuk-!-margin-top-9">Column headings</h2>
+    <h2 class="govuk-heading-l govuk-!-margin-top-9">Column headers</h2>
     <p class="govuk-body">There are problems with the column names in the register. They need to match the names contained in the guidance exactly.</p>
     <div class="govuk-inset-text">
-        The column headings outlined in the <a href="https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/653657/BrownfieldLandRegisters_-_DataStandard.pdf">data standard</a> are case sensitive. Avoid common issues by checking spelling and case.
+        The column headings outlined in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard">data standard</a> are case sensitive. Avoid common issues by checking spelling and case.
     </div>
   </div>
 
@@ -126,8 +130,8 @@
 
   <div class="govuk-grid-column-one-half">
     <h3 class="govuk-heading-m">Headers in CSV</h3>
-    <p class="govuk-body">Below are the fields observed when processing the file you uploaded.</p>
-    <h4 class="govuk-heading-s">Matched</h4>
+    <p class="govuk-body">Below are the fields found when processing the file you uploaded.</p>
+    <h4 class="govuk-heading-s">Found</h4>
     <ul class="govuk-list field-list">
       {% for header in fields.expected %}
       <li>{% if header in report.headers() %}<span>{{ header }}<span class="govuk-visually-hidden"> field is present in CSV</span> &#10004;</span>{% else %}<span class="missing-text">{{ header }}</span><span class="govuk-visually-hidden"> field is not present in CSV</span>{% endif %}</li>
@@ -154,11 +158,11 @@
 <!-- section for listing issues with the data -->
 <div id="data-issues-section" class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h2 class="govuk-heading-l govuk-!-margin-top-9">Field content</h2>
-    <p class="govuk-body">Content errors occur when the data is not in the expected format as laid out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">brownfield site standard</a>.</p>
+    <h2 class="govuk-heading-l govuk-!-margin-top-9">Column content</h2>
+    <p class="govuk-body">Content errors occur when the data is not in the expected format as laid out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">brownfield land standard</a>.</p>
 
     {% set number_of_errors = report.error_count() %}
-    <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }} across {{ report.errors()|length }} fields</span>. The fields are:</p>
+    <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }} across {{ report.errors()|length }} columns</span>. The columns are:</p>
 
     <ul class="govuk-list">
       {% for error in report.errors() %}
