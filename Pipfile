@@ -24,6 +24,8 @@ bidict = "*"
 dateparser = "*"
 chardet = "*"
 pandas = "*"
+sentry-sdk = {extras = ["flask"],version = "==0.13.1"}
+flask-sslify = "*"
 
 [dev-packages]
 pytest = "*"

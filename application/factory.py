@@ -10,6 +10,15 @@ if os.environ['FLASK_ENV'] == 'production':
 
 
 def create_app(config_filename):
+
+    if os.environ.get('SENTRY_DSN') is not None:
+        import sentry_sdk
+        from sentry_sdk.integrations.flask import FlaskIntegration
+        sentry_sdk.init(
+            dsn=os.environ.get('SENTRY_DSN'),
+            integrations=[FlaskIntegration()]
+        )
+
     app = Flask(__name__)
     app.config.from_object(config_filename)
     register_errorhandlers(app)
@@ -37,7 +46,8 @@ def register_blueprints(app):
 
 
 def register_extensions(app):
-    pass
+    from flask_sslify import SSLify
+    sslify = SSLify(app)
 
 
 def register_commands(app):
