@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "fd5eb774f2705ecfcca3e5c52a12f41943a40957a500f6819904543bcf70df6c"
+            "sha256": "d34f01ced0cac7f0c64bfc96ad21b34869d5a5f424d6d8b7a6fa30aa1a89afee"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -78,18 +78,18 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:16425b461149e57cecf1afef53382f187ed325dddb764b1047aa47f78197d9e2",
-                "sha256:593f67dcf6417b8c39641236761604cf47134bc27c25ef4d7c3d22da824e2c05"
+                "sha256:08d949fede71c14db8b9b638edaa13831d79daed84e2da27750629fd606bdb57",
+                "sha256:4d7c2cc266917cd0ff7e5e039158de80991e21696a2e8bf85201de2d06d7ceea"
             ],
             "index": "pypi",
-            "version": "==1.10.8"
+            "version": "==1.10.9"
         },
         "botocore": {
             "hashes": [
-                "sha256:5cc7e0bfa41eb2789674485fdda62ce44ff5e3fee8accb4e0ef317ebdf1a319a",
-                "sha256:b565ce26203ce94fc94f8056951fedc16e1e0b02d1fbdbf8dca420e1fbe05d81"
+                "sha256:61ad58e737e7a5d61308599606cd5a435cc3b97eb7fa693f99663c91bf1706d1",
+                "sha256:8cb038c110822681925a1f5d9005dc2bbc4259fff89d4abfaaf803a3489d0ee3"
             ],
-            "version": "==1.13.8"
+            "version": "==1.13.9"
         },
         "cchardet": {
             "hashes": [
@@ -214,6 +214,13 @@
             ],
             "index": "pypi",
             "version": "==0.2.9.8"
+        },
+        "flask-sslify": {
+            "hashes": [
+                "sha256:d33e1d3c09cd95154176aa8a7319418e52129fc482dd56d8a8ad7c24500d543e"
+            ],
+            "index": "pypi",
+            "version": "==0.1.5"
         },
         "flask-wtf": {
             "hashes": [
@@ -496,10 +503,10 @@
         },
         "pyparsing": {
             "hashes": [
-                "sha256:6f98a7b9397e206d78cc01df10131398f1c8b8510a2f4d97d9abd82e1aacdd80",
-                "sha256:d9338df12903bbf5d65a0e4e87c2161968b10d2e489652bb47001d82a9b028b4"
+                "sha256:0961bf3429691b9cd7e3695a37ee8bc18e95c56ac1271dc2bbc41697062d1b6d",
+                "sha256:8997c62f779045b07273e124bbe1d03e2eebb9a38a7ef0798fea4bae72b4b6a3"
             ],
-            "version": "==2.4.2"
+            "version": "==2.4.3"
         },
         "pyrsistent": {
             "hashes": [
@@ -517,11 +524,11 @@
         },
         "python-dateutil": {
             "hashes": [
-                "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c",
-                "sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a"
+                "sha256:7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb",
+                "sha256:c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e"
             ],
             "markers": "python_version >= '2.7'",
-            "version": "==2.8.1"
+            "version": "==2.8.0"
         },
         "python-dotenv": {
             "hashes": [
@@ -590,6 +597,17 @@
                 "sha256:b780f2411b824cb541dbcd2c713d0cb61c7d1bcadae204cdddda2b35cef493ba"
             ],
             "version": "==0.2.1"
+        },
+        "sentry-sdk": {
+            "extras": [
+                "flask"
+            ],
+            "hashes": [
+                "sha256:cf4b0f8401f4d146e6b8c5579b24397273126c9a0576fa7eb9581ad27b330f13",
+                "sha256:f6e850f304382d87c5c52c01db8c0004d2ced6a0b073df2f2257168cf31b31aa"
+            ],
+            "index": "pypi",
+            "version": "==0.13.1"
         },
         "simpleeval": {
             "hashes": [
@@ -747,10 +765,10 @@
         },
         "pyparsing": {
             "hashes": [
-                "sha256:6f98a7b9397e206d78cc01df10131398f1c8b8510a2f4d97d9abd82e1aacdd80",
-                "sha256:d9338df12903bbf5d65a0e4e87c2161968b10d2e489652bb47001d82a9b028b4"
+                "sha256:0961bf3429691b9cd7e3695a37ee8bc18e95c56ac1271dc2bbc41697062d1b6d",
+                "sha256:8997c62f779045b07273e124bbe1d03e2eebb9a38a7ef0798fea4bae72b4b6a3"
             ],
-            "version": "==2.4.2"
+            "version": "==2.4.3"
         },
         "pytest": {
             "hashes": [
