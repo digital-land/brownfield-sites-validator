@@ -98,11 +98,11 @@ def convert_to_csv_if_needed(filename):
         elif filename.endswith('.xlsm'):
             with open(f'{filename}.csv', 'w') as out:
                 subprocess.check_call(['xlsx2csv', filename], stdout=out)
-            return f'{filename}.csv' 'xlsm'
+            return f'{filename}.csv', 'xlsm'
         else:
             return filename, 'csv'
     except Exception as e:
-        msg = 'Could not convert %s into csv' % filename
+        msg = f"Could not convert {filename.split('/')[-1]} into csv"
         raise FileTypeException(msg)
 
 
@@ -128,7 +128,7 @@ def extract_and_normalise_data(upload_data):
 
 
 def process_csv_file(csv_file):
-    # TODO fixup column names
+    # TODO fixup column names?
     # TODO get planning authority name from opendatacommunities
     rows = []
     encoding = detect_encoding(csv_file)
