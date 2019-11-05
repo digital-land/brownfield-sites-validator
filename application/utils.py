@@ -64,6 +64,22 @@ current_standard_fields = [item['name'] for item in brownfield_site_schema['fiel
 columns_to_ignore = set(original_brownfield_register_fields) - set(current_standard_fields)
 
 
+# To do: should this be somewhere else?
+def check_headers(report):
+  bf_fields = brownfield_standard_fields()
+  report_headers = report.headers()
+  headers_status = "Headers correct"
+
+  for header in bf_fields["expected"]:
+    if header not in report_headers:
+      return "Missing headers"
+  for header in bf_fields["deprecated"]:
+    if header in report_headers:
+      return "Warnings"
+  if report.additional_headers().length > 0:
+    return "Extra headers"
+
+
 def to_boolean(value):
     if value is None:
         return False

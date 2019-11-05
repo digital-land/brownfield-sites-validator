@@ -45,10 +45,20 @@
             <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#file-issues-section">Yes|No</a></td>
           </tr>-->
 
+          {# 
+            If all headers are correct
+            do we still need a header section?
+            If not use:
+            {% if header_status = "Headers correct" %}
+            {{ header_status }}
+            {% else %}
+            <a href="...">{{ header_status }}</a>
+            {% endif %} #}
+
           <!-- check column headers (row 1) against expected columns -->
           <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">Contains correct headers</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#column-issues-section">Yes|No</a></td>
+            <th class="govuk-table__header" scope="row">Correct column headers</th>
+            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#column-issues-section">{{ header_status }}</a></td>
           </tr>
 
           <!-- is the data valid -->
@@ -81,7 +91,7 @@
 <!-- section for listing issues with columns -->
 <div id="column-issues-section" class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h2 class="govuk-heading-l govuk-!-margin-top-9">Column names</h2>
+    <h2 class="govuk-heading-l govuk-!-margin-top-9">Column headings</h2>
     <p class="govuk-body">There are problems with the column names in the register. They need to match the names contained in the guidance exactly.</p>
     <div class="govuk-inset-text">
         The column headings outlined in the <a href="https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/653657/BrownfieldLandRegisters_-_DataStandard.pdf">data standard</a> are case sensitive. Avoid common issues by checking spelling and case.
@@ -117,10 +127,10 @@
   <div class="govuk-grid-column-one-half">
     <h3 class="govuk-heading-m">Headers in CSV</h3>
     <p class="govuk-body">Below are the fields observed when processing the file you uploaded.</p>
-    <h4 class="govuk-heading-s">Accepted</h4>
+    <h4 class="govuk-heading-s">Matched</h4>
     <ul class="govuk-list field-list">
       {% for header in fields.expected %}
-      <li>{% if header in report.headers() %}<span>{{ header }}<span class="govuk-visually-hidden"> field is present in CSV</span> &#10004;</span>{% else %}<span class="dlf-secondary-text">{{ header }}</span><span class="govuk-visually-hidden"> field is not present in CSV</span>{% endif %}</li>
+      <li>{% if header in report.headers() %}<span>{{ header }}<span class="govuk-visually-hidden"> field is present in CSV</span> &#10004;</span>{% else %}<span class="missing-text">{{ header }}</span><span class="govuk-visually-hidden"> field is not present in CSV</span>{% endif %}</li>
       {% endfor %}
     </ul>
 

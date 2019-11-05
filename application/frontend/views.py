@@ -8,7 +8,7 @@ from flask import (
 
 from application.frontend.forms import UploadForm
 
-from application.utils import brownfield_standard_fields, temp_fields_seen_in_register
+from application.utils import brownfield_standard_fields, check_headers
 from application.validation.validator import handle_upload_and_validate
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
@@ -27,7 +27,7 @@ def validate():
             report = handle_upload_and_validate(form)
             return render_template('validation-result.html',
                                    fields=brownfield_standard_fields(),
-                                   seen=temp_fields_seen_in_register,
+                                   header_status=check_headers(report),
                                    report=report)
         except Exception as e:
             flash('There was an error processing the file you uploaded', category='error')

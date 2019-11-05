@@ -52,6 +52,10 @@ $using-helvetica: false;
   color: govuk-colour("dark-grey");
 }
 
+.missing-text {
+  color: govuk-colour("mid-grey");
+}
+
 .inline-error-text {
   color: $govuk-error-colour;
   font-weight: 700;

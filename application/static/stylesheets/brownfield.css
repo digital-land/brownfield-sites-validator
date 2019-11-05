@@ -7738,6 +7738,10 @@
   color: #6f777b;
 }
 
+.missing-text {
+  color: #b1b4b6;
+}
+
 .inline-error-text {
   color: #d4351c;
   font-weight: 700;
