@@ -30,7 +30,7 @@ def validate():
                                    header_status=check_headers(report),
                                    report=report)
         except Exception as e:
-            flash('There was an error processing the file you uploaded', category='error')
+            flash(f'There was an error processing the file you uploaded; {e}', category='error')
 
     return render_template('upload.html', form=form)
 
