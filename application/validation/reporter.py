@@ -33,13 +33,12 @@ class Report:
     def error_count(self):
         return self.results['error-count']
 
-    # TODO map error types to better names and work out what to extract from messages and values
     def errors_by_field(self, field):
         column_number = self.field_name_to_column_number(field)
         errors = {'field': field, 'errors': [], 'rows': []}
         messages = set([])
         for e in self.results['tables'][0]['errors']:
-            mapper = ErrorMapper(e, field)
+            mapper = ErrorMapper.factory(e, field)
             if e.get('column-number') is not None and e.get('column-number') == column_number:
                 if 'row-number' in e.keys():
                     errors['rows'].append(e['row-number'])
