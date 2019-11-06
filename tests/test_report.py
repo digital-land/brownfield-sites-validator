@@ -94,17 +94,3 @@ def test_report_shows_error_counts_by_first_added_date(results, date_error_messa
                 'rows': [3, 8]
                 }
     assert expected == report.errors_by_field('FirstAddedDate')
-
-
-def test_report_shows_error_counts_by_deliverable(results):
-    expected_message = {'errors': [{'message': "The field contained 'Yes' but should have been 'Y'",
-                                    'row': 1,
-                                    'type': 'pattern-constraint'},
-                                   {'message': "The field contained 'Yes' but should have been 'Y'",
-                                    'row': 3,
-                                    'type': 'pattern-constraint'}],
-                        'field': 'Deliverable',
-                        'messages': ["Some entries in this columns don't match the value 'Y'"],
-                        'rows': [1, 3]}
-    report = Report(results)
-    assert report.errors_by_field('Deliverable') == expected_message

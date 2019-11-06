@@ -127,3 +127,12 @@ def detect_encoding(file):
                 break
     detector.close()
     return detector.result
+
+
+def get_markdown_for_field(field_name):
+    from pathlib import Path
+    current_directory = Path(__file__).parent.resolve()
+    markdown_file = Path(current_directory, 'markdown', f'{field_name}.md')
+    with open(markdown_file) as f:
+        content = f.read()
+    return content

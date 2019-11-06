@@ -1,7 +1,9 @@
+import dateparser
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-import dateparser
+from application.validation.utils import get_markdown_for_field
 
 
 class ErrorMapper(ABC):
@@ -59,9 +61,10 @@ class TypeOrFormatErrorMapper(ErrorMapper):
 class PatternErrorMapper(ErrorMapper):
 
     def overall_error_messages(self):
-        # TODO map field name to text from standard
-        # cleaned_up = self._clean_up(self.raw_error['message-data']['constraint'])
-        return f"Some entries in this columns don't match the expected value"
+        try:
+            return get_markdown_for_field(self.field)
+        except Exception as e:
+            return 'Unknown'
 
     def field_error_message(self):
         return f"The entry was '{self.raw_error['message-data']['value']}'"
@@ -70,7 +73,6 @@ class PatternErrorMapper(ErrorMapper):
 class GeoErrorMapper(ErrorMapper):
 
     def overall_error_messages(self):
-        # Use markdown from standard?
         return "GeoX or GeoY should represent a point in UK using the WGS84 or ETRS89 coordinate systems."
 
     def field_error_message(self):
