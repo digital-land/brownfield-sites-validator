@@ -46,8 +46,10 @@ def register_blueprints(app):
 
 
 def register_extensions(app):
-    from flask_sslify import SSLify
-    sslify = SSLify(app)
+    from application.extensions import SSLify
+    from application.extensions import Misaka
+    SSLify(app)
+    Misaka(app)
 
 
 def register_commands(app):

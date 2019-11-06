@@ -52,16 +52,16 @@ temp_fields_seen_in_register = ['OrganisationURI',
                                 'FirstaddedDate']
 
 
-def brownfield_standard_fields():
-  deprecated_fields = set(original_brownfield_register_fields) - set(current_standard_fields)
-  return {
-    "expected": sorted(current_standard_fields),
-    "deprecated": deprecated_fields
-  }
-
-
 current_standard_fields = [item['name'] for item in brownfield_site_schema['fields']]
 columns_to_ignore = set(original_brownfield_register_fields) - set(current_standard_fields)
+
+
+def brownfield_standard_fields():
+    deprecated_fields = set(original_brownfield_register_fields) - set(current_standard_fields)
+    return {
+        "expected": sorted(current_standard_fields),
+        "deprecated": deprecated_fields
+    }
 
 
 def convert_to_csv_if_needed(filename):
@@ -82,23 +82,20 @@ def convert_to_csv_if_needed(filename):
         raise FileTypeException(msg)
 
 
-def extract_and_normalise_data(upload_data, filename):
+def extract_data(upload_data, filename):
     with tempfile.TemporaryDirectory() as temp_dir:
         output_dir = f'{temp_dir}/data'
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         file = os.path.join(output_dir, filename)
         upload_data.save(file)
-        file, file_type = convert_to_csv_if_needed(file)
-        data, headers_found, additional_headers, planning_authority = process_csv_file(file)
-        return {'data': data,
-                'headers_found': headers_found,
-                'additional_headers': additional_headers,
-                'file_type': file_type,
-                'planning_authority': planning_authority}
+        file, original_file_type = convert_to_csv_if_needed(file)
+        data = csv_to_dict(file)
+        data['file_type'] = original_file_type
+        return data
 
 
-def process_csv_file(csv_file):
+def csv_to_dict(csv_file):
     # TODO fixup column names?
     # TODO get planning authority name from opendatacommunities
     rows = []
@@ -114,7 +111,10 @@ def process_csv_file(csv_file):
             for column in brownfield_standard_fields()['expected']:
                 r[column] = row.get(column, None)
             rows.append(r)
-    return rows, reader.fieldnames, list(additional_headers), planning_authority
+    return {'data': rows,
+            'headers_found': reader.fieldnames,
+            'additional_headers': list(additional_headers),
+            'planning_authority': planning_authority}
 
 
 def detect_encoding(file):
@@ -127,3 +127,12 @@ def detect_encoding(file):
                 break
     detector.close()
     return detector.result
+
+
+def get_markdown_for_field(field_name):
+    from pathlib import Path
+    current_directory = Path(__file__).parent.resolve()
+    markdown_file = Path(current_directory, 'markdown', f'{field_name}.md')
+    with open(markdown_file) as f:
+        content = f.read()
+    return content

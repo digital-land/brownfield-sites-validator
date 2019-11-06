@@ -15,7 +15,7 @@ class Report:
         self.additional = data.get('additional_headers', []) if data is not None else []
         self.missing = data.get('missing_headers', []) if data is not None else []
         self.file_type =  data.get('file_type', 'csv') if data is not None else 'csv'
-        self.planning_authority =  data.get('planning_authority', 'Not known') if data is not None else 'Not known'
+        self.planning_authority = data.get('planning_authority', 'Not known') if data is not None else 'Not known'
         cols_to_fields = {}
         for column_number, header in enumerate(self.results['tables'][0]['headers']):
             cols_to_fields[column_number + 1] = header
@@ -64,7 +64,7 @@ class Report:
         errors = {'field': field, 'errors': [], 'rows': []}
         messages = set([])
         for e in self.results['tables'][0]['errors']:
-            mapper = ErrorMapper(e, field)
+            mapper = ErrorMapper.factory(e, field)
             if e.get('column-number') is not None and e.get('column-number') == column_number:
                 if 'row-number' in e.keys():
                     errors['rows'].append(e['row-number'])

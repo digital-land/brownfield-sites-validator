@@ -186,7 +186,9 @@
       <li>
         <h3 class="govuk-heading-s">{{ error.field }}</h3>
         {% for msg in error.messages %}
-          <p class="no-margin">{{ msg}}</p>
+          <p class="no-margin">
+              {{ msg|markdown}}
+          </p>
         {% endfor %}
         <p>Across <span class="row-value">{{ error.errors|count }} {{ "row"|pluralise("", "s", error.errors|count) }}</span>.
         </p>
