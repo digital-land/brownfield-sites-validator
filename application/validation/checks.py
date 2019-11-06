@@ -16,7 +16,7 @@ def geox_check(cells):
         return errors
 
     if abs(geoX['value']) > 180:
-        message = f"GeoX {geoX['value']} isn't a longitude using the WGS84 or ETRS89 coordinate systems"
+        message = f"{geoX['value']} isn't a longitude using the WGS84 or ETRS89 coordinate systems"
         error = Error(
             'geo-error',
             cell=geoX,
@@ -30,7 +30,7 @@ def geox_check(cells):
 
     decimal_places = abs(geoX['value'].as_tuple().exponent)
     if decimal_places > MAX_DECIMAL_PLACES:
-        message = f"GeoY {geoX['value']} should not have more than six decimal places"
+        message = f"{geoX['value']} should not have more than six decimal places"
         error = Error(
             'geo-error',
             cell=geoX,
@@ -43,7 +43,7 @@ def geox_check(cells):
         return errors
 
     if geoX['value'] < -7 or geoX['value'] > 2:
-        message = f"GeoX (longitude) {geoX['value']} is not within the UK"
+        message = f"{geoX['value']} is not a longitude within the UK"
         error = Error(
             'geo-error',
             cell=geoX,
@@ -68,7 +68,7 @@ def geoy_check(cells):
         return errors
 
     if abs(geoY['value']) > 90:
-        message = f"GeoY {geoY['value']} isn't a latitude using the WGS84 or ETRS89 coordinate systems"
+        message = f"{geoY['value']} isn't a latitude using the WGS84 or ETRS89 coordinate systems"
         error = Error(
             'geo-error',
             cell=geoY,
@@ -82,7 +82,7 @@ def geoy_check(cells):
 
     decimal_places = abs(geoY['value'].as_tuple().exponent)
     if decimal_places > 6:
-        message = f"GeoY {geoY['value']} should not have more than six decimal places"
+        message = f"{geoY['value']} should not have more than six decimal places"
         error = Error(
             'geo-error',
             cell=geoY,
@@ -95,7 +95,7 @@ def geoy_check(cells):
         return errors
 
     if geoY['value'] < 49 or geoY['value'] > 57:
-        message = f"GeoY (latitude) {geoY['value']} is not within the UK"
+        message = f"{geoY['value']} is not a latitude within the UK"
         error = Error(
             'geo-error',
             cell=geoY,

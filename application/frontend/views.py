@@ -5,10 +5,9 @@ from flask import (
     render_template,
     jsonify,
     flash)
+from werkzeug.utils import secure_filename
 
 from application.frontend.forms import UploadForm
-
-from application.utils import brownfield_standard_fields, check_headers
 from application.validation.validator import handle_upload_and_validate
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
@@ -24,13 +23,13 @@ def validate():
     form = UploadForm()
     if form.validate_on_submit():
         try:
-            report = handle_upload_and_validate(form)
+            filename = secure_filename(form.upload.data.filename)
+            data = form.upload.data
+            report = handle_upload_and_validate(data, filename)
             return render_template('validation-result.html',
-                                   fields=brownfield_standard_fields(),
-                                   header_status=check_headers(report),
                                    report=report)
         except Exception as e:
-            flash(f'There was an error processing the file you uploaded; {e}', category='error')
+            flash(f'{e}', category='error')
 
     return render_template('upload.html', form=form)
 

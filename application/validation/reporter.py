@@ -1,6 +1,8 @@
 import json
 
 from bidict import bidict
+
+from application.validation.utils import brownfield_standard_fields
 from application.validation.error_mapper import ErrorMapper
 
 
@@ -18,6 +20,7 @@ class Report:
         for column_number, header in enumerate(self.results['tables'][0]['headers']):
             cols_to_fields[column_number + 1] = header
         self.columns_to_fields = bidict(cols_to_fields)
+        self.fields = brownfield_standard_fields()
 
     def valid(self):
         return self.results['valid']
@@ -36,6 +39,24 @@ class Report:
 
     def error_count(self):
         return self.results['error-count']
+
+    def fields_expected(self):
+        return self.fields['expected']
+
+    def fields_deprecated(self):
+        return self.fields['deprecated']
+
+    def check_headers(self):
+        report_headers = self.headers()
+        headers_status = "Headers correct"
+        for header in self.fields_expected():
+            if header not in report_headers:
+                return "Missing headers"
+        for header in self.fields_deprecated():
+            if header in report_headers:
+                return "Warnings"
+        if self.additional_headers().length > 0:
+            return "Extra headers"
 
     # TODO map error types to better names and work out what to extract from messages and values
     def errors_by_field(self, field):
