@@ -43,10 +43,10 @@
 		<form class="govuk-form" method="POST" action="{{ url_for('frontend.validate') }}"  enctype="multipart/form-data">
 			<div class="govuk-form-group{% if form.errors %} govuk-form-group--error{% endif %}">
 				<label class="govuk-label" for="file-upload-1">
-				Select your Brownfield land register
+				Select your brownfield land register
 				</label>
 				<span id="file-upload-hint" class="govuk-hint">
-    			The register should be a .csv, .xls, .xlsx or .xlsm file
+    			The register should be a CSV file. If you upload an Microsoft Excel file we will try to convert it to a CSV file.
   				</span>
   				{% if form.upload.errors %}
   				<span id="upload-error" class="govuk-error-message">
