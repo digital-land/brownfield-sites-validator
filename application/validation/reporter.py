@@ -1,21 +1,26 @@
+import datetime
 import json
+import uuid
 
 from bidict import bidict
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 
 from application.validation.utils import brownfield_standard_fields
 from application.validation.error_mapper import ErrorMapper
+from application.extensions import db
 
 
-class Report:
+class Report(db.Model):
 
-    def __init__(self, results, data=None):
-        self.results = results
-        self.data = data.get('data', None) if data is not None else None
-        self.headers_found = data.get('headers_found', []) if data is not None else []
-        self.additional = data.get('additional_headers', []) if data is not None else []
-        self.missing = data.get('missing_headers', []) if data is not None else []
-        self.file_type =  data.get('file_type', 'csv') if data is not None else 'csv'
-        self.planning_authority = data.get('planning_authority', 'Not known') if data is not None else 'Not known'
+    id = db.Column(UUID(), primary_key=True, default=uuid.uuid4)
+    results = db.Column(JSONB)
+    created_at = db.Column(db.DateTime(), nullable=False, default=datetime.utcnow)
+    data = db.Column(JSONB)
+
+    def __init__(self, results, data, **kwargs):
+        super(Report, self).__init__(**kwargs)
+        self.file_type =  data.get('file_type', 'csv')
+        self.planning_authority = data.get('planning_authority', 'Not known')
         cols_to_fields = {}
         for column_number, header in enumerate(self.results['tables'][0]['headers']):
             cols_to_fields[column_number + 1] = header
@@ -29,13 +34,13 @@ class Report:
         return self.results['tables'][0]['row-count']
 
     def headers(self):
-        return self.headers_found
+        return self.data.get('headers_found', [])
 
     def additional_headers(self):
-        return self.additional
+        return self.data.get('additional_headers', [])
 
     def missing_headers(self):
-        return self.missing
+        return self.data.get('missing_headers', [])
 
     def error_count(self):
         return self.results['error-count']
