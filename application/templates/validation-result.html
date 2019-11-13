@@ -37,7 +37,7 @@
             <th class="govuk-table__header" scope="row">Local Authority</th>
             <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.planning_authority() }}</td>
           </tr>
-re
+
           <!-- check column headers (row 1) against expected columns -->
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">Column headers</th>
@@ -161,13 +161,13 @@ re
     <p class="govuk-body">Content errors occur when the data is not in the expected format as laid out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">brownfield land standard</a>.</p>
 
     {#- subtract number of missing headers times number of rows from overall error count displayed here -#}
-    {% set number_of_errors = report.error_count() - (report.row_count() * report.headers_missing()|length) %}
+    {% set number_of_errors = report.error_count() - report.headers_missing()|length %}
     <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }} across {{ report.errors_by_columns()|length }} columns</span>. The columns are:</p>
 
     <ul class="govuk-list">
       {% for error in report.errors_by_columns() %}
       <li>
-        <h3 class="govuk-heading-s">{{ error.field }}</h3>
+        <h3 class="govuk-heading-s">{{ error.column }}</h3>
         {% for msg in error.messages %}
           <p class="no-margin">
               {{ msg|markdown}}
