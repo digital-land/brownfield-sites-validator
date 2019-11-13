@@ -2,7 +2,6 @@ import dateparser
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-
 from application.validation.utils import get_markdown_for_field
 
 
@@ -18,7 +17,7 @@ class ErrorMapper(ABC):
             return HeaderErrorMapper(error, field)
         if error['code'] == 'geo-error':
             return GeoErrorMapper(error, field)
-        if error['code'] == 'required-constraint':
+        if error['code'] in ['required-constraint', 'missing-value']:
             return RequiredErrorMapper(error, field)
         return UnknownErrorMapper(error, field)
 
@@ -67,7 +66,7 @@ class PatternErrorMapper(ErrorMapper):
             return 'Unknown'
 
     def field_error_message(self):
-        return f"The entry was '{self.raw_error['message-data']['value']}'"
+        return f"This should be '{self.raw_error['message-data']['constraint']}'"
 
 
 class GeoErrorMapper(ErrorMapper):

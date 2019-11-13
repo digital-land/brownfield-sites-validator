@@ -29,36 +29,19 @@
           <!-- what type of file was uploaded -->
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">File type</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.file_type }}</td>
+            <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.file_type() }}</td>
           </tr>
 
           <!-- were we able to extract name of Local Authority -->
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">Local Authority</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.planning_authority }}</td>
+            <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.planning_authority() }}</td>
           </tr>
-
-          <!-- were there issues with the file, e.g. empty rows, additional text, bad headers -->
-          <!--
-          <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">Issues with file</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#file-issues-section">Yes|No</a></td>
-          </tr>-->
-
-          {# 
-            If all headers are correct
-            do we still need a header section?
-            If not use:
-            {% if header_status = "Headers correct" %}
-            {{ header_status }}
-            {% else %}
-            <a href="...">{{ header_status }}</a>
-            {% endif %} #}
-
+re
           <!-- check column headers (row 1) against expected columns -->
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">Column headers</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#column-issues-section">{{ header_status }}</a></td>
+            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#column-issues-section">{{ report.check_headers() }}</a></td>
           </tr>
 
           <!-- is the data valid -->
@@ -109,8 +92,8 @@
     <p class="govuk-body">Below are the fields that are part of the brownfield land registers data standard.</p>
     <h4 class="govuk-heading-s">Expected</h4>
     <ul class="govuk-list field-list">
-      {% for header in report.fields_expected() %}
-      <li {% if not header in report.headers() %}class="error"{% endif %}>{{ header }}</li>
+      {% for header in brownfield_standard.v2_standard_headers() %}
+      <li {% if not header in report.headers_found() %}class="error"{% endif %}>{{ header }}</li>
       {% endfor %}
     </ul>
 
@@ -122,7 +105,7 @@
       </div>
     </details>
     <ul class="govuk-list field-list">
-      {% for header in report.fields_deprecated() %}
+      {% for header in brownfield_standard.headers_deprecated() %}
       <li>{{ header }}</li>
       {% endfor %}
     </ul>
@@ -134,8 +117,8 @@
     <p class="govuk-body">Below are the fields found when processing the file you uploaded.</p>
     <h4 class="govuk-heading-s">Found</h4>
     <ul class="govuk-list field-list">
-      {% for header in report.fields_expected() %}
-      <li>{% if header in report.headers() %}<span>{{ header }}<span class="govuk-visually-hidden"> field is present in CSV</span> &#10004;</span>{% else %}<span class="missing-text">{{ header }}</span><span class="govuk-visually-hidden"> field is not present in CSV</span>{% endif %}</li>
+      {% for header in brownfield_standard.v2_standard_headers() %}
+      <li>{% if header in report.headers_found() %}<span>{{ header }}<span class="govuk-visually-hidden"> field is present in CSV</span> &#10004;</span>{% else %}<span class="missing-text">{{ header }}</span><span class="govuk-visually-hidden"> field is not present in CSV</span>{% endif %}</li>
       {% endfor %}
     </ul>
 
@@ -178,11 +161,11 @@
     <p class="govuk-body">Content errors occur when the data is not in the expected format as laid out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">brownfield land standard</a>.</p>
 
     {#- subtract number of missing headers times number of rows from overall error count displayed here -#}
-    {% set number_of_errors = report.error_count() - (report.row_count() * report.missing_headers()|length) %}
-    <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }} across {{ report.errors()|length }} columns</span>. The columns are:</p>
+    {% set number_of_errors = report.error_count() - (report.row_count() * report.headers_missing()|length) %}
+    <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }} across {{ report.errors_by_columns()|length }} columns</span>. The columns are:</p>
 
     <ul class="govuk-list">
-      {% for error in report.errors() %}
+      {% for error in report.errors_by_columns() %}
       <li>
         <h3 class="govuk-heading-s">{{ error.field }}</h3>
         {% for msg in error.messages %}
@@ -209,27 +192,27 @@
 {% endif %}
 
 {% if report.valid() %}
-<!-- should only be shown if able to plot brownfield sites -->
-<div class="govuk-grid-row">
-  <div class="govuk-grid-column-two-thirds">
-    <!--<h2 class="govuk-heading-l govuk-!-margin-top-9">Brownfield site locations</h2>
-    <p class="govuk-body">Using the data found we were able to plot these brownfield sites.</p>
-    <div id="map-original" style="height: 1px;"></div>-->
-    <h2 class="govuk-heading-l govuk-!-margin-top-6">What happens next</h2>
-    <p class="govuk-body">
-      Your register contains valid brownfield site data.
-    </p>
-    <p class="govuk-body">
-      You should now publish the register on your LPA website. If you already have a published register you should either update it with the new data or replace the file with the file you checked.
-    </p>
+    <!-- should only be shown if able to plot brownfield sites -->
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <!--<h2 class="govuk-heading-l govuk-!-margin-top-9">Brownfield site locations</h2>
+        <p class="govuk-body">Using the data found we were able to plot these brownfield sites.</p>
+        <div id="map-original" style="height: 1px;"></div>-->
+        <h2 class="govuk-heading-l govuk-!-margin-top-6">What happens next</h2>
+        <p class="govuk-body">
+          Your register contains valid brownfield site data.
+        </p>
+        <p class="govuk-body">
+          You should now publish the register on your LPA website. If you already have a published register you should either update it with the new data or replace the file with the file you checked.
+        </p>
 
-    <div class="govuk-inset-text">You should not remove brownfield sites from your register. Old sites should be marked as such using the "EndDate" field.</div>
+        <div class="govuk-inset-text">You should not remove brownfield sites from your register. Old sites should be marked as such using the "EndDate" field.</div>
 
-    <!--<p class="govuk-body">
-      <a href="#" class="govuk-link">What did you think of this service?</a> (takes 30 seconds)
-    </p>-->
-  </div>
-</div>
+        <!--<p class="govuk-body">
+          <a href="#" class="govuk-link">What did you think of this service?</a> (takes 30 seconds)
+        </p>-->
+      </div>
+    </div>
 {% endif %}
 
 {% if config.ENV == 'development' %}
@@ -238,10 +221,21 @@
         <div class="govuk-grid-column-two-thirds">
             <details>
                 <summary class="govuk-body">Raw validation results</summary>
-                <pre>{{ report.raw_data() }}</pre>
+                <pre>{{ report.raw_result|tojson(indent=2) }}</pre>
             </details>
         </div>
     </div>
+
+    <h2 class="govuk-heading-l govuk-!-margin-top-9">Report as json</h2>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <details>
+                <summary class="govuk-body">Report as json</summary>
+                <pre>{{ report.to_dict()|tojson(indent=2) }}</pre>
+            </details>
+        </div>
+    </div>
+
 {% endif %}
 
 
