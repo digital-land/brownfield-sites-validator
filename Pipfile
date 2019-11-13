@@ -28,6 +28,7 @@ sentry-sdk = {extras = ["flask"],version = "==0.13.1"}
 flask-sslify = "*"
 flask-misaka = "*"
 flask-migrate = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 pytest = "*"
