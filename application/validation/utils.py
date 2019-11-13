@@ -5,7 +5,6 @@ import os
 import tempfile
 
 from cchardet import UniversalDetector
-
 from application.validation.schema import brownfield_site_schema
 
 
@@ -15,53 +14,46 @@ class FileTypeException(Exception):
         self.message = message
 
 
-original_brownfield_register_fields = ['OrganisationURI',
-                                       'OrganisationLabel',
-                                       'SiteReference',
-                                       'PreviouslyPartOf',
-                                       'SiteNameAddress',
-                                       'SitePlanURL',
-                                       'CoordinateReferenceSystem',
-                                       'GeoX',
-                                       'GeoY',
-                                       'Hectares',
-                                       'OwnershipStatus',
-                                       'Deliverable',
-                                       'PlanningStatus',
-                                       'PermissionType',
-                                       'PermissionDate',
-                                       'PlanningHistory',
-                                       'ProposedForPIP',
-                                       'MinNetDwellings',
-                                       'DevelopmentDescription',
-                                       'NonHousingDevelopment',
-                                       'Part2',
-                                       'NetDwellingsRangeFrom',
-                                       'NetDwellingsRangeTo',
-                                       'HazardousSubstances',
-                                       'SiteInformation',
-                                       'Notes',
-                                       'FirstAddedDate',
-                                       'LastUpdatedDate']
+class BrownfieldStandard:
 
-temp_fields_seen_in_register = ['OrganisationURI',
-                                'OrganisationLabel',
-                                'SiteReference',
-                                'name',
-                                'notes',
-                                'FirstaddedDate']
+    @staticmethod
+    def v1_standard_headers():
+        return ['OrganisationURI',
+                'OrganisationLabel',
+                'SiteReference',
+                'PreviouslyPartOf',
+                'SiteNameAddress',
+                'SitePlanURL',
+                'CoordinateReferenceSystem',
+                'GeoX',
+                'GeoY',
+                'Hectares',
+                'OwnershipStatus',
+                'Deliverable',
+                'PlanningStatus',
+                'PermissionType',
+                'PermissionDate',
+                'PlanningHistory',
+                'ProposedForPIP',
+                'MinNetDwellings',
+                'DevelopmentDescription',
+                'NonHousingDevelopment',
+                'Part2',
+                'NetDwellingsRangeFrom',
+                'NetDwellingsRangeTo',
+                'HazardousSubstances',
+                'SiteInformation',
+                'Notes',
+                'FirstAddedDate',
+                'LastUpdatedDate']
 
+    @staticmethod
+    def v2_standard_headers():
+        return [item['name'] for item in brownfield_site_schema['fields']]
 
-current_standard_fields = [item['name'] for item in brownfield_site_schema['fields']]
-columns_to_ignore = set(original_brownfield_register_fields) - set(current_standard_fields)
-
-
-def brownfield_standard_fields():
-    deprecated_fields = set(original_brownfield_register_fields) - set(current_standard_fields)
-    return {
-        "expected": sorted(current_standard_fields),
-        "deprecated": deprecated_fields
-    }
+    @staticmethod
+    def headers_deprecated():
+        return list(set(BrownfieldStandard.v1_standard_headers()) - set(BrownfieldStandard.v2_standard_headers()))
 
 
 def convert_to_csv_if_needed(filename):
@@ -96,24 +88,30 @@ def extract_data(upload_data, filename):
 
 
 def csv_to_dict(csv_file):
-    # TODO fixup column names?
-    # TODO get planning authority name from opendatacommunities
-    rows = []
+    rows_to_check = []
+    original_rows = []
     encoding = detect_encoding(csv_file)
     planning_authority = None
     with codecs.open(csv_file, encoding=encoding['encoding']) as f:
         reader = csv.DictReader(f)
-        additional_headers = set(reader.fieldnames) - set(current_standard_fields)
+        additional_headers = list(set(reader.fieldnames) - set(BrownfieldStandard.v2_standard_headers()))
+        headers_missing = list(set(BrownfieldStandard.v2_standard_headers()) - set(reader.fieldnames))
         for row in reader:
-            r = collections.OrderedDict()
+            to_check = collections.OrderedDict()
+            # TODO get planning authority name from opendatacommunities
             if planning_authority is None:
                 planning_authority = row.get('OrganisationLabel', 'Unknown')
-            for column in brownfield_standard_fields()['expected']:
-                r[column] = row.get(column, None)
-            rows.append(r)
-    return {'data': rows,
+            for column in BrownfieldStandard.v2_standard_headers():
+                value = row.get(column, None)
+                if value is not None:
+                    to_check[column] = row.get(column)
+            rows_to_check.append(to_check)
+            original_rows.append(row)
+    return {'rows_to_check': rows_to_check,
+            'original_rows': original_rows,
             'headers_found': reader.fieldnames,
-            'additional_headers': list(additional_headers),
+            'additional_headers': additional_headers,
+            'headers_missing': headers_missing,
             'planning_authority': planning_authority}
 
 

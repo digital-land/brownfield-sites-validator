@@ -1,13 +1,17 @@
-import json
-
 from flask import (
     Blueprint,
     render_template,
     jsonify,
-    flash)
-from werkzeug.utils import secure_filename
+    flash,
+    url_for,
+    abort
+)
+from werkzeug.utils import secure_filename, redirect
 
+from application.extensions import db
 from application.frontend.forms import UploadForm
+from application.validation.reporter import Report
+from application.validation.utils import FileTypeException, BrownfieldStandard
 from application.validation.validator import handle_upload_and_validate
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
@@ -26,12 +30,23 @@ def validate():
             filename = secure_filename(form.upload.data.filename)
             data = form.upload.data
             report = handle_upload_and_validate(data, filename)
-            return render_template('validation-result.html',
-                                   report=report)
-        except Exception as e:
+            db.session.add(report)
+            db.session.commit()
+            return redirect(url_for('frontend.validation_report', report=report.id))
+        except FileTypeException as e:
             flash(f'{e}', category='error')
 
     return render_template('upload.html', form=form)
+
+
+@frontend.route('/validation/<report>')
+def validation_report(report):
+    report = Report.query.get(report)
+    if report is not None:
+        return render_template('validation-result.html',
+                               report=report,
+                               brownfield_standard=BrownfieldStandard)
+    abort(404)
 
 
 @frontend.route('/schema')

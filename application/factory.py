@@ -46,11 +46,16 @@ def register_blueprints(app):
 
 
 def register_extensions(app):
-    from application.extensions import SSLify
-    from application.extensions import Misaka
-    SSLify(app)
-    Misaka(app)
+    from application.extensions import misaka
+    from application.extensions import db
+    from application.extensions import migrate
 
+    misaka.init_app(app)
+    db.init_app(app)
+    migrate.init_app(app)
+
+    from flask_sslify import SSLify
+    sslify = SSLify(app)
 
 def register_commands(app):
     pass
