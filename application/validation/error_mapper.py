@@ -40,6 +40,7 @@ class ErrorMapper(ABC):
 class TypeOrFormatErrorMapper(ErrorMapper):
 
     def overall_error_messages(self):
+        message = self.raw_error.get('message', 'unknown')
         if self.raw_error['message-data']['field_type'] == 'date':
             today = datetime.today()
             today_human = today.strftime('%d/%m/%Y')
@@ -47,9 +48,13 @@ class TypeOrFormatErrorMapper(ErrorMapper):
             message = f'Some dates in the file are not in the format YYYY-MM-DD. For example {today_human} should be {today_iso}'
         elif self.raw_error['message-data']['field_type'] == 'number':
             message = "Some entries in this column are non numeric"
+        elif self.raw_error['message-data']['field_type'] == 'string':
+            if self.raw_error['message-data']['field_format'] == 'uri':
+                message = "Some entries in this column are not URLs"
         return message
 
     def field_error_message(self):
+        message = self.raw_error.get('message', 'unknown')
         if self.raw_error['message-data']['field_type'] == 'date':
             date_provided = self.raw_error['message-data']['value']
             d = dateparser.parse(date_provided)
@@ -57,6 +62,9 @@ class TypeOrFormatErrorMapper(ErrorMapper):
             message = f'The date {date_provided} should be entered as {valid_date}'
         elif self.raw_error['message-data']['field_type'] == 'number':
             message = f"{self.raw_error['message-data']['value']} is not a valid number"
+        elif self.raw_error['message-data']['field_type'] == 'string':
+            if self.raw_error['message-data']['field_format'] == 'uri':
+                message = f"{self.raw_error['message-data']['value']} is not a URL"
         return message
 
     def get_fix_if_possible(self):
