@@ -55,7 +55,7 @@ brownfield_site_schema = {
             }
         },
         {
-            "name": "SitePlanURL",
+            "name": "SiteplanURL",
             "title": "Site plan url",
             "description": "The site plan url if available on a public url",
             "type": "string",
@@ -131,7 +131,7 @@ brownfield_site_schema = {
             "type": "string",
             "constraints": {
                 "required": False,
-                "pattern": "Y"
+                "pattern": "(?i)(Y|yes)"
             }
         },
         {
@@ -166,7 +166,7 @@ brownfield_site_schema = {
             "type": "string",
             "constraints": {
                 "required": False,
-                "pattern": "Y"
+                "pattern": "(?i)(Y|yes)"
             }
         },
         {

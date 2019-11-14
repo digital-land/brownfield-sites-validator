@@ -23,7 +23,7 @@ class BrownfieldStandard:
                 'SiteReference',
                 'PreviouslyPartOf',
                 'SiteNameAddress',
-                'SitePlanURL',
+                'SiteplanURL',
                 'CoordinateReferenceSystem',
                 'GeoX',
                 'GeoY',
@@ -56,7 +56,7 @@ class BrownfieldStandard:
         return list(set(BrownfieldStandard.v1_standard_headers()) - set(BrownfieldStandard.v2_standard_headers()))
 
 
-def convert_to_csv_if_needed(filename):
+def try_convert_to_csv(filename):
     import subprocess
     try:
         if filename.endswith('.xls'):
@@ -67,8 +67,6 @@ def convert_to_csv_if_needed(filename):
             with open(f'{filename}.csv', 'w') as out:
                 subprocess.check_call(['xlsx2csv', filename], stdout=out)
             return f'{filename}.csv', 'xlsm'
-        else:
-            return filename, 'csv'
     except Exception as e:
         msg = f"We could not convert {filename.split('/')[-1]} into csv"
         raise FileTypeException(msg)
@@ -81,7 +79,10 @@ def extract_data(upload_data, filename):
             os.makedirs(output_dir)
         file = os.path.join(output_dir, filename)
         upload_data.save(file)
-        file, original_file_type = convert_to_csv_if_needed(file)
+        if not _looks_like_csv(file):
+            file, original_file_type = try_convert_to_csv(file)
+        else:
+            original_file_type = 'csv'
         data = csv_to_dict(file)
         data['file_type'] = original_file_type
         return data
@@ -134,3 +135,13 @@ def get_markdown_for_field(field_name):
     with open(markdown_file) as f:
         content = f.read()
     return content
+
+
+def _looks_like_csv(file):
+    try:
+        with open(file) as f:
+            content = f.read()
+            csv.Sniffer().sniff(content)
+            return True
+    except Exception as e:
+        return False
