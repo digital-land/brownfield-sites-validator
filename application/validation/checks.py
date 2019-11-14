@@ -77,7 +77,7 @@ def _check_looks_like_correct_coordinate_ref_system(field, max_decimal_places, l
             row_number=field['row-number'],
             message=message,
             message_substitutions={
-                'value': f"{field['value']})"
+                'value': f"{field['value']}"
             }
         )
         errors.append(error)
@@ -95,7 +95,7 @@ def _check_decimal_places(field, max_decimal_places):
             row_number=field['row-number'],
             message=message,
             message_substitutions={
-                'value': f"{field['value']})"
+                'value': f"{field['value']}"
             }
         )
         errors.append(error)
@@ -112,7 +112,7 @@ def _check_lat_long_in_range(field, minimum, maximum, axis):
             row_number=field['row-number'],
             message=message,
             message_substitutions={
-                'value': f"{field['value']})"
+                'value': f"{field['value']}"
             }
         )
         errors.append(error)

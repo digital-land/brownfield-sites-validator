@@ -87,7 +87,12 @@ class Report(db.Model):
                 if 'row-number' in e.keys():
                     errors['rows'].append(e['row-number'])
                 messages.add(mapper.overall_error_messages())
-                err = {'type': e['code'], 'message': mapper.field_error_message(), 'row': e.get('row-number', 0)}
+                value = e.get('message-data').get('value') if e.get('message-data') else None
+                err = {'message': mapper.field_error_message(),
+                       'row': e.get('row-number', 0),
+                       'fix': mapper.get_fix_if_possible(),
+                       'value': value
+                       }
                 errors['errors'].append(err)
         errors['rows'] = list(dict.fromkeys(errors['rows']))
         errors['messages'] = list(messages)
@@ -102,13 +107,14 @@ class Report(db.Model):
         return errs
 
     def collect_errors_by_row(self, header, row_number):
-        errs = []
+        error = {}
         column_number = self.header_to_column_number(header)
         for e in self.raw_result['tables'][0]['errors']:
             mapper = ErrorMapper.factory(e, header)
             if e.get('column-number') is not None and e.get('column-number') == column_number and e.get('row-number') == row_number:
-                errs.append(mapper.field_error_message())
-        return errs
+                error['message'] = mapper.field_error_message()
+                error['fix'] = mapper.get_fix_if_possible()
+        return error
 
     def attach_errors_to_rows(self):
         rows = []
@@ -116,8 +122,8 @@ class Report(db.Model):
             for row_number, data_row in enumerate(self.checked_rows):
                 row = {}
                 for header, value in data_row.items():
-                    errors = self.collect_errors_by_row(header, row_number + 1)
-                    row[header] = {'value': value, 'errors': errors}
+                    error = self.collect_errors_by_row(header, row_number + 1)
+                    row[header] = {'value': value, 'error': error, 'row': row_number + 1}
                 rows.append(row)
         self.checked_rows = rows
 

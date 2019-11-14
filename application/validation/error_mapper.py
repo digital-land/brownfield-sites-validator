@@ -33,6 +33,9 @@ class ErrorMapper(ABC):
     def field_error_message(self) -> None:
         pass
 
+    def get_fix_if_possible(self):
+        return None
+
 
 class TypeOrFormatErrorMapper(ErrorMapper):
 
@@ -56,6 +59,15 @@ class TypeOrFormatErrorMapper(ErrorMapper):
             message = f"{self.raw_error['message-data']['value']} is not a valid number"
         return message
 
+    def get_fix_if_possible(self):
+        fix = None
+        if self.raw_error['message-data']['field_type'] == 'date':
+            date_provided = self.raw_error['message-data']['value']
+            d = dateparser.parse(date_provided)
+            valid_date = d.strftime('%Y-%m-%d')
+            fix = valid_date
+        return fix
+
 
 class PatternErrorMapper(ErrorMapper):
 
@@ -69,9 +81,19 @@ class PatternErrorMapper(ErrorMapper):
         message = self._cleanup(self.raw_error['message-data']['constraint'])
         return f"This should be '{message}'"
 
+    def get_fix_if_possible(self):
+        possible_fixes = self.raw_error['message-data']['constraint']\
+            .replace('?i', '')\
+            .replace('(', '')\
+            .replace(')', '').split('|')
+        if len(possible_fixes) == 1:
+            return possible_fixes[0]
+        else:
+            return possible_fixes
+
     @staticmethod
     def _cleanup(value):
-        return value.replace('(?i)','').replace('(','').replace(')','').replace('|',', ')
+        return value.replace('(?i)','').replace('(','').replace(')', '').replace('|',', ')
 
 
 class GeoErrorMapper(ErrorMapper):
