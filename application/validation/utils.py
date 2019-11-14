@@ -79,10 +79,9 @@ def extract_data(upload_data, filename):
             os.makedirs(output_dir)
         file = os.path.join(output_dir, filename)
         upload_data.save(file)
+        original_file_type = 'csv'
         if not _looks_like_csv(file):
             file, original_file_type = try_convert_to_csv(file)
-        else:
-            original_file_type = 'csv'
         data = csv_to_dict(file)
         data['file_type'] = original_file_type
         return data

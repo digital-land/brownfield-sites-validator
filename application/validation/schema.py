@@ -131,7 +131,7 @@ brownfield_site_schema = {
             "type": "string",
             "constraints": {
                 "required": False,
-                "pattern": "(?i)(Y|yes)"
+                "pattern": "(?i)(y|yes)"
             }
         },
         {
@@ -166,7 +166,7 @@ brownfield_site_schema = {
             "type": "string",
             "constraints": {
                 "required": False,
-                "pattern": "(?i)(Y|yes)"
+                "pattern": "(?i)(y|yes)"
             }
         },
         {
