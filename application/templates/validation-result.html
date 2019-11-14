@@ -89,7 +89,7 @@
 
   <div class="govuk-grid-column-one-half">
     <h3 class="govuk-heading-m">Data standard headers</h3>
-    <p class="govuk-body">Below are the fields that are part of the brownfield land registers data standard.</p>
+    <p class="govuk-body">Below are the headers that are part of the brownfield land registers data standard.</p>
     <ul class="govuk-list field-list">
       {% for header in brownfield_standard.v2_standard_headers() %}
       <li class="field-list__item{% if not header in report.headers_found() %} error{% endif %}">
@@ -103,10 +103,10 @@
 
   <div class="govuk-grid-column-one-half">
     <h3 class="govuk-heading-m">Extra headers</h3>
-    <p class="govuk-body">Below are the fields found when processing the file you uploaded.</p>
+    <p class="govuk-body">Below are the extra headers found when processing the file you uploaded.</p>
     <h4 class="govuk-heading-s">Deprecated</h4>
     <details class="govuk-details govuk-details--close">
-      <summary class="govuk-details__summary">Why are there some fields from the standard?</summary>
+      <summary class="govuk-details__summary">Why are some headers from the original standard listed?</summary>
       <div class="govuk-details__text">
         <p class="govuk-body">Some fields have been deprecated. You no longer need to include them. You can still include them if you want but we display them below to warn you that they are no longer needed.</p>
         <p class="govuk-body">You must not include any fields that are neither part of the standard or deprecated. Any additional fields will be shown here.</p>
@@ -118,13 +118,15 @@
       {% endfor %}
     </ul>
 
-    <h4 class="govuk-heading-s">Unknown</h4>
-    <p class="govuk-body">These headers in your CSV file that we do not recognise.</p>
-    <ul class="govuk-list field-list">
-      {% for header in report.extra_headers_found() %}
-      <li>{{ header }}</li>
-      {% endfor %}
-    </ul>
+    {% if report.extra_headers_found() %}
+        <h4 class="govuk-heading-s">Unknown</h4>
+        <p class="govuk-body">The following headers in your CSV file aren't part of the standard.</p>
+            <ul class="govuk-list field-list">
+              {% for header in report.extra_headers_found() %}
+                  <li>{{ header }}</li>
+              {% endfor %}
+            </ul>
+    {% endif %}
   </div>
 
 </div>
