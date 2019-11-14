@@ -94,7 +94,6 @@ def test_report_shows_error_counts_by_first_added_date(results, date_error_messa
                             'message': 'The date 26/02/2018 should be entered as 2018-02-26',
                             'row': 8,
                             'value': '26/02/2018'}],
-                'messages': ['Some dates in the file are not in the format YYYY-MM-DD. For '
-                             'example 14/11/2019 should be 2019-11-14'],
+                'messages': [f'Some dates in the file are not in the format YYYY-MM-DD. For example {today_string} should be {today_iso}'],
                 'rows': [3, 8]}
     assert expected == report.collect_errors_by_column('FirstAddedDate')
