@@ -66,7 +66,12 @@ class PatternErrorMapper(ErrorMapper):
             return 'Unknown'
 
     def field_error_message(self):
-        return f"This should be '{self.raw_error['message-data']['constraint']}'"
+        message = self._cleanup(self.raw_error['message-data']['constraint'])
+        return f"This should be '{message}'"
+
+    @staticmethod
+    def _cleanup(value):
+        return value.replace('(?i)','').replace('(','').replace(')','').replace('|',', ')
 
 
 class GeoErrorMapper(ErrorMapper):
