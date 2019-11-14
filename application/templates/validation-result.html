@@ -90,39 +90,21 @@
   <div class="govuk-grid-column-one-half">
     <h3 class="govuk-heading-m">Data standard headers</h3>
     <p class="govuk-body">Below are the fields that are part of the brownfield land registers data standard.</p>
-    <h4 class="govuk-heading-s">Expected</h4>
     <ul class="govuk-list field-list">
       {% for header in brownfield_standard.v2_standard_headers() %}
-      <li {% if not header in report.headers_found() %}class="error"{% endif %}>{{ header }}</li>
-      {% endfor %}
-    </ul>
-
-    <h4 class="govuk-heading-s">Deprecated</h4>
-    <details class="govuk-details govuk-details--close">
-      <summary class="govuk-details__summary">Why are some fields deprecated?</summary>
-      <div class="govuk-details__text">
-        <p class="govuk-body">Between versions 1 and 2 of the Brownfield land register standard some fields were deprecated.</p><p>These fields were deprecated after analysing historical data and determining which fields were not regularly used.</p>
-      </div>
-    </details>
-    <ul class="govuk-list field-list">
-      {% for header in brownfield_standard.headers_deprecated() %}
-      <li>{{ header }}</li>
+      <li class="field-list__item{% if not header in report.headers_found() %} error{% endif %}">
+        {{ header }}
+        <span class="govuk-tag{% if not header in report.headers_found() %} govuk-tag--error{% endif %}">{{ "Found" if header in report.headers_found() else "Missing" }}</span>
+      </li>
       {% endfor %}
     </ul>
   </div>
 
 
   <div class="govuk-grid-column-one-half">
-    <h3 class="govuk-heading-m">Headers in CSV</h3>
+    <h3 class="govuk-heading-m">Extra headers</h3>
     <p class="govuk-body">Below are the fields found when processing the file you uploaded.</p>
-    <h4 class="govuk-heading-s">Found</h4>
-    <ul class="govuk-list field-list">
-      {% for header in brownfield_standard.v2_standard_headers() %}
-      <li>{% if header in report.headers_found() %}<span>{{ header }}<span class="govuk-visually-hidden"> field is present in CSV</span> &#10004;</span>{% else %}<span class="missing-text">{{ header }}</span><span class="govuk-visually-hidden"> field is not present in CSV</span>{% endif %}</li>
-      {% endfor %}
-    </ul>
-
-    <h4 class="govuk-heading-s">Additional</h4>
+    <h4 class="govuk-heading-s">Deprecated</h4>
     <details class="govuk-details govuk-details--close">
       <summary class="govuk-details__summary">Why are there some fields from the standard?</summary>
       <div class="govuk-details__text">
@@ -131,7 +113,15 @@
       </div>
     </details>
     <ul class="govuk-list field-list">
-      {% for header in report.additional_headers() %}
+      {% for header in report.deprecated_headers_found() %}
+      <li>{{ header }}</li>
+      {% endfor %}
+    </ul>
+
+    <h4 class="govuk-heading-s">Unknown</h4>
+    <p class="govuk-body">These headers in your CSV file that we do not recognise.</p>
+    <ul class="govuk-list field-list">
+      {% for header in report.extra_headers_found() %}
       <li>{{ header }}</li>
       {% endfor %}
     </ul>

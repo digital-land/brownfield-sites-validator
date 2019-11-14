@@ -264,3 +264,9 @@ a {
     font-weight: 700;
   }
 }
+
+.field-list__item {
+  .govuk-tag {
+    float: right;
+  }
+}

@@ -7976,3 +7976,7 @@ a:focus {
   color: #d4351c;
   font-weight: 700;
 }
+
+.field-list__item .govuk-tag {
+  float: right;
+}
