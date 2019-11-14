@@ -6,7 +6,7 @@ from application.validation.utils import extract_data, FileTypeException
 from application.validation.reporter import Report
 from application.validation.schema import brownfield_site_schema
 
-custom_checks=['geox-check','geoy-check']
+custom_checks=['geox-check','geoy-check', 'url-list-check']
 builtin_checks = ['structure', 'schema']
 checks = builtin_checks + custom_checks
 

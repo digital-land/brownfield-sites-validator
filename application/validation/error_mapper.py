@@ -19,6 +19,8 @@ class ErrorMapper(ABC):
             return GeoErrorMapper(error, field)
         if error['code'] in ['required-constraint', 'missing-value']:
             return RequiredErrorMapper(error, field)
+        if error['code'] == 'url-list-error':
+            return URLListErrorMapper(error, field)
         return UnknownErrorMapper(error, field)
 
     def __init__(self, raw_error, field):
@@ -129,6 +131,15 @@ class RequiredErrorMapper(ErrorMapper):
 
     def field_error_message(self):
         return f"{self.field} can't be empty"
+
+
+class URLListErrorMapper(ErrorMapper):
+
+    def overall_error_messages(self):
+        return "This column can contain one or more URLs separated by a pipe (‘|’) character"
+
+    def field_error_message(self):
+        return self.raw_error['message']
 
 
 class UnknownErrorMapper(ErrorMapper):

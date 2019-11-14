@@ -29,6 +29,7 @@ flask-sslify = "*"
 flask-misaka = "*"
 flask-migrate = "*"
 psycopg2-binary = "*"
+validators = "*"
 
 [dev-packages]
 pytest = "*"
