@@ -55,7 +55,7 @@
 
 <h4 class="govuk-heading-s">Correct headers</h4>
 <p class="govuk-body">These are the headers contained in the uploaded register that matched headers from the Brownfield sites data standard.</p>
-<ul class="govuk-list">
+<ul class="govuk-list dlf-multi-column">
 	{%- for header in report.correct_headers_found()|sort -%}
 	<li>{{ header }}</li>
 	{%- endfor -%}

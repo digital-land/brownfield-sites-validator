@@ -4,6 +4,8 @@ const gulp = require("gulp"),
       sass = require("gulp-sass"),
       sassLint = require('gulp-sass-lint'),
       rollup = require('gulp-better-rollup'),
+      postcss = require('gulp-postcss'),
+      autoprefixer = require('autoprefixer'),
       clean = require('gulp-clean');
 
 // set paths ...
@@ -23,6 +25,10 @@ const cleanCSS = () =>
     .pipe(clean());
 cleanCSS.description = `Delete old stylesheets files`;
 
+
+var postcss_plugins = [
+  autoprefixer()
+];
 // compile scss to CSS
 const compileStylesheets = () =>
   gulp
@@ -30,6 +36,7 @@ const compileStylesheets = () =>
     .pipe(sass({outputStyle: 'expanded',
       includePaths: [ 'src/scss', 'src/govuk']}))
       .on('error', sass.logError)
+    .pipe(postcss(postcss_plugins))
     .pipe(gulp.dest(config.destPath));
 
 // check .scss files against .sass-lint.yml config
