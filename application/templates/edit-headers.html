@@ -1,0 +1,64 @@
+{% extends "dlf-base.html" %}
+
+{% block beforeContent %}
+  {{ super() }}
+  <a href="{{ url_for('frontend.validation_report', report=report.id) }}" class="govuk-back-link">Back</a>
+{% endblock %}
+
+{% block content %}
+<h1 class="govuk-heading-xl">Edit your headers</h1>
+
+<p class="govuk-body">There were some issues with the headers contained in your register. You can fix the issues now and download a corrected CSV file.</p>
+
+<form method="POST" class="govuk-form">
+	<h4 class="govuk-heading-s">Unknown headers</h4>
+	<p class="govuk-body">There were some headers we did not recognise. You can edit them.</p>
+	<ul class="govuk-list">
+		{%- for header in report.extra_headers_found()|sort -%}
+		<li>
+			<input type="text" class="govuk-input govuk-input--width-20" name="update-header-{{ header }}" value="{{ header }}">
+		</li>
+		{%- endfor -%}
+	</ul>
+
+
+	<div class="govuk-form-group">
+  		<fieldset class="govuk-fieldset" aria-describedby="missing-headers-hint">
+    		<legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+				<h1 class="govuk-fieldset__heading">
+				Missing headers
+				</h1>
+			</legend>
+			<p class="govuk-body">There were some missing headers. The missing headers are listed below. We can create the headers for you and add them to the CSV file. Chose the headers you would like us to create.</p>
+			<span id="missing-headers-hint" class="govuk-hint">
+			  Select all headers we should create in the CSV.
+			</span>
+			
+			<div class="govuk-checkboxes">
+				{%- for header in report.headers_missing()|sort -%}
+				<div class="govuk-checkboxes__item">
+        			<input class="govuk-checkboxes__input" id="missing-header-{{ header }}" name="missing-header-{{ header }}" type="checkbox" value="{{ header }}" checked>
+					<label class="govuk-label govuk-checkboxes__label" for="missing-header-{{ header }}">
+					{{ header }}
+					</label>
+      			</div>
+      			{%- endfor -%}
+    		</div>
+    		
+  		</fieldset>
+	</div>
+
+	<button class="govuk-button" data-module="govuk-button">
+  	Save and continue
+	</button>
+</form>
+
+<h4 class="govuk-heading-s">Correct headers</h4>
+<p class="govuk-body">These are the headers contained in the uploaded register that matched headers from the Brownfield sites data standard.</p>
+<ul class="govuk-list">
+	{%- for header in report.correct_headers_found()|sort -%}
+	<li>{{ header }}</li>
+	{%- endfor -%}
+</ul>
+
+{% endblock %}

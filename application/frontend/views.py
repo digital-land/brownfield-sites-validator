@@ -4,7 +4,8 @@ from flask import (
     jsonify,
     flash,
     url_for,
-    abort
+    abort,
+    request
 )
 from werkzeug.utils import secure_filename, redirect
 
@@ -53,6 +54,21 @@ def validation_report(report):
 def schema():
     from application.validation.schema import brownfield_site_schema
     return jsonify(brownfield_site_schema)
+
+
+@frontend.route('/validation/<report>/edit/headers', methods=['GET','POST'])
+def edit_headers(report):
+    report = Report.query.get(report)
+    if report is not None:
+        if request.method == 'POST':
+            # To do
+            # check if edited inputs match one of the missing headers
+             # if so update header to new
+            # create all ticked missing headers
+            print(request.form)
+        return render_template('edit-headers.html',
+                               report=report,
+                               brownfield_standard=BrownfieldStandard)
 
 
 @frontend.context_processor
