@@ -16,7 +16,7 @@
 	<ul class="govuk-list">
 		{%- for header in report.extra_headers_found()|sort -%}
 		<li>
-			<input type="text" class="govuk-input govuk-input--width-20" name="update-header-{{ header }}" value="{{ header }}">
+			<input type="text" class="govuk-input govuk-input--width-20" name="update-header-{{ loop.index }}" value="{{ header }}">
 		</li>
 		{%- endfor -%}
 	</ul>

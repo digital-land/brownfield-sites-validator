@@ -56,14 +56,27 @@ def schema():
     return jsonify(brownfield_site_schema)
 
 
+# returns tuple list of header edits
+# e.g. ('SitePlanURL', 'SiteplanURL')
+def compile_header_edits(form, originals):
+    header_edits = []
+    for i in form:
+        if "update-header" in i:
+            header_idx = int(i.split("-")[2]) - 1
+            header_edits.append((originals[header_idx], form[i]))
+    return header_edits
+
 @frontend.route('/validation/<report>/edit/headers', methods=['GET','POST'])
 def edit_headers(report):
     report = Report.query.get(report)
     if report is not None:
         if request.method == 'POST':
+            original_additional_headers = sorted(report.extra_headers_found(), key=lambda v: (v.upper(), v[0].islower()))
+            header_edits = compile_header_edits(request.form, original_additional_headers)
+            for header in header_edits:
+                if header[0] is not header[1]:
+                    print('Need to save the edited header')
             # To do
-            # check if edited inputs match one of the missing headers
-             # if so update header to new
             # create all ticked missing headers
             print(request.form)
         return render_template('edit-headers.html',
