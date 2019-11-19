@@ -1,0 +1,31 @@
+{% extends "dlf-base.html" %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-panel govuk-panel--confirmation">
+      <h1 class="govuk-panel__title">
+        Edits complete
+      </h1>
+    </div>
+
+    <p class="govuk-body">We applied the fixes to your registers.</p>
+
+	<!-- playback some changes/confirm new headers/data -->
+
+    <h2 class="govuk-heading-m">What happens next</h2>
+
+    <p class="govuk-body">
+	   Rerun the register through the validator and fix any outstanding issues.
+    </p>
+    <p class="govuk-body">
+	   You can also download the latest version of your register.
+    </p>
+
+	 <div class="highlight-box highlight-box--flush">
+    <a class="govuk-link" href="">Download latest CSV</a>
+	 </div>
+
+  </div>
+</div>
+{% endblock %}

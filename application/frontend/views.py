@@ -70,6 +70,9 @@ def edit_headers(report):
                                report=report,
                                brownfield_standard=BrownfieldStandard)
 
+@frontend.route('/validation/edit/success')
+def edit_complete():
+    return render_template('edit-success.html')
 
 @frontend.context_processor
 def asset_path_context_processor():
