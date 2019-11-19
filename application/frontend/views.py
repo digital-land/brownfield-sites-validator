@@ -60,11 +60,14 @@ def schema():
 # e.g. ('SitePlanURL', 'SiteplanURL')
 def compile_header_edits(form, originals):
     header_edits = []
+    new_headers = []
     for i in form:
         if "update-header" in i:
             header_idx = int(i.split("-")[2]) - 1
             header_edits.append((originals[header_idx], form[i]))
-    return header_edits
+        else:
+            new_headers.append(form[i])
+    return header_edits, new_headers
 
 @frontend.route('/validation/<report>/edit/headers', methods=['GET','POST'])
 def edit_headers(report):
@@ -72,13 +75,15 @@ def edit_headers(report):
     if report is not None:
         if request.method == 'POST':
             original_additional_headers = sorted(report.extra_headers_found(), key=lambda v: (v.upper(), v[0].islower()))
-            header_edits = compile_header_edits(request.form, original_additional_headers)
+            header_edits, new_headers = compile_header_edits(request.form, original_additional_headers)
             for header in header_edits:
                 if header[0] is not header[1]:
-                    print('Need to save the edited header')
+                    print('Need to save the edited header: ' + header[0] + " now " + header[1])
             # To do
-            # create all ticked missing headers
-            print(request.form)
+            # need to make the changes to csv file
+            # - update edited headers first
+            # - then add any remaining ticked headers if that header doesn't exist
+            print("Need to create: ", new_headers)
         return render_template('edit-headers.html',
                                report=report,
                                brownfield_standard=BrownfieldStandard)
