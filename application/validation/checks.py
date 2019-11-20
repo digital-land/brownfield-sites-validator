@@ -130,16 +130,16 @@ def url_list_check(cells):
         else:
             urls = field['value'].split('|')
             for u in urls:
-                is_valid = url(u)
+                is_valid = url(u.strip())
                 if not is_valid:
-                    message = f'{u} is not a url'
+                    message = f'{u.strip()} is not a url'
                     error = Error(
                         'url-list-error',
                         cell=field,
                         row_number=field['row-number'],
                         message=message,
                         message_substitutions={
-                            'value': f"{field['value']}"
+                            'value': f"{field['value'].strip()}"
                         }
                     )
                     errors.append(error)
