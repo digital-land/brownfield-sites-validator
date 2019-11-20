@@ -123,23 +123,26 @@ def _check_lat_long_in_range(field, minimum, maximum, axis):
 @check('url-list-check', type='custom', context='body')
 def url_list_check(cells):
     errors = []
-    field = _get_field(cells, 'PlanningHistory')
-    if field is None:
-        return errors
-    else:
-        urls = field['value'].split('|')
-        for u in urls:
-            is_valid = url(u)
-            if not is_valid:
-                message = f'{u} is not a url'
-                error = Error(
-                    'url-list-error',
-                    cell=field,
-                    row_number=field['row-number'],
-                    message=message,
-                    message_substitutions={
-                        'value': f"{field['value']}"
-                    }
-                )
-                errors.append(error)
+    try:
+        field = _get_field(cells, 'PlanningHistory')
+        if field is None:
+            return errors
+        else:
+            urls = field['value'].split('|')
+            for u in urls:
+                is_valid = url(u)
+                if not is_valid:
+                    message = f'{u} is not a url'
+                    error = Error(
+                        'url-list-error',
+                        cell=field,
+                        row_number=field['row-number'],
+                        message=message,
+                        message_substitutions={
+                            'value': f"{field['value']}"
+                        }
+                    )
+                    errors.append(error)
+    except:
+        print(f'error with {field}')
     return errors
