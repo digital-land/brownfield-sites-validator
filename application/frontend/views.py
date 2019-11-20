@@ -1,3 +1,6 @@
+import os
+import tempfile
+
 from flask import (
     Blueprint,
     render_template,
@@ -11,9 +14,10 @@ from werkzeug.utils import secure_filename, redirect
 
 from application.extensions import db
 from application.frontend.forms import UploadForm
+from application.frontend.models import ValidationReport
 from application.validation.reporter import Report
 from application.validation.utils import FileTypeException, BrownfieldStandard
-from application.validation.validator import handle_upload_and_validate
+from application.validation.validator import validate_file
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
 
@@ -28,12 +32,11 @@ def validate():
     form = UploadForm()
     if form.validate_on_submit():
         try:
-            filename = secure_filename(form.upload.data.filename)
-            data = form.upload.data
-            report = handle_upload_and_validate(data, filename)
-            db.session.add(report)
+            report = _write_tempfile_and_validate(form)
+            validation_report = ValidationReport(report)
+            db.session.add(validation_report)
             db.session.commit()
-            return redirect(url_for('frontend.validation_report', report=report.id))
+            return redirect(url_for('frontend.validation_report', report=validation_report.id))
         except FileTypeException as e:
             flash(f'{e}', category='error')
 
@@ -42,8 +45,9 @@ def validate():
 
 @frontend.route('/validation/<report>')
 def validation_report(report):
-    report = Report.query.get(report)
-    if report is not None:
+    validation_report = ValidationReport.query.get(report)
+    if validation_report is not None:
+        report = Report(**validation_report.to_dict())
         return render_template('validation-result.html',
                                report=report,
                                brownfield_standard=BrownfieldStandard)
@@ -52,8 +56,19 @@ def validation_report(report):
 
 @frontend.route('/schema')
 def schema():
-    from application.validation.schema import brownfield_site_schema
-    return jsonify(brownfield_site_schema)
+    return jsonify(BrownfieldStandard.v2_standard_schema())
+
+
+def _write_tempfile_and_validate(form):
+    with tempfile.TemporaryDirectory() as temp_dir:
+        filename = secure_filename(form.upload.data.filename)
+        output_dir = f'{temp_dir}/data'
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        file = os.path.join(output_dir, filename)
+        form.upload.data.save(file)
+        report = validate_file(file)
+    return report
 
 
 # returns tuple list of header edits

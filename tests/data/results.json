@@ -1,16 +1,81 @@
 {
-  "time": 0.124,
-  "valid": false,
-  "error-count": 7,
-  "table-count": 1,
-  "tables": [
+  "preset" : "table",
+  "tables" : [
     {
-      "time": 0.063,
-      "valid": false,
-      "error-count": 102,
-      "row-count": 27,
-      "source": "inline",
-      "headers": [
+      "errors" : [
+        {
+          "code" : "missing-header",
+          "message" : "There is a missing header in column 20",
+          "column-number" : 20,
+          "message-data" : {
+            "field_name" : "EndDate"
+          }
+        },
+        {
+          "code" : "type-or-format-error",
+          "message" : "The value \"fish\" in row 1 and column 3 is not type \"number\" and format \"default\"",
+          "row-number" : 1,
+          "column-number" : 3,
+          "message-data" : {
+            "value" : "fish",
+            "field_type" : "number",
+            "field_format" : "default"
+          }
+        },
+        {
+          "code" : "geo-error",
+          "message" : "139531 isn't a longitude using the WGS84 or ETRS89 coordinate systems",
+          "row-number" : 1,
+          "column-number" : 4,
+          "message-data" : {
+            "value" : "139531"
+          }
+        },
+        {
+          "code" : "url-list-error",
+          "message" : "notaurl is not a url",
+          "row-number" : 1,
+          "column-number" : 15,
+          "message-data" : {
+            "value" : "https:\/\/planningapps.winchester.gov.uk\/online-applications\/search.do?action=simple&searchType=Application|notaurl"
+          }
+        },
+        {
+          "code" : "type-or-format-error",
+          "message" : "The value \"Fishcakes\" in row 1 and column 19 is not type \"string\" and format \"uri\"",
+          "row-number" : 1,
+          "column-number" : 19,
+          "message-data" : {
+            "value" : "Fishcakes",
+            "field_type" : "string",
+            "field_format" : "uri"
+          }
+        },
+        {
+          "code" : "geo-error",
+          "message" : "447560 isn't a latitude using the WGS84 or ETRS89 coordinate systems",
+          "row-number" : 2,
+          "column-number" : 3,
+          "message-data" : {
+            "value" : "447560"
+          }
+        },
+        {
+          "code" : "geo-error",
+          "message" : "130729 isn't a longitude using the WGS84 or ETRS89 coordinate systems",
+          "row-number" : 2,
+          "column-number" : 4,
+          "message-data" : {
+            "value" : "130729"
+          }
+        }
+      ],
+      "format" : "inline",
+      "time" : 0.01,
+      "schema" : "table-schema",
+      "source" : "inline",
+      "valid" : false,
+      "headers" : [
         "Deliverable",
         "FirstAddedDate",
         "GeoX",
@@ -31,93 +96,15 @@
         "SiteReference",
         "SiteplanURL"
       ],
-      "format": "inline",
-      "schema": "table-schema",
-      "errors": [
-        {
-          "code": "non-matching-header",
-          "column-number": 19,
-          "message": "Header in column 19 doesn't match field name \"SitePlanURL\" in the schema",
-          "message-data": {
-            "field_name": "SitePlanURL",
-            "header": "SiteplanURL"
-          }
-        },
-        {
-          "code": "missing-header",
-          "column-number": 20,
-          "message": "There is a missing header in column 20",
-          "message-data": {
-            "field_name": "EndDate"
-          }
-        },
-        {
-          "code": "pattern-constraint",
-          "row-number": 1,
-          "column-number": 1,
-          "message": "The value \"Yes\" in row 1 and column 1 does not conform to the pattern constraint of \"Y\"",
-          "message-data": {
-            "value": "Yes",
-            "constraint": "Y"
-          }
-        },
-        {
-          "code": "pattern-constraint",
-          "row-number": 2,
-          "column-number": 12,
-          "message": "The value \"owned by public authority\" in row 2 and column 12 does not conform to the pattern constraint of \"(?i)(owned by a public authority|mixed ownership|not owned by a public authority)\"",
-          "message-data": {
-            "value": "owned by public authority",
-            "constraint": "(?i)(owned by a public authority|mixed ownership|not owned by a public authority)"
-          }
-        },
-        {
-          "code": "pattern-constraint",
-          "row-number": 3,
-          "column-number": 1,
-          "message": "The value \"Yes\" in row 3 and column 1 does not conform to the pattern constraint of \"Y\"",
-          "message-data": {
-            "value": "Yes",
-            "constraint": "Y"
-          }
-        },
-        {
-          "code": "type-or-format-error",
-          "row-number": 3,
-          "column-number": 2,
-          "message": "The value \"18/03/2018\" in row 3 and column 2 is not type \"date\" and format \"default\"",
-          "message-data": {
-            "value": "18/03/2018",
-            "field_type": "date",
-            "field_format": "default"
-          }
-        },
-        {
-          "code": "type-or-format-error",
-          "row-number": 8,
-          "column-number": 2,
-          "message": "The value \"26/02/2018\" in row 8 and column 2 is not type \"date\" and format \"default\"",
-          "message-data": {
-            "value": "26/02/2018",
-            "field_type": "date",
-            "field_format": "default"
-          }
-        }
-      ]
+      "error-count" : 7,
+      "row-count" : 2
     }
   ],
-  "warnings": [],
-  "preset": "table",
-  "additional-fields": [
-    "Part2",
-    "DevelopmentDescription",
-    "ProposedForPIP",
-    "NonHousingDevelopment",
-    "PreviouslyPartOf",
-    "CoordinateReferenceSystem",
-    "SiteInformation",
-    "SiteplanURL",
-    "OrganisationLabel",
-    "MinNetDwellings"
-  ]
+  "time" : 0.126,
+  "table-count" : 1,
+  "warnings" : [
+
+  ],
+  "valid" : false,
+  "error-count" : 7
 }

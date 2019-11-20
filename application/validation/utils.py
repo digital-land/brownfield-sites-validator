@@ -1,11 +1,9 @@
 import codecs
 import collections
 import csv
-import os
-import tempfile
+import json
 
 from cchardet import UniversalDetector
-from application.validation.schema import brownfield_site_schema
 
 
 class FileTypeException(Exception):
@@ -48,8 +46,17 @@ class BrownfieldStandard:
                 'LastUpdatedDate']
 
     @staticmethod
+    def v2_standard_schema():
+        import os
+        schema_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'schema', 'brownfield-land-v2.json')
+        with open(schema_json) as f:
+            schema = json.load(f)
+        return schema
+
+    @staticmethod
     def v2_standard_headers():
-        return [item['name'] for item in brownfield_site_schema['fields']]
+        schema = BrownfieldStandard.v2_standard_schema()
+        return [item['name'] for item in schema['fields']]
 
     @staticmethod
     def headers_deprecated():
@@ -72,24 +79,18 @@ def try_convert_to_csv(filename):
         raise FileTypeException(msg)
 
 
-def extract_data(upload_data, filename):
-    with tempfile.TemporaryDirectory() as temp_dir:
-        output_dir = f'{temp_dir}/data'
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        file = os.path.join(output_dir, filename)
-        upload_data.save(file)
-        original_file_type = 'csv'
-        if not _looks_like_csv(file):
-            file, original_file_type = try_convert_to_csv(file)
-        data = csv_to_dict(file)
-        data['file_type'] = original_file_type
-        return data
+def extract_data(file):
+    original_file_type = 'csv'
+    if not _looks_like_csv(file):
+        file, original_file_type = try_convert_to_csv(file)
+    data = csv_to_dict(file)
+    data['file_type'] = original_file_type
+    return data
 
 
 def csv_to_dict(csv_file):
-    rows_to_check = []
-    original_rows = []
+    validation_data = []
+    original_data = []
     encoding = detect_encoding(csv_file)
     planning_authority = None
     with codecs.open(csv_file, encoding=encoding['encoding']) as f:
@@ -105,10 +106,10 @@ def csv_to_dict(csv_file):
                 value = row.get(column, None)
                 if value is not None:
                     to_check[column] = row.get(column)
-            rows_to_check.append(to_check)
-            original_rows.append(row)
-    return {'rows_to_check': rows_to_check,
-            'original_rows': original_rows,
+            validation_data.append(to_check)
+            original_data.append(row)
+    return {'validated_data': validation_data,
+            'original_data': original_data,
             'headers_found': reader.fieldnames,
             'additional_headers': additional_headers,
             'headers_missing': headers_missing,

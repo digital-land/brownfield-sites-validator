@@ -2,29 +2,30 @@ import logging
 import goodtables
 
 from goodtables import check
-from application.validation.utils import extract_data, FileTypeException
+from application.validation.utils import extract_data, FileTypeException, BrownfieldStandard
 from application.validation.reporter import Report
-from application.validation.schema import brownfield_site_schema
+brownfield_standard_v2_schema = BrownfieldStandard.v2_standard_schema()
 
-custom_checks=['geox-check','geoy-check', 'url-list-check']
+custom_checks=['geox-check','geoy-check', 'url-list-check']  # TODO the list of checks could be config or cli options?
 builtin_checks = ['structure', 'schema']
 checks = builtin_checks + custom_checks
 
 
-def handle_upload_and_validate(data, filename):
+def validate_file(file, schema=brownfield_standard_v2_schema):
     try:
-        extracted_data = extract_data(data, filename)
-        result = check(extracted_data['rows_to_check'])
-        checked_rows = extracted_data.pop('rows_to_check', None)
-        original_rows = extracted_data.pop('original_rows', None)
+        extracted_data = extract_data(file)
+        result = check(extracted_data, schema)
+        original_data = extracted_data.pop('original_data')
+        validated_data = extracted_data.pop('validated_data')
         return Report(raw_result=result,
-                      checked_rows=checked_rows,
-                      original_rows=original_rows,
+                      original_data=original_data,
+                      validated_data=validated_data,
                       additional_data=extracted_data)
     except FileTypeException as e:
         logging.exception(e)
         raise e
 
 
-def check(data):
-    return goodtables.validate(data, schema=brownfield_site_schema, order_fields=True, checks=checks)
+def check(data, schema):
+    rows = data.get('validated_data')
+    return goodtables.validate(rows, schema=schema, order_fields=True, checks=checks)
