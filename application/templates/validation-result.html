@@ -119,13 +119,14 @@
     </ul>
 
     {% if report.extra_headers_found() %}
-        <h4 class="govuk-heading-s">Unknown</h4>
-        <p class="govuk-body">The following headers in your CSV file aren't part of the standard.</p>
-            <ul class="govuk-list field-list">
-              {% for header in report.extra_headers_found() %}
-                  <li>{{ header }}</li>
-              {% endfor %}
-            </ul>
+    <h4 class="govuk-heading-s">Unknown</h4>
+    <p class="govuk-body">These headers in your CSV file that we do not recognise.</p>
+    <ul class="govuk-list field-list">
+      {% for header in report.extra_headers_found() %}
+      <li>{{ header }}</li>
+      {% endfor %}
+    </ul>
+    <p class="govuk-body"><a href="{{ url_for('frontend.edit_headers', report=report.id) }}" class="govuk-link">Edit your headers</a>.</p>
     {% endif %}
   </div>
 

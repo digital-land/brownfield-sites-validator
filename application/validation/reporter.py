@@ -31,6 +31,9 @@ class Report(db.Model):
     def headers_found(self):
         return self.additional_data.get('headers_found', [])
 
+    def correct_headers_found(self):
+        return list(set(self.headers_found()) - set(self.additional_headers()))
+
     def extra_headers_found(self):
         return list(set(self.additional_headers()) - set(BrownfieldStandard.headers_deprecated()))
 

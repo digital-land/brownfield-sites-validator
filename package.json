@@ -4,7 +4,7 @@
   "description": "Application for validating brownfield site",
   "main": "index.js",
   "scripts": {
-    "scss": "gulp scss"
+    "scss": "gulp stylesheets"
   },
   "repository": {
     "type": "git",
@@ -17,11 +17,23 @@
   },
   "homepage": "https://github.com/communitiesuk/digital-land-explorer#readme",
   "devDependencies": {
+    "autoprefixer": "^9.7.1",
     "gulp": "^4.0.1",
     "gulp-better-rollup": "^4.0.1",
     "gulp-clean": "^0.4.0",
+    "gulp-postcss": "^8.0.0",
     "gulp-sass": "^4.0.1",
     "gulp-sass-lint": "^1.4.0",
     "rollup": "^1.21.2"
-  }
+  },
+  "browserslist": [
+    ">0.1%",
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Edge versions",
+    "last 2 Samsung versions",
+    "Safari >= 9",
+    "ie 8-11",
+    "iOS >= 9"
+  ]
 }

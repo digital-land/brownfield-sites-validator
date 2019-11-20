@@ -270,3 +270,13 @@ a {
     float: right;
   }
 }
+
+// Experiment
+// Multi column layout
+// =====================
+.dlf-multi-column {
+  @include govuk-media-query($from: desktop) {
+    columns: 3 300px;
+    column-gap: $govuk-gutter;
+  }
+}
