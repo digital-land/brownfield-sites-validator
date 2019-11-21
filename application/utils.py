@@ -1,5 +1,3 @@
-# To do: should this be somewhere else?
-
 
 def to_boolean(value):
     if value is None:

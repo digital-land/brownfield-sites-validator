@@ -10,8 +10,8 @@ from flask import (
     abort,
     request
 )
-from werkzeug.utils import secure_filename, redirect
 
+from werkzeug.utils import secure_filename, redirect
 from application.extensions import db
 from application.frontend.forms import UploadForm
 from application.frontend.models import ValidationReport
@@ -84,6 +84,7 @@ def compile_header_edits(form, originals):
             new_headers.append(form[i])
     return header_edits, new_headers
 
+
 @frontend.route('/validation/<report>/edit/headers', methods=['GET','POST'])
 def edit_headers(report):
     validation_report = ValidationReport.query.get(report)
@@ -104,9 +105,11 @@ def edit_headers(report):
                                report=report,
                                brownfield_standard=BrownfieldStandard)
 
+
 @frontend.route('/validation/edit/success')
 def edit_complete():
     return render_template('edit-success.html')
+
 
 @frontend.context_processor
 def asset_path_context_processor():
