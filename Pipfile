@@ -30,6 +30,7 @@ flask-misaka = "*"
 flask-migrate = "*"
 psycopg2-binary = "*"
 validators = "*"
+pytest-flake8 = "*"
 
 [dev-packages]
 pytest = "*"

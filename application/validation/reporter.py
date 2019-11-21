@@ -6,7 +6,15 @@ from application.validation.utils import BrownfieldStandard
 
 class Report:
 
-    def __init__(self, raw_result, original_data, validated_data, additional_data, errors_by_row=None, errors_by_column=None, id=None):
+    def __init__(self,
+                 raw_result,
+                 original_data,
+                 validated_data,
+                 additional_data,
+                 errors_by_row=None,
+                 errors_by_column=None,
+                 id=None):
+
         self.id = id
         self.raw_result = raw_result
         self.original_data = original_data
@@ -74,13 +82,13 @@ class Report:
     def column_number_to_header(self, index):
         try:
             return self.column_numbers_to_headers[index]
-        except KeyError as e:
+        except KeyError as e: # noqa
             return 'unknown'
 
     def header_to_column_number(self, header):
         try:
             return self.column_numbers_to_headers.inverse[header]
-        except KeyError as e:
+        except KeyError as e: # noqa
             return -1
 
     def collect_column_errors(self):
@@ -129,7 +137,8 @@ class Report:
         column_number = self.header_to_column_number(header)
         for e in self.raw_result['tables'][0]['errors']:
             mapper = ErrorMapper.factory(e, header)
-            if e.get('column-number') is not None and e.get('column-number') == column_number and e.get('row-number') == row_number:
+            if e.get('column-number') is not None and e.get('column-number') == column_number \
+                    and e.get('row-number') == row_number:
                 error = {'message': mapper.field_error_message(), 'fix': mapper.get_fix_if_possible()}
         return error
 

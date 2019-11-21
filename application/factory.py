@@ -55,7 +55,8 @@ def register_extensions(app):
     migrate.init_app(app)
 
     from flask_sslify import SSLify
-    sslify = SSLify(app)
+    SSLify(app)
+
 
 def register_commands(app):
     pass
@@ -69,4 +70,3 @@ def register_filters(app):
     app.add_template_filter(format_date_time)
     app.add_template_filter(count_fields_with_errors)
     app.add_template_filter(count_fields_with_warnings)
-

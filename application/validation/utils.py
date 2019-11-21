@@ -74,7 +74,7 @@ def try_convert_to_csv(filename):
             with open(f'{filename}.csv', 'w') as out:
                 subprocess.check_call(['xlsx2csv', filename], stdout=out)
             return f'{filename}.csv', 'xlsm'
-    except Exception as e:
+    except Exception as e:  # noqa
         msg = f"We could not convert {filename.split('/')[-1]} into csv"
         raise FileTypeException(msg)
 
@@ -143,5 +143,5 @@ def _looks_like_csv(file):
             content = f.read()
             csv.Sniffer().sniff(content)
             return True
-    except Exception as e:
+    except Exception as e:  # noqa
         return False

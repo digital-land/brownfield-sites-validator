@@ -1,7 +1,8 @@
-import dateparser
-
 from abc import ABC, abstractmethod
 from datetime import datetime
+
+import dateparser
+
 from application.validation.utils import get_markdown_for_field
 
 
@@ -47,7 +48,8 @@ class TypeOrFormatErrorMapper(ErrorMapper):
             today = datetime.today()
             today_human = today.strftime('%d/%m/%Y')
             today_iso = today.strftime('%Y-%m-%d')
-            message = f'Some dates in the file are not in the format YYYY-MM-DD. For example {today_human} should be {today_iso}'
+            message = f'Some dates in the file are not in the format YYYY-MM-DD. ' \
+                      f'For example {today_human} should be {today_iso}'
         elif self.raw_error['message-data']['field_type'] == 'number':
             message = "Some entries in this column are non numeric"
         elif self.raw_error['message-data']['field_type'] == 'string':
@@ -84,7 +86,7 @@ class PatternErrorMapper(ErrorMapper):
     def overall_error_messages(self):
         try:
             return get_markdown_for_field(self.field)
-        except Exception as e:
+        except Exception as e:  # noqa
             return 'Unknown'
 
     def field_error_message(self):
@@ -103,7 +105,7 @@ class PatternErrorMapper(ErrorMapper):
 
     @staticmethod
     def _cleanup(value):
-        return value.replace('(?i)','').replace('(','').replace(')', '').replace('|',', ')
+        return value.replace('(?i)', '').replace('(', '').replace(')', '').replace('|', ', ')
 
 
 class GeoErrorMapper(ErrorMapper):
@@ -121,7 +123,8 @@ class HeaderErrorMapper(ErrorMapper):
         return f"The header should have been {self.raw_error['message-data']['field_name']}"
 
     def field_error_message(self):
-        return f"The header {self.raw_error['message-data']['header']} should have been {self.raw_error['message-data']['field_name']}"
+        return f"The header {self.raw_error['message-data']['header']} " \
+               f"should have been {self.raw_error['message-data']['field_name']}"
 
 
 class RequiredErrorMapper(ErrorMapper):

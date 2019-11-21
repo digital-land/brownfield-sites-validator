@@ -27,7 +27,7 @@ def index():
     return render_template('index.html')
 
 
-@frontend.route('/validate', methods=['GET','POST'])
+@frontend.route('/validate', methods=['GET', 'POST'])
 def validate():
     form = UploadForm()
     if form.validate_on_submit():
@@ -85,7 +85,7 @@ def compile_header_edits(form, originals):
     return header_edits, new_headers
 
 
-@frontend.route('/validation/<report>/edit/headers', methods=['GET','POST'])
+@frontend.route('/validation/<report>/edit/headers', methods=['GET', 'POST'])
 def edit_headers(report):
     validation_report = ValidationReport.query.get(report)
     if validation_report is not None:
@@ -119,5 +119,3 @@ def asset_path_context_processor():
 @frontend.context_processor
 def assetPath_context_processor():
     return {'assetPath': '/static/govuk-frontend/assets'}
-
-

@@ -143,6 +143,6 @@ def url_list_check(cells):
                         }
                     )
                     errors.append(error)
-    except:
+    except Exception as e:  # noqa
         print(f'error with {field}')
     return errors
