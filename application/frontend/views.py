@@ -86,8 +86,9 @@ def compile_header_edits(form, originals):
 
 @frontend.route('/validation/<report>/edit/headers', methods=['GET','POST'])
 def edit_headers(report):
-    report = Report.query.get(report)
-    if report is not None:
+    validation_report = ValidationReport.query.get(report)
+    if validation_report is not None:
+        report = Report(**validation_report.to_dict())
         if request.method == 'POST':
             original_additional_headers = sorted(report.extra_headers_found(), key=lambda v: (v.upper(), v[0].islower()))
             header_edits, new_headers = compile_header_edits(request.form, original_additional_headers)
