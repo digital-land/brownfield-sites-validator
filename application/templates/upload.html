@@ -38,16 +38,13 @@
 		</div>
 		{% endif %}
 
-		<span class="govuk-caption-xl">Brownfield sites</span>
-		<h1 class="govuk-heading-xl">Upload register</h1>
+		<span class="govuk-caption-xl">Brownfield land</span>
+		<h1 class="govuk-heading-xl">Upload your brownfield land register</h1>
 		<form class="govuk-form" method="POST" action="{{ url_for('frontend.validate') }}"  enctype="multipart/form-data">
 			<div class="govuk-form-group{% if form.errors %} govuk-form-group--error{% endif %}">
 				<label class="govuk-label" for="file-upload-1">
-				Select your brownfield land register
+				Select your CSV file
 				</label>
-				<span id="file-upload-hint" class="govuk-hint">
-    			The register should be a CSV file. If you upload an Microsoft Excel file we will try to convert it to a CSV file.
-  				</span>
   				{% if form.upload.errors %}
   				<span id="upload-error" class="govuk-error-message">
       				<span class="govuk-visually-hidden">Error:</span> {{ form.upload.errors[0] }}
