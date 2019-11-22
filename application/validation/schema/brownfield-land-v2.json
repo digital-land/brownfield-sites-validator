@@ -184,7 +184,7 @@
             "description": "The date the site was developed or determined to no longer be a brownfield site, in the format YYYY-MM-DD. If the site no longer needs to be listed it should remain on the register and not be deleted",
             "type": "date",
             "constraints": {
-                "required": true
+                "required": false
             }
         }
     ]
