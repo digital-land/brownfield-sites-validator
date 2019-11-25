@@ -80,9 +80,9 @@
 <div id="column-issues-section" class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     <h2 class="govuk-heading-l govuk-!-margin-top-9">Column headers</h2>
-    <p class="govuk-body">There are problems with the column names in the register. They need to match the names contained in the guidance exactly.</p>
+    <p class="govuk-body">Column headers in your register contain errors. They need to match the names stated in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data">brownfield land guidance</a> exactly.</p>
     <div class="govuk-inset-text">
-        The column headings outlined in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard">data standard</a> are case sensitive. Avoid common issues by checking spelling and case.
+        Column headings are case sensitive. Avoid common issues by checking spelling and letter case specified in the guidance.
     </div>
   </div>
 
@@ -151,7 +151,7 @@
 <div id="data-issues-section" class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     <h2 class="govuk-heading-l govuk-!-margin-top-9">Column content</h2>
-    <p class="govuk-body">Content errors occur when the data is not in the expected format as laid out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard" class="govuk-link">brownfield land standard</a>.</p>
+    <p class="govuk-body">Content errors occur when the data is not in the expected format as laid out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data" class="govuk-link">brownfield land standard</a>.</p>
 
     {#- subtract number of missing headers times number of rows from overall error count displayed here -#}
     {% set number_of_errors = report.error_count() - report.headers_missing()|length %}
@@ -166,7 +166,7 @@
                   {{ msg|markdown}}
               </p>
             {% endfor %}
-            <p>Across <span class="row-value">{{ error.rows|count }} {{ "row"|pluralise("", "s", error.rows|count) }}</span>.
+            <p>We found errors across <span class="row-value">{{ error.rows|count }} {{ "row"|pluralise("", "s", error.rows|count) }}</span>.
             </p>
             <details class="govuk-details">
               <summary class="govuk-details__summary">See all incorrect rows</summary>
