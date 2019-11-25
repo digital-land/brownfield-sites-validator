@@ -146,10 +146,12 @@ def get_markdown_for_field(field_name):
 
 
 def _looks_like_csv(file):
-    try:
-        with open(file) as f:
-            content = f.read()
-            csv.Sniffer().sniff(content)
-            return True
-    except Exception as e:  # noqa
-        return False
+    for encoding in ['utf-8', 'iso-8859-1', 'windows-1252']:
+        try:
+            with open(file, encoding=encoding) as f:
+                content = f.read()
+                csv.Sniffer().sniff(content)
+                return True
+        except Exception as e:  # noqa
+            print(e)
+    return False
