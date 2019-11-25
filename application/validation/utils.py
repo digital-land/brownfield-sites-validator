@@ -83,20 +83,18 @@ def extract_data(file):
     original_file_type = 'csv'
     if not _looks_like_csv(file):
         file, original_file_type = try_convert_to_csv(file)
-    data = csv_to_dict(file)
-    data['file_type'] = original_file_type
-    return data
+    return csv_to_dict(file, original_file_type)
 
 
-def csv_to_dict(csv_file):
-    validation_data = []
-    original_data = []
+def csv_to_dict(csv_file, original_file_type):
+    rows = []
+    data = []
     encoding = detect_encoding(csv_file)
     planning_authority = None
     with codecs.open(csv_file, encoding=encoding['encoding']) as f:
         reader = csv.DictReader(f)
         additional_headers = list(set(reader.fieldnames) - set(BrownfieldStandard.v2_standard_headers()))
-        headers_missing = list(set(BrownfieldStandard.v2_standard_headers()) - set(reader.fieldnames))
+        missing_headers = list(set(BrownfieldStandard.v2_standard_headers()) - set(reader.fieldnames))
         for row in reader:
             to_check = collections.OrderedDict()
             # TODO get planning authority name from opendatacommunities
@@ -106,14 +104,17 @@ def csv_to_dict(csv_file):
                 value = row.get(column, None)
                 if value is not None:
                     to_check[column] = row.get(column)
-            validation_data.append(to_check)
-            original_data.append(row)
-    return {'validated_data': validation_data,
-            'original_data': original_data,
-            'headers_found': reader.fieldnames,
-            'additional_headers': additional_headers,
-            'headers_missing': headers_missing,
-            'planning_authority': planning_authority}
+            rows.append(to_check)
+            data.append(row)
+    return {'rows': rows,
+            'data': data,
+            'meta_data': {
+                'headers_found': reader.fieldnames,
+                'additional_headers': additional_headers,
+                'missing_headers': missing_headers,
+                'planning_authority': planning_authority,
+                'file_type': original_file_type}
+            }
 
 
 def detect_encoding(file):

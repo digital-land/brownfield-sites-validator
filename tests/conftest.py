@@ -2,18 +2,18 @@ import pytest
 
 
 @pytest.fixture(scope='session')
-def original_data():
-    from tests.data.test_data import original_data
-    return original_data
+def upload():
+    from tests.data.test_data import upload
+    return upload
 
 
 @pytest.fixture(scope='session')
-def validated_data():
-    from tests.data.test_data import validated_data
-    return validated_data
+def rows():
+    from tests.data.test_data import rows
+    return rows
 
 
 @pytest.fixture(scope='session')
-def additional_data():
-    from tests.data.test_data import additional_data
-    return additional_data
+def meta_data():
+    from tests.data.test_data import meta_data
+    return meta_data

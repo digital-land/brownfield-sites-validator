@@ -2,7 +2,7 @@
 
 {% block beforeContent %}
   {{ super() }}
-  <a href="{{ url_for('frontend.validation_report', report=report.id) }}" class="govuk-back-link">Back</a>
+  <a href="{{ url_for('frontend.validation_result', result=result.id) }}" class="govuk-back-link">Back</a>
 {% endblock %}
 
 {% block content %}
@@ -14,7 +14,7 @@
 	<h4 class="govuk-heading-s">Unknown headers</h4>
 	<p class="govuk-body">There were some headers we did not recognise. You can edit them.</p>
 	<ul class="govuk-list">
-		{%- for header in report.extra_headers_found()|sort -%}
+		{%- for header in result.extra_headers_found()|sort -%}
 		<li>
 			<input type="text" class="govuk-input govuk-input--width-20" name="update-header-{{ loop.index }}" value="{{ header }}">
 		</li>
@@ -35,7 +35,7 @@
 			</span>
 			
 			<div class="govuk-checkboxes">
-				{%- for header in report.headers_missing()|sort -%}
+				{%- for header in result.missing_headers()|sort -%}
 				<div class="govuk-checkboxes__item">
         			<input class="govuk-checkboxes__input" id="missing-header-{{ header }}" name="missing-header-{{ header }}" type="checkbox" value="{{ header }}" checked>
 					<label class="govuk-label govuk-checkboxes__label" for="missing-header-{{ header }}">
@@ -56,7 +56,7 @@
 <h4 class="govuk-heading-s">Correct headers</h4>
 <p class="govuk-body">These are the headers contained in the uploaded register that matched headers from the Brownfield sites data standard.</p>
 <ul class="govuk-list dlf-multi-column">
-	{%- for header in report.correct_headers_found()|sort -%}
+	{%- for header in result.correct_headers_found()|sort -%}
 	<li>{{ header }}</li>
 	{%- endfor -%}
 </ul>

@@ -11,10 +11,10 @@
 <!-- show overall result -->
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-full">
-  {% if report.valid() %}
+  {% if result.valid() %}
   {{ validationResultPanel2(true) }}
   {% else %}
-  {{ validationResultPanel2(false, report.error_count()) }}
+  {{ validationResultPanel2(false, result.error_count()) }}
   {% endif %}
   </div>
 </div>
@@ -29,29 +29,29 @@
           <!-- what type of file was uploaded -->
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">File type</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.file_type() }}</td>
+            <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.file_type() }}</td>
           </tr>
 
           <!-- were we able to extract name of Local Authority -->
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">Local Authority</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.planning_authority() }}</td>
+            <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.planning_authority() }}</td>
           </tr>
 
           <!-- check column headers (row 1) against expected columns -->
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">Column headers</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#column-issues-section">{{ report.check_headers() }}</a></td>
+            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#column-issues-section">{{ result.check_headers() }}</a></td>
           </tr>
 
           <!-- is the data valid -->
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">Total rows found</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">{{ report.row_count() }}</td>
+            <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.row_count() }}</td>
           </tr>
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">Invalid rows</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#data-issues-section">{{ report.row_count() - report.valid_row_count() }}</a></td>
+            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#data-issues-section">{{ result.row_count() - result.valid_row_count() }}</a></td>
           </tr>
 
         </tbody>
@@ -60,7 +60,7 @@
     </div>
 </div>
 
-{% if not report.valid() %}
+{% if not result.valid() %}
 <!-- section to highlight issues with the file -->
 <!--
 <div id="file-issues-section" class="govuk-grid-row">
@@ -75,7 +75,7 @@
 </div>-->
 {%- endif -%}
 
-{%- if report.additional_headers()|length > 0 or report.missing_headers()|length > 0 -%}
+{%- if result.additional_headers()|length > 0 or result.missing_headers()|length > 0 -%}
 <!-- section for listing issues with columns -->
 <div id="column-issues-section" class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
@@ -92,9 +92,9 @@
     <p class="govuk-body">Below are the headers that are part of the brownfield land registers data standard.</p>
     <ul class="govuk-list field-list">
       {% for header in brownfield_standard.v2_standard_headers() %}
-      <li class="field-list__item{% if not header in report.headers_found() %} error{% endif %}">
+      <li class="field-list__item{% if not header in result.headers_found() %} error{% endif %}">
         {{ header }}
-        <span class="govuk-tag{% if not header in report.headers_found() %} govuk-tag--error{% endif %}">{{ "Found" if header in report.headers_found() else "Missing" }}</span>
+        <span class="govuk-tag{% if not header in result.headers_found() %} govuk-tag--error{% endif %}">{{ "Found" if header in result.headers_found() else "Missing" }}</span>
       </li>
       {% endfor %}
     </ul>
@@ -113,27 +113,27 @@
       </div>
     </details>
     <ul class="govuk-list field-list">
-      {% for header in report.deprecated_headers_found() %}
+      {% for header in result.deprecated_headers_found() %}
       <li>{{ header }}</li>
       {% endfor %}
     </ul>
 
-    {% if report.extra_headers_found() %}
+    {% if result.extra_headers_found() %}
     <h4 class="govuk-heading-s">Unknown</h4>
     <p class="govuk-body">These headers in your CSV file that we do not recognise.</p>
     <ul class="govuk-list field-list">
-      {% for header in report.extra_headers_found() %}
+      {% for header in result.extra_headers_found() %}
       <li>{{ header }}</li>
       {% endfor %}
     </ul>
-    <p class="govuk-body"><a href="{{ url_for('frontend.edit_headers', report=report.id) }}" class="govuk-link">Edit your headers</a>.</p>
+    <p class="govuk-body"><a href="{{ url_for('frontend.edit_headers', result=result.id) }}" class="govuk-link">Edit your headers</a>.</p>
     {% endif %}
   </div>
 
 </div>
 {%- endif -%}
 
-{% if not report.valid() %}
+{% if not result.valid() %}
 <!-- section to highlight issues with the file -->
 <!--
 <div id="file-issues-section" class="govuk-grid-row">
@@ -154,11 +154,11 @@
     <p class="govuk-body">Content errors occur when the data is not in the expected format as laid out in the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data" class="govuk-link">brownfield land standard</a>.</p>
 
     {#- subtract number of missing headers times number of rows from overall error count displayed here -#}
-    {% set number_of_errors = report.error_count() - report.headers_missing()|length %}
-    <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }} across {{ report.errors_by_column|length }} columns</span>. The columns are:</p>
+    {% set number_of_errors = result.error_count() - result.missing_headers()|length %}
+    <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }} across {{ result.errors_by_column|length }} columns</span>. The columns are:</p>
 
     <ul class="govuk-list">
-      {% for column, error in report.errors_by_column.items() %}
+      {% for column, error in result.errors_by_column.items() %}
           <li>
             <h3 class="govuk-heading-s">{{ column }}</h3>
             {% for msg in error.messages %}
@@ -184,7 +184,7 @@
 </div>
 {% endif %}
 
-{% if report.valid() %}
+{% if result.valid() %}
     <!-- should only be shown if able to plot brownfield sites -->
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
@@ -214,7 +214,7 @@
         <div class="govuk-grid-column-two-thirds">
             <details>
                 <summary class="govuk-body">Raw validation results</summary>
-                <pre>{{ report.raw_result|tojson(indent=2) }}</pre>
+                <pre>{{ result.result|tojson(indent=2) }}</pre>
             </details>
         </div>
     </div>
@@ -224,7 +224,7 @@
         <div class="govuk-grid-column-two-thirds">
             <details>
                 <summary class="govuk-body">Report as json</summary>
-                <pre>{{ report.to_dict()|tojson(indent=2) }}</pre>
+                <pre>{{ result.to_dict()|tojson(indent=2) }}</pre>
             </details>
         </div>
     </div>

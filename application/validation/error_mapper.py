@@ -68,7 +68,7 @@ class TypeOrFormatErrorMapper(ErrorMapper):
             message = f"{self.raw_error['message-data']['value']} is not a valid number"
         elif self.raw_error['message-data']['field_type'] == 'string':
             if self.raw_error['message-data']['field_format'] == 'uri':
-                message = f"{self.raw_error['message-data']['value']} is not a URL"
+                message = f"'{self.raw_error['message-data']['value']}' is not a URL"
         return message
 
     def get_fix_if_possible(self):

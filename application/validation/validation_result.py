@@ -4,24 +4,24 @@ from application.validation.error_mapper import ErrorMapper
 from application.validation.utils import BrownfieldStandard
 
 
-class Report:
+class Result:
 
     def __init__(self,
-                 raw_result,
-                 original_data,
-                 validated_data,
-                 additional_data,
+                 result,
+                 upload,
+                 rows,
+                 meta_data,
                  errors_by_row=None,
                  errors_by_column=None,
                  id=None):
 
         self.id = id
-        self.raw_result = raw_result
-        self.original_data = original_data
-        self.validated_data = validated_data
-        self.additional_data = additional_data
+        self.result = result
+        self.upload = upload
+        self.rows = rows
+        self.meta_data = meta_data
         cols_to_headers = {}
-        for column_number, header in enumerate(self.raw_result['tables'][0]['headers']):
+        for column_number, header in enumerate(self.result['tables'][0]['headers']):
             cols_to_headers[column_number + 1] = header
         self.column_numbers_to_headers = bidict(cols_to_headers)
         if errors_by_row is None:
@@ -34,13 +34,13 @@ class Report:
             self.errors_by_column = errors_by_column
 
     def valid(self):
-        return self.raw_result['valid']
+        return self.result['valid']
 
     def row_count(self):
-        return self.raw_result['tables'][0]['row-count']
+        return self.result['tables'][0]['row-count']
 
     def headers_found(self):
-        return self.additional_data.get('headers_found', [])
+        return self.meta_data['headers_found']
 
     def correct_headers_found(self):
         return list(set(self.headers_found()) - set(self.additional_headers()))
@@ -52,19 +52,34 @@ class Report:
         return list(set(self.additional_headers()) - set(self.extra_headers_found()))
 
     def additional_headers(self):
-        return self.additional_data.get('additional_headers', [])
+        return self.meta_data.get('additional_headers')
 
-    def headers_missing(self):
-        return self.additional_data.get('headers_missing', [])
+    def missing_headers(self):
+        return self.meta_data.get('missing_headers')
+
+    def reconcile_header_results(self, headers_added, headers_removed):
+        additional_headers = self.additional_headers()
+        additional_headers = set(additional_headers) - set(headers_added)
+        additional_headers = set(additional_headers) - set(headers_removed)
+        self.meta_data['additional_headers'] = list(additional_headers)
+
+        missing_headers = self.missing_headers()
+        missing_headers = set(missing_headers) - set(headers_added)
+        self.meta_data['missing_headers'] = list(missing_headers)
+
+        headers_found = self.headers_found()
+        headers_found = set(headers_found) - set(headers_removed)
+        headers_found.update(headers_added)
+        self.meta_data['headers_found'] = list(headers_found)
 
     def file_type(self):
-        return self.additional_data.get('file_type')
+        return self.meta_data.get('file_type')
 
     def planning_authority(self):
-        return self.additional_data.get('planning_authority')
+        return self.meta_data.get('planning_authority')
 
     def error_count(self):
-        return self.raw_result['error-count']
+        return self.result.get('error-count')
 
     def check_headers(self):
         report_headers = self.headers_found()
@@ -103,7 +118,7 @@ class Report:
         errs = []
         rows = []
         errors = {}
-        for e in self.raw_result['tables'][0]['errors']:
+        for e in self.result['tables'][0]['errors']:
             mapper = ErrorMapper.factory(e, column)
             if e.get('column-number') is not None and e.get('column-number') == column_number:
                 if 'row-number' in e.keys():
@@ -124,7 +139,7 @@ class Report:
 
     def collect_row_errors(self):
         rows = []
-        for row_number, data_row in enumerate(self.validated_data):
+        for row_number, data_row in enumerate(self.rows):
             row = {}
             for header, value in data_row.items():
                 error = self.collect_errors_by_row(header, row_number + 1)
@@ -135,7 +150,7 @@ class Report:
     def collect_errors_by_row(self, header, row_number):
         error = None
         column_number = self.header_to_column_number(header)
-        for e in self.raw_result['tables'][0]['errors']:
+        for e in self.result['tables'][0]['errors']:
             mapper = ErrorMapper.factory(e, header)
             if e.get('column-number') is not None and e.get('column-number') == column_number \
                     and e.get('row-number') == row_number:
@@ -147,7 +162,7 @@ class Report:
 
     def invalid_rows(self):
         rows = []
-        for error in self.raw_result['tables'][0]['errors']:
+        for error in self.result['tables'][0]['errors']:
             if 'row-number' in error.keys():
                 rows.append(error['row-number'])
         return set(rows)
@@ -157,10 +172,10 @@ class Report:
             'id': str(self.id),
             'headers_expected': BrownfieldStandard.v2_standard_headers(),
             'headers_found': self.headers_found(),
-            'headers_missing': self.headers_missing(),
+            'missing_headers': self.missing_headers(),
             'additional_headers': self.additional_headers(),
-            'original_data': self.original_data,
-            'validated_data': self.validated_data,
+            'upload': self.upload,
+            'rows': self.rows,
             'errors_by_row': self.errors_by_row,
             'errors_by_column': self.errors_by_column
         }
