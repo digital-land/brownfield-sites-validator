@@ -91,7 +91,7 @@
             "description": "The permission type the site has:",
             "type": "string",
             "constraints": {
-                "required": true,
+                "required": false,
                 "pattern": "(?i)(full planning permission|outline planning permission|reserved matters approval|permission in principle|technical details consent|planning permission granted under an order|other)"
             }
         },
@@ -101,7 +101,7 @@
             "description": "The date the most recent permission was granted on the site",
             "type": "date",
             "constraints": {
-                "required": true
+                "required": false
             }
         },
         {
