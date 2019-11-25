@@ -146,8 +146,8 @@ def get_markdown_for_field(field_name):
 
 
 def _looks_like_csv(file):
-    encoding = detect_encoding(file)
     try:
+        encoding = detect_encoding(file)
         with open(file, encoding=encoding['encoding']) as f:
             content = f.read()
             csv.Sniffer().sniff(content)
