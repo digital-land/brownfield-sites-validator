@@ -177,7 +177,7 @@ def set_new_header(result, current, update):
 
 def add_new_header(result, header):
     for i, row in enumerate(result.rows):
-        result.rows[i][header] = None
+        result.rows[i][header] = ''
 
 
 def update_and_save_headers(result, header_edits, new_headers):
