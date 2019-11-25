@@ -51,10 +51,10 @@ class TypeOrFormatErrorMapper(ErrorMapper):
             message = f'Some dates in the file are not in the format YYYY-MM-DD. ' \
                       f'For example {today_human} should be {today_iso}'
         elif self.raw_error['message-data']['field_type'] == 'number':
-            message = "Some entries in this column are non numeric"
+            message = "Some values in this column are non numeric"
         elif self.raw_error['message-data']['field_type'] == 'string':
             if self.raw_error['message-data']['field_format'] == 'uri':
-                message = "Some entries in this column are not URLs"
+                message = "Some values in this column are not URLs"
         return message
 
     def field_error_message(self):
@@ -130,7 +130,7 @@ class HeaderErrorMapper(ErrorMapper):
 class RequiredErrorMapper(ErrorMapper):
 
     def overall_error_messages(self):
-        return "Some entries in this column are empty"
+        return "Some values in this column are empty"
 
     def field_error_message(self):
         return f"{self.field} can't be empty"
