@@ -13,10 +13,14 @@
 <form method="POST" class="govuk-form">
 	<h4 class="govuk-heading-s">Unknown headers</h4>
 	<p class="govuk-body">There were some headers we did not recognise. You can edit them.</p>
+    {{ invalid_header_idxs }}
 	<ul class="govuk-list">
 		{%- for header in result.extra_headers_found()|sort -%}
 		<li>
-			<input type="text" class="govuk-input govuk-input--width-20" name="update-header-{{ loop.index }}" value="{{ header }}">
+			<input type="text" class="govuk-input govuk-input--width-20 {% if invalid_edits and invalid_edits.get(loop.index0) %}govuk-input--error{% endif %}" name="update-header-{{loop.index0}}" value="{{ header }}">
+            {% if invalid_edits and invalid_edits.get(loop.index0) %}
+                <span class="govuk-error-message">You updated {{ invalid_edits.get(loop.index0).current }} to {{ invalid_edits.get(loop.index0).update }} which is not in the standard</span>
+            {% endif %}
 		</li>
 		{%- endfor -%}
 	</ul>

@@ -18,10 +18,18 @@
           {% endfor %}
       </ul>
 
+   <p class="govuk-body">We'll ignore the following unknown headers from uploaded data</p>
+
+      <ul class="govuk-list">
+          {% for header in removed_headers %}
+            <li class="govuk-list--bullet">{{ header }}</li>
+          {% endfor %}
+      </ul>
+
     <h2 class="govuk-heading-m">What happens next</h2>
 
     <p class="govuk-body">
-        You can <a href="{{ url_for('frontend.revalidate', result=result.id) }}">revalidate</a> the updated data and see if there are any remaining issues.
+        We've re-validated your updated data and you can <a href="{{ url_for('frontend.validation_result', result=result.id) }}">see the results here.</a>
     </p>
     <p class="govuk-body">
 	   You can also download register with the updates you just made.
