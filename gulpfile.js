@@ -130,3 +130,4 @@ exports.default = watch;
 exports.stylesheets = latestStylesheets;
 exports.copyAssets = copyAllAssets;
 exports.copyJS = copyMHCLGJS;
+exports['copy:govukjs'] = copyGovukJS;
