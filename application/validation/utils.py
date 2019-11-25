@@ -2,6 +2,7 @@ import codecs
 import collections
 import csv
 import json
+from subprocess import CalledProcessError
 
 from cchardet import UniversalDetector
 
@@ -66,16 +67,22 @@ class BrownfieldStandard:
 def try_convert_to_csv(filename):
     import subprocess
     try:
-        if filename.endswith('.xls'):
+        try:
             with open(f'{filename}.csv', 'w') as out:
                 subprocess.check_call(['in2csv', filename], stdout=out)
-            return f'{filename}.csv', filename.split('.')[-1]
-        elif filename.endswith('.xlsm'):
+                return f'{filename}.csv', 'xls'
+        except CalledProcessError as e:
+            print(e)
+            raise Exception
+        try:
             with open(f'{filename}.csv', 'w') as out:
                 subprocess.check_call(['xlsx2csv', filename], stdout=out)
             return f'{filename}.csv', 'xlsm'
+        except CalledProcessError as e:
+            print(e)
+            raise Exception
     except Exception as e:  # noqa
-        msg = f"We could not convert {filename.split('/')[-1]} into csv"
+        msg = f"We could not process {filename.split('/')[-1]} as a csv file"
         raise FileTypeException(msg)
 
 

@@ -12,7 +12,8 @@ from flask import (
     url_for,
     abort,
     request,
-    make_response)
+    make_response
+)
 
 from werkzeug.utils import secure_filename, redirect
 from application.extensions import db
