@@ -290,3 +290,11 @@ a {
     column-gap: $govuk-gutter;
   }
 }
+
+.govuk-form-group--no-label {
+  margin: 0;
+
+  .govuk-error-message {
+    margin-top: 10px;
+  }
+}

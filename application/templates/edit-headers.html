@@ -2,28 +2,34 @@
 
 {% block beforeContent %}
   {{ super() }}
-  <a href="{{ url_for('frontend.validation_result', result=result.id) }}" class="govuk-back-link">Back</a>
+  <a href="{{ url_for('frontend.validation_result', result=result.id) }}" class="govuk-back-link">Back to validation report</a>
 {% endblock %}
 
 {% block content %}
 <h1 class="govuk-heading-xl">Edit your headers</h1>
 
-<p class="govuk-body">There were some issues with the headers contained in your register. You can fix the issues now and download a corrected CSV file.</p>
+<p class="govuk-body">There were some issues with the headers contained in your register. We can fix the issues now. Then you will be able to download an updated CSV file.</p>
+
+<p class="govuk-body">If there are some missing headers we can create them and add them to the CSV file. Below you can choose the headers you would like us to create.</p>
 
 <form method="POST" class="govuk-form">
-	<h4 class="govuk-heading-s">Unknown headers</h4>
-	<p class="govuk-body">There were some headers we did not recognise. You can edit them.</p>
+	{% if result.extra_headers_found()|length > 0 %}
+	<label class="govuk-label govuk-!-font-weight-bold">Unknown headers</h4>
+	<span class="govuk-hint">Edit any misspelt headers. E.g. sitePlanURL to SiteplanURL</span>
     {{ invalid_header_idxs }}
 	<ul class="govuk-list">
 		{%- for header in result.extra_headers_found()|sort -%}
 		<li>
-			<input type="text" class="govuk-input govuk-input--width-20 {% if invalid_edits and invalid_edits.get(loop.index0) %}govuk-input--error{% endif %}" name="update-header-{{loop.index0}}" value="{{ header }}">
-            {% if invalid_edits and invalid_edits.get(loop.index0) %}
+			<div class="govuk-form-group govuk-form-group--no-label {% if invalid_edits and invalid_edits.get(loop.index0) %}govuk-form-group--error{% endif %}">
+				<input type="text" class="govuk-input govuk-input--width-20 {% if invalid_edits and invalid_edits.get(loop.index0) %}govuk-input--error{% endif %}" name="update-header-{{loop.index0}}" value="{{ invalid_edits.get(loop.index0).update if invalid_edits and invalid_edits.get(loop.index0) else header }}">
+            	{% if invalid_edits and invalid_edits.get(loop.index0) %}
                 <span class="govuk-error-message">You updated {{ invalid_edits.get(loop.index0).current }} to {{ invalid_edits.get(loop.index0).update }} which is not in the standard</span>
-            {% endif %}
+				{% endif %}
+            </div>
 		</li>
 		{%- endfor -%}
 	</ul>
+	{% endif %}
 
 
 	<div class="govuk-form-group">
@@ -33,7 +39,6 @@
 				Missing headers
 				</h1>
 			</legend>
-			<p class="govuk-body">There were some missing headers. The missing headers are listed below. We can create the headers for you and add them to the CSV file. Chose the headers you would like us to create.</p>
 			<span id="missing-headers-hint" class="govuk-hint">
 			  Select all headers we should create in the CSV.
 			</span>
@@ -56,13 +61,5 @@
   	Save and continue
 	</button>
 </form>
-
-<h4 class="govuk-heading-s">Correct headers</h4>
-<p class="govuk-body">These are the headers contained in the uploaded register that matched headers from the Brownfield sites data standard.</p>
-<ul class="govuk-list dlf-multi-column">
-	{%- for header in result.correct_headers_found()|sort -%}
-	<li>{{ header }}</li>
-	{%- endfor -%}
-</ul>
 
 {% endblock %}

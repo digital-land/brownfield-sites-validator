@@ -8089,3 +8089,11 @@ a:focus {
             column-gap: 30px;
   }
 }
+
+.govuk-form-group--no-label {
+  margin: 0;
+}
+
+.govuk-form-group--no-label .govuk-error-message {
+  margin-top: 10px;
+}
