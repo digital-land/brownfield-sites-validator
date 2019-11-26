@@ -6655,6 +6655,7 @@
 }
 
 .govuk-tag--warning {
+  color: #6f777b;
   background-color: #ffdd00;
 }
 
@@ -7499,6 +7500,10 @@
   background-color: #ffdd00;
   box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
   text-decoration: none;
+}
+
+.filter-group__summary::-webkit-details-marker {
+  display: none;
 }
 
 .filter-group__icon {

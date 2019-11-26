@@ -85,52 +85,55 @@
         Column headings are case sensitive. Avoid common issues by checking spelling and letter case specified in the guidance.
     </div>
   </div>
+</div>
 
 
-  <div class="govuk-grid-column-one-half">
-    <h3 class="govuk-heading-m">Data standard headers</h3>
-    <p class="govuk-body">Below are the headers that are part of the brownfield land registers data standard.</p>
-    <ul class="govuk-list field-list">
-      {% for header in brownfield_standard.v2_standard_headers() %}
-      <li class="field-list__item{% if not header in result.headers_found() %} error{% endif %}">
-        {{ header }}
-        <span class="govuk-tag{% if not header in result.headers_found() %} govuk-tag--error{% endif %}">{{ "Found" if header in result.headers_found() else "Missing" }}</span>
-      </li>
-      {% endfor %}
-    </ul>
+<h3 class="govuk-heading-m">Data standard headers</h3>
+<p class="govuk-body">Below are the headers that are part of the brownfield land registers data standard.</p>
+<ul class="govuk-list field-list {{ ' field-list--columns' if brownfield_standard.v2_standard_headers()|length > 4 else ' ' }}">
+  {% for header in brownfield_standard.v2_standard_headers() %}
+  <li class="field-list__item{% if not header in result.headers_found() %} error{% endif %}">
+    {{ header }}
+    <span class="govuk-tag{% if not header in result.headers_found() %} govuk-tag--error{% endif %}">{{ "Found" if header in result.headers_found() else "Missing" }}</span>
+  </li>
+  {% endfor %}
+</ul>
+
+<p class="govuk-body">Your register included the following headers that are no longer required. We haven't validated the values for these headers. You can remove them from your register if you wish.</p>
+
+<ul class="govuk-list field-list{{ ' field-list--columns' if result.deprecated_headers_found()|length > 4 else ' ' }}">
+  {% for header in result.deprecated_headers_found() %}
+  <li class="field-list__item">
+    {{ header }}
+    <span class="govuk-tag govuk-tag--warning">Deprecated</span>
+  </li>
+  {% endfor %}
+</ul>
+
+<details class="govuk-details govuk-details--close">
+  <summary class="govuk-details__summary">Why are some headers marked as deprecated?</summary>
+  <div class="govuk-details__text">
+    <p class="govuk-body">Some fields have been deprecated. You no longer need to include them. You can still include them if you want but we display them below to warn you that they are no longer needed.</p>
+    <p class="govuk-body">You must not include any fields that are neither part of the standard or deprecated. Any additional fields will be shown here.</p>
   </div>
+</details>
 
+{% if result.extra_headers_found() %}
+<h3 class="govuk-heading-m">Unknown</h3>
+<p class="govuk-body">There were some headers in your CSV file that we do not recognise. These could be misspelt headers or headers that aren't required.</p>
 
+<div class="govuk-grid-row">
   <div class="govuk-grid-column-one-half">
-    <h3 class="govuk-heading-m">Extra headers</h3>
-    <p class="govuk-body">Below are the extra headers found when processing the file you uploaded.</p>
-    <h4 class="govuk-heading-s">Deprecated</h4>
-    <details class="govuk-details govuk-details--close">
-      <summary class="govuk-details__summary">Why are some headers from the original standard listed?</summary>
-      <div class="govuk-details__text">
-        <p class="govuk-body">Some fields have been deprecated. You no longer need to include them. You can still include them if you want but we display them below to warn you that they are no longer needed.</p>
-        <p class="govuk-body">You must not include any fields that are neither part of the standard or deprecated. Any additional fields will be shown here.</p>
-      </div>
-    </details>
-    <ul class="govuk-list field-list">
-      {% for header in result.deprecated_headers_found() %}
-      <li>{{ header }}</li>
-      {% endfor %}
-    </ul>
-
-    {% if result.extra_headers_found() %}
-    <h4 class="govuk-heading-s">Unknown</h4>
-    <p class="govuk-body">These headers in your CSV file that we do not recognise.</p>
     <ul class="govuk-list field-list">
       {% for header in result.extra_headers_found() %}
       <li>{{ header }}</li>
       {% endfor %}
     </ul>
     <p class="govuk-body"><a href="{{ url_for('frontend.edit_headers', result=result.id) }}" class="govuk-link">Edit your headers</a>.</p>
-    {% endif %}
   </div>
-
 </div>
+{% endif %}
+
 {%- endif -%}
 
 {% if not result.valid() %}

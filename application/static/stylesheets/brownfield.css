@@ -6655,6 +6655,7 @@
 }
 
 .govuk-tag--warning {
+  color: #6f777b;
   background-color: #ffdd00;
 }
 
@@ -7501,6 +7502,10 @@
   text-decoration: none;
 }
 
+.filter-group__summary::-webkit-details-marker {
+  display: none;
+}
+
 .filter-group__icon {
   position: absolute;
   top: 0;
@@ -8042,6 +8047,18 @@ a:focus {
 .field-list > .error {
   color: #d4351c;
   font-weight: 700;
+}
+
+@media (min-width: 48.0625em) {
+  .field-list--columns {
+    -webkit-column-count: 2;
+       -moz-column-count: 2;
+            column-count: 2;
+  }
+}
+
+.field-list__item:last-child {
+  margin-bottom: 0;
 }
 
 .field-list__item .govuk-tag {
