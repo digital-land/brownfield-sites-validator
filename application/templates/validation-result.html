@@ -126,11 +126,18 @@
   <div class="govuk-grid-column-one-half">
     <ul class="govuk-list field-list">
       {% for header in result.extra_headers_found() %}
-      <li>{{ header }}</li>
+      <li class="field-list__item">{{ header }}</li>
       {% endfor %}
     </ul>
-    <p class="govuk-body"><a href="{{ url_for('frontend.edit_headers', result=result.id) }}" class="govuk-link">Edit your headers</a>.</p>
   </div>
+</div>
+{% endif %}
+
+{% if result.missing_headers()|length > 0 %}
+<div class="highlight-box--cta highlight-box--wide">
+  <!--<h4 class="highlight-box__title govuk-heading-s">Fix your headers</h4>-->
+  <p class="govuk-body">We recommend you fix any issues with your headers now. When there are missing or incorrect headers we can not attempt to validate all the values included in your register.</p>
+  <p class="govuk-body"><a href="{{ url_for('frontend.edit_headers', result=result.id) }}" class="govuk-link">Edit your headers</a>.</p>
 </div>
 {% endif %}
 

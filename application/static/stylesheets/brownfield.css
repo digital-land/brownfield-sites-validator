@@ -7314,6 +7314,20 @@
   }
 }
 
+.highlight-box--cta p:last-child {
+  margin-bottom: 0;
+}
+
+.highlight-box--wide {
+  max-width: 100%;
+}
+
+@media (min-width: 40.0625em) {
+  .highlight-box--wide {
+    max-width: 75%;
+  }
+}
+
 .dlf-pagination {
   display: block;
   margin-top: 30px;

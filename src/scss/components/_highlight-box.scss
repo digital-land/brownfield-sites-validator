@@ -3,7 +3,7 @@
 // A clickable box, should be a link
 // as seen on: https://www.registers.service.gov.uk/registers/local-authority-eng;
 
-@mixin dlf-highlight-box-base {
+@mixin dlf-highlight-box-base() {
   display: block;
   max-width: 30em;
   margin: $govuk-gutter-half 0;
@@ -89,5 +89,16 @@
 
 .highlight-box--cta {
   @include dlf-highlight-box-base;
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.highlight-box--wide {
+  max-width: 100%;
+  @include govuk-media-query($from: tablet) {
+    max-width: 75%;
+  }
 }
 
