@@ -27,7 +27,7 @@ def geox_check(cells):
     if errors:
         return errors
 
-    errors += _check_lat_long_in_range(geoX, MINIMUM_UK_LONGITUDE, MINIMUM_UK_LONGITUDE, LONGITUDE)
+    errors += _check_lat_long_in_range(geoX, MINIMUM_UK_LONGITUDE, MAXIMUM_UK_LONGITUDE, LONGITUDE)
 
     return errors
 
