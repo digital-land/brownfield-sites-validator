@@ -100,11 +100,16 @@ def get_csv(result):
     if result_model is not None:
         result = Result(**result_model.to_dict())
         fields = BrownfieldStandard.v2_standard_headers()
-        # TODO append deprecated headers and get data for these from original upload
+        deprecated = result.meta_data['additional_headers']
+        fields.extend(deprecated)
         output = io.StringIO()
         writer = csv.DictWriter(output, fields)
         writer.writeheader()
-        for r in result.rows:
+        for i, row in enumerate(result.rows):
+            r = row
+            original = result.upload[i]
+            for field in deprecated:
+                r[field] = original.get(field, '')
             writer.writerow(r)
         csv_output = output.getvalue().encode('utf-8')
         response = make_response(csv_output)
