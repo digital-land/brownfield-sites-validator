@@ -3,10 +3,10 @@ from validators import url
 
 LATITUDE = 'latitude'
 LONGITUDE = 'longitude'
-MINIMUM_UK_LATITUDE = -7
-MAXIMUM_UK_LATITUDE = 2
-MINIMUM_UK_LONGITUDE = 49
-MAXIMUM_UK_LONGITUDE = 57
+MINIMUM_UK_LATITUDE = 49
+MAXIMUM_UK_LATITUDE = 57
+MINIMUM_UK_LONGITUDE = -7
+MAXIMUM_UK_LONGITUDE = 2
 MAX_DECIMAL_PLACES = 6
 
 
@@ -17,7 +17,7 @@ def geox_check(cells):
     if geoX is None:
         return errors
 
-    errors += _check_looks_like_correct_coordinate_ref_system(geoX, 180, '%s' % LATITUDE)
+    errors += _check_looks_like_correct_coordinate_ref_system(geoX, 180, '%s' % LONGITUDE)
 
     if errors:
         return errors
@@ -27,7 +27,7 @@ def geox_check(cells):
     if errors:
         return errors
 
-    errors += _check_lat_long_in_range(geoX, MINIMUM_UK_LATITUDE, MAXIMUM_UK_LATITUDE, LATITUDE)
+    errors += _check_lat_long_in_range(geoX, MINIMUM_UK_LONGITUDE, MAXIMUM_UK_LONGITUDE, LONGITUDE)
 
     return errors
 
@@ -44,7 +44,7 @@ def geoy_check(cells):
     if geoY is None:
         return errors
 
-    errors += _check_looks_like_correct_coordinate_ref_system(geoY, 90, '%s' % LONGITUDE)
+    errors += _check_looks_like_correct_coordinate_ref_system(geoY, 90, '%s' % LATITUDE)
 
     if errors:
         return errors
@@ -54,7 +54,7 @@ def geoy_check(cells):
     if errors:
         return errors
 
-    errors += _check_lat_long_in_range(geoY, MINIMUM_UK_LONGITUDE, MAXIMUM_UK_LONGITUDE, LONGITUDE)
+    errors += _check_lat_long_in_range(geoY, MINIMUM_UK_LATITUDE, MAXIMUM_UK_LATITUDE, LATITUDE)
 
     return errors
 
@@ -68,9 +68,9 @@ def _get_field(cells, field_name):
     return field
 
 
-def _check_looks_like_correct_coordinate_ref_system(field, max_decimal_places, lat_or_long):
+def _check_looks_like_correct_coordinate_ref_system(field, max_value, lat_or_long):
     errors = []
-    if abs(field['value']) > max_decimal_places:
+    if abs(field['value']) > max_value:
         message = f"{field['value']} isn't a {lat_or_long} using the WGS84 or ETRS89 coordinate systems"
         error = Error(
             'geo-error',

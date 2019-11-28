@@ -108,7 +108,7 @@ def get_csv(result):
             writer.writerow(r)
         csv_output = output.getvalue().encode('utf-8')
         response = make_response(csv_output)
-        response.headers['Content-Disposition'] = f'attachment; filename=test.csv'
+        response.headers['Content-Disposition'] = f'attachment; filename=brownfield-land.csv'
         response.headers['Content-Type'] = 'text/csv'
         return response
     else:
