@@ -19,13 +19,14 @@ from werkzeug.utils import secure_filename, redirect
 from application.extensions import db
 from application.frontend.forms import UploadForm
 from application.frontend.models import ResultModel
-from application.validation.validation_result import Result
-from application.validation.utils import FileTypeException, BrownfieldStandard
-from application.validation.validator import validate_file, revalidate_result
+from validator.validation_result import Result
+from validator.utils import FileTypeException, BrownfieldStandard
+from validator.validator import validate_file, revalidate_result
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
 
 Edit = collections.namedtuple('Edit', 'index current update')
+brownfield_standard_v2_schema = BrownfieldStandard.v2_standard_schema()
 
 
 @frontend.route('/')
@@ -80,7 +81,7 @@ def edit_headers(result):
                                        brownfield_standard=BrownfieldStandard,
                                        invalid_edits=e.invalid_edits)
             result, updated_headers, removed_headers = update_and_save_headers(result, header_edits, new_headers)
-            result = revalidate_result(result)
+            result = revalidate_result(result, brownfield_standard_v2_schema)
             db_result.update(result)
             db.session.add(db_result)
             db.session.commit()
@@ -165,7 +166,7 @@ def _write_tempfile_and_validate(form):
             os.makedirs(output_dir)
         file = os.path.join(output_dir, filename)
         form.upload.data.save(file)
-        report = validate_file(file)
+        report = validate_file(file, brownfield_standard_v2_schema)
     return report
 
 

@@ -1,39 +1,21 @@
 [[source]]
+name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-name = "pypi"
+
+[dev-packages]
 
 [packages]
 flask = "*"
-gunicorn = "*"
-python-dotenv = "*"
-click = "*"
-flask-wtf = "*"
-requests = "*"
-"boto3" = "*"
-csvkit = "*"
-furl = "*"
-flask-debugtoolbar = "*"
-flask-optimize = "*"
-htmlmin = "*"
-jinja2 = ">2.10"
-urllib3 = ">=1.24.2"
-goodtables = "*"
-pytest = "*"
-bidict = "*"
-dateparser = "*"
-chardet = "*"
-pandas = "*"
-sentry-sdk = {extras = ["flask"],version = "==0.13.1"}
-flask-sslify = "*"
-flask-misaka = "*"
 flask-migrate = "*"
+sentry-sdk = "*"
+flask-wtf = "*"
 psycopg2-binary = "*"
-validators = "*"
-pytest-flake8 = "*"
-
-[dev-packages]
-pytest = "*"
+flask-misaka = "*"
+gunicorn = "*"
+validator = {editable = true,git = "https://github.com/digital-land/validator.git"}
+flask-sslify = "*"
+python-dotenv = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"
