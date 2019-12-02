@@ -19,13 +19,14 @@ from werkzeug.utils import secure_filename, redirect
 from application.extensions import db
 from application.frontend.forms import UploadForm
 from application.frontend.models import ResultModel
-from application.validation.validation_result import Result
-from application.validation.utils import FileTypeException, BrownfieldStandard
-from application.validation.validator import validate_file, revalidate_result
+from validator.validation_result import Result
+from validator.utils import FileTypeException, BrownfieldStandard
+from validator.validator import validate_file, revalidate_result
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
 
 Edit = collections.namedtuple('Edit', 'index current update')
+brownfield_standard_v2_schema = BrownfieldStandard.v2_standard_schema()
 
 
 @frontend.route('/')
@@ -79,16 +80,16 @@ def edit_headers(result):
                                        result=result,
                                        brownfield_standard=BrownfieldStandard,
                                        invalid_edits=e.invalid_edits)
-            result, updated_headers, removed_headers, header_changes = update_and_save_headers(result, header_edits, new_headers)
-            result = revalidate_result(result)
+            update = update_and_save_headers(result, header_edits, new_headers)
+            result = revalidate_result(result, brownfield_standard_v2_schema)
             db_result.update(result)
             db.session.add(db_result)
             db.session.commit()
             return render_template('edit-confirmation.html',
-                                   result=result,
-                                   updated_headers=updated_headers,
-                                   removed_headers=removed_headers,
-                                   header_changes=header_changes)
+                                   result=update['result'],
+                                   updated_headers=update['headers_added'],
+                                   removed_headers=update['headers_removed'],
+                                   header_changes=update['header_changes'])
 
     return render_template('edit-headers.html',
                            result=result,
@@ -171,7 +172,7 @@ def _write_tempfile_and_validate(form):
             os.makedirs(output_dir)
         file = os.path.join(output_dir, filename)
         form.upload.data.save(file)
-        report = validate_file(file)
+        report = validate_file(file, brownfield_standard_v2_schema)
     return report
 
 
@@ -209,4 +210,7 @@ def update_and_save_headers(result, header_edits, new_headers):
     result.reconcile_header_results(headers_added=headers_added,
                                     headers_removed=headers_removed)
 
-    return result, headers_added, headers_removed, header_changes
+    return {'result': result,
+            'headers_added': headers_added,
+            'headers_removed': headers_removed,
+            'header_changes': header_changes}
