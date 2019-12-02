@@ -5,38 +5,36 @@
   <div class="govuk-grid-column-two-thirds">
     <div class="govuk-panel govuk-panel--confirmation">
       <h1 class="govuk-panel__title">
-        Edits complete
+        Headers updated
       </h1>
     </div>
 
-    <p class="govuk-body">We updated the following headers in your uploaded data</p>
+    <h2 class="govuk-heading-m">What we did</h2>
+    <p class="govuk-body">We updated the following headers in the register you uploaded.</p>
 
-	<!-- playback some changes/confirm new headers/data -->
-      <ul class="govuk-list">
-          {% for header in updated_headers %}
-            <li class="govuk-list--bullet">{{ header }}</li>
-          {% endfor %}
-      </ul>
+	 <!-- playback some changes/confirm new headers/data -->
+    <ul class="govuk-list govuk-list--bullet">
+        {% for header in header_changes %}
+          {%- if header and header[1] == "ADDED" -%}
+          <li>Added new header <span class="govuk-!-font-weight-bold">{{ header[0] }}</span></li>
+          {%- else -%}
+          <li>Changed your header {{ header[1] }} to <span class="govuk-!-font-weight-bold">{{ header[0] }}</span></li>
+          {%- endif -%}
+        {% endfor %}
+    </ul>
 
-   <p class="govuk-body">We'll ignore the following unknown headers from uploaded data</p>
-
-      <ul class="govuk-list">
-          {% for header in removed_headers %}
-            <li class="govuk-list--bullet">{{ header }}</li>
-          {% endfor %}
-      </ul>
+   <p class="govuk-body">We'll ignore any remaining unknown headers.</p>
 
     <h2 class="govuk-heading-m">What happens next</h2>
 
     <p class="govuk-body">
-        We've re-validated your updated data and you can <a href="{{ url_for('frontend.validation_result', result=result.id) }}">see the results here.</a>
-    </p>
+      We've re-validated your updated data and you can <a href="{{ url_for('frontend.validation_result', result=result.id) }}">see the results here</a>. Note that the number of errors might have increased. This is because we have been able to validate more of your data.</p>
     <p class="govuk-body">
 	   You can also download register with the updates you just made.
     </p>
 
-	 <div class="highlight-box highlight-box--flush">
-    <a class="govuk-link" href="{{ url_for('frontend.get_csv', result=result.id) }}">Download updated CSV</a>
+	 <div class="highlight-box--cta highlight-box--flush">
+      <p class="govuk-body"><a class="govuk-link" href="{{ url_for('frontend.get_csv', result=result.id) }}">Download updated CSV</a></p>
 	 </div>
 
   </div>

@@ -80,15 +80,16 @@ def edit_headers(result):
                                        result=result,
                                        brownfield_standard=BrownfieldStandard,
                                        invalid_edits=e.invalid_edits)
-            result, updated_headers, removed_headers = update_and_save_headers(result, header_edits, new_headers)
+            update = update_and_save_headers(result, header_edits, new_headers)
             result = revalidate_result(result, brownfield_standard_v2_schema)
             db_result.update(result)
             db.session.add(db_result)
             db.session.commit()
             return render_template('edit-confirmation.html',
-                                   result=result,
-                                   updated_headers=updated_headers,
-                                   removed_headers=removed_headers)
+                                   result=update['result'],
+                                   updated_headers=update['updated_headers'],
+                                   removed_headers=update['removed_headers'],
+                                   header_changes=update['header_changes'])
 
     return render_template('edit-headers.html',
                            result=result,
@@ -101,11 +102,16 @@ def get_csv(result):
     if result_model is not None:
         result = Result(**result_model.to_dict())
         fields = BrownfieldStandard.v2_standard_headers()
-        # TODO append deprecated headers and get data for these from original upload
+        deprecated = result.meta_data['additional_headers']
+        fields.extend(deprecated)
         output = io.StringIO()
         writer = csv.DictWriter(output, fields)
         writer.writeheader()
-        for r in result.rows:
+        for i, row in enumerate(result.rows):
+            r = row
+            original = result.upload[i]
+            for field in deprecated:
+                r[field] = original.get(field, '')
             writer.writerow(r)
         csv_output = output.getvalue().encode('utf-8')
         response = make_response(csv_output)
@@ -185,11 +191,13 @@ def add_new_header(result, header):
 def update_and_save_headers(result, header_edits, new_headers):
     headers_added = []
     headers_removed = []
+    header_changes = []
     for edit in header_edits:
         if edit.current != edit.update:
             set_new_header(result, current=edit.current, update=edit.update)
             headers_added.append(edit.update)
             headers_removed.append(edit.current)
+            header_changes.append((edit.update, edit.current))
         else:
             headers_removed.append(edit.current)
 
@@ -197,8 +205,12 @@ def update_and_save_headers(result, header_edits, new_headers):
         if header not in headers_added:
             add_new_header(result, header)
             headers_added.append(header)
+            header_changes.append((header, "ADDED"))
 
     result.reconcile_header_results(headers_added=headers_added,
                                     headers_removed=headers_removed)
 
-    return result, headers_added, headers_removed
+    return {'result': result,
+            'headers_added': headers_added,
+            'headers_removed': headers_removed,
+            'header_changes': header_changes}
