@@ -1,5 +1,5 @@
 -i https://pypi.org/simple
--e git+https://github.com/digital-land/validator.git@03234caf16bc6050c654edf840da56b9189d34db#egg=validator
+-e git+https://github.com/digital-land/validator.git#egg=validator
 agate-dbf==0.2.1
 agate-excel==0.2.3
 agate-sql==0.5.4
