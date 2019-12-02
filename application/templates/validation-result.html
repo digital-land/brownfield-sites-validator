@@ -194,6 +194,11 @@
 </div>
 {% endif %}
 
+{%- if register_updated_at -%}
+<hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+<p class="govuk-body">Your register has been updated. <a href="{{ url_for('frontend.get_csv', result=result.id) }}" class="govuk-link">Download the latest version</a>.</p>
+{%- endif -%}
+
 {% if result.valid() %}
     <!-- should only be shown if able to plot brownfield sites -->
     <div class="govuk-grid-row">

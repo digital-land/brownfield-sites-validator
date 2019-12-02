@@ -55,9 +55,11 @@ def validation_result(result):
     db_result = ResultModel.query.get(result)
     if db_result is not None:
         result = Result(**db_result.to_dict())
+        updated_at = db_result.updated_at
         return render_template('validation-result.html',
                                result=result,
-                               brownfield_standard=BrownfieldStandard)
+                               brownfield_standard=BrownfieldStandard,
+                               register_updated_at=updated_at)
     abort(404)
 
 
