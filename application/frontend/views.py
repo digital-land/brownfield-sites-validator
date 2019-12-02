@@ -87,8 +87,8 @@ def edit_headers(result):
             db.session.commit()
             return render_template('edit-confirmation.html',
                                    result=update['result'],
-                                   updated_headers=update['updated_headers'],
-                                   removed_headers=update['removed_headers'],
+                                   updated_headers=update['headers_added'],
+                                   removed_headers=update['headers_removed'],
                                    header_changes=update['header_changes'])
 
     return render_template('edit-headers.html',
