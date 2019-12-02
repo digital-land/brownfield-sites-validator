@@ -118,7 +118,7 @@ def get_csv(result):
         csv_output = output.getvalue().encode('utf-8')
         response = make_response(csv_output)
         response.headers['Content-Disposition'] = f'attachment; filename=brownfield-land.csv'
-        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Type'] = 'text/csv; charset=utf-8'
         return response
     else:
         abort(404)
