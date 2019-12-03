@@ -184,10 +184,12 @@
                 <ul class="govuk-list">
                   {% for e in error.errors %}<li><span class="govuk-tag govuk-tag--error">{% if e.row == 0 %}Header row{% else %}Row {{ e.row }}{% endif %}</span> {{ e.message }}</li>{% endfor %}
                 </ul>
+                {% if "Date" in column %}
+                <div class="highlight-box--cta highlight-box--flush">
+                  <p class="govuk-body">We can fix these dates and let you download an updated CSV file. <a href="{{ url_for('frontend.edit_column', result=result.id, column=column) }}" class="govuk-link">Correct these dates</a>.</p>
+                </div>
+                {% endif %}
               </div>
-              {% if "Date" in column %}
-              <p class="govuk-body"><a href="{{ url_for('frontend.edit_column', result=result.id, column=column) }}" class="govuk-link">Edit dates</a></p>
-              {% endif %}
             </details>
           </li>
       {% endfor %}
