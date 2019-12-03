@@ -11,14 +11,13 @@ from flask import (
     request,
     make_response
 )
-
+from validator.utils import FileTypeException, BrownfieldStandard
+from validator.validation_result import Result
 from werkzeug.utils import redirect
+
 from application.extensions import db
 from application.frontend.forms import UploadForm
 from application.frontend.models import ResultModel
-from validator.validation_result import Result
-from validator.utils import FileTypeException, BrownfieldStandard
-
 from application.utils import (
     InvalidEditException,
     compile_header_edits,
@@ -99,6 +98,31 @@ def edit_headers(result):
     return render_template('edit-headers.html',
                            result=result,
                            brownfield_standard=BrownfieldStandard)
+
+
+@frontend.route('/validation/<result>/edit/column/<column>')
+def edit_column(result, column):
+    db_result = ResultModel.query.get(result)
+    if db_result is not None:
+        result = Result(**db_result.to_dict())
+        if "Date" not in column or result.errors_by_column.get(column) is None:
+            # colm, if they get the page again there will be not errors_by_column for this
+            # column if we've re-validated
+            return render_template('edit-column-confirmation.html',
+                                   column=column,
+                                   result=result)
+
+        fixes_applied = result.apply_fixes(column)
+        result = revalidate_result(result, brownfield_standard_v2_schema)
+        db_result.update(result)
+        db.session.add(db_result)
+        db.session.commit()
+        return render_template('edit-column-confirmation.html',
+                               column=column,
+                               result=result,
+                               fixes_applied=fixes_applied,
+                               edited=True,
+                               brownfield_standard=BrownfieldStandard)
 
 
 @frontend.route('/validation/<result>/csv')
