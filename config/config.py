@@ -21,5 +21,7 @@ class DevelopmentConfig(Config):
     DEBUG_TB_PROFILER_ENABLED = DEBUG_TB_ENABLED if DEBUG_TB_ENABLED else False
 
 
-class TestConfig(Config):
+class TestConfig(DevelopmentConfig):
     TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/brownfield_test'
+    SECRET_KEY = 'testdoesnotmatter'
