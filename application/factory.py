@@ -4,7 +4,7 @@ from flask import Flask, render_template
 from flask.cli import load_dotenv
 
 
-if os.environ['FLASK_ENV'] == 'production':
+if os.environ.get('FLASK_ENV') == 'production':
     dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
     load_dotenv(dotenv_path)
 
@@ -54,8 +54,9 @@ def register_extensions(app):
     db.init_app(app)
     migrate.init_app(app)
 
-    from flask_sslify import SSLify
-    SSLify(app)
+    if os.environ.get('FLASK_ENV') == 'production':
+        from flask_sslify import SSLify
+        SSLify(app)
 
 
 def register_commands(app):
