@@ -1,0 +1,43 @@
+{% extends "dlf-base.html" %}
+
+{% block beforeContent %}
+  {{ super() }}
+  <a href="{{ url_for('frontend.validation_result', result=result.id) }}" class="govuk-back-link">Back to validation report</a>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-panel govuk-panel--confirmation">
+      <h1 class="govuk-panel__title">
+        {{ column }} values updated
+      </h1>
+    </div>
+
+	<h2 class="govuk-heading-m">What we did</h2>
+    <p class="govuk-body">We made the following changes:</p>
+
+	<!-- playback some changes/confirm new headers/data -->
+	<ul class="govuk-list govuk-list--bullet">
+	{% for error in result.errors_by_column[column].errors %}
+		<li>Row {{ error.row }} from {{ error.value }} to <span class="govuk-!-font-weight-bold">{{ error.fix }}</span></li>
+	{% endfor %}
+	</ul>
+
+	<h2 class="govuk-heading-m">What happens next</h2>
+
+	<p class="govuk-body">
+      We've re-validated your updated data and you can <a href="{{ url_for('frontend.validation_result', result=result.id) }}">see the results here</a>. The number of errors should have decreased.</p>
+
+    <p class="govuk-body">You can also download register with the updated values.</p>
+
+	<div class="highlight-box--cta highlight-box--flush">
+		<p class="govuk-body"><a class="govuk-link" href="{{ url_for('frontend.get_csv', result=result.id) }}">Download updated CSV</a></p>
+	</div>
+
+  </div>
+</div>
+
+
+
+{% endblock %}

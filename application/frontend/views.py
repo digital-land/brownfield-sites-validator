@@ -98,6 +98,19 @@ def edit_headers(result):
                            brownfield_standard=BrownfieldStandard)
 
 
+@frontend.route('/validation/<result>/edit/column/<column>', methods=['GET', 'POST'])
+def edit_column(result, column):
+    db_result = ResultModel.query.get(result)
+    if db_result is not None:
+        result = Result(**db_result.to_dict())
+        # fix column dates
+        # e.g. result.apply_fixes(column)
+        return render_template('edit-column-confirmation.html',
+                            column=column,
+                            result=result,
+                            brownfield_standard=BrownfieldStandard)
+
+
 @frontend.route('/validation/<result>/csv')
 def get_csv(result):
     result_model = ResultModel.query.get(result)
