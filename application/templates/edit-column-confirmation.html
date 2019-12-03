@@ -21,8 +21,8 @@
 
 	<!-- playback some changes/confirm new headers/data -->
 	<ul class="govuk-list govuk-list--bullet">
-	{% for error in result.errors_by_column[column].errors %}
-		<li>Row {{ error.row }} from {{ error.value }} to <span class="govuk-!-font-weight-bold">{{ error.fix }}</span></li>
+	{% for fix in fixes_applied %}
+		<li>Row {{ fix.row }} from {{ fix.from }} to <span class="govuk-!-font-weight-bold">{{ fix.to }}</span></li>
 	{% endfor %}
 	</ul>
 
