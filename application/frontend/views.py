@@ -103,11 +103,16 @@ def edit_column(result, column):
     db_result = ResultModel.query.get(result)
     if db_result is not None:
         result = Result(**db_result.to_dict())
+        if "Date" not in column:
+            return render_template('edit-column-confirmation.html',
+                                column=column,
+                                result=result)
         # fix column dates
         # e.g. result.apply_fixes(column)
         return render_template('edit-column-confirmation.html',
                             column=column,
                             result=result,
+                            edited=True,
                             brownfield_standard=BrownfieldStandard)
 
 
