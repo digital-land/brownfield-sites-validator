@@ -1,6 +1,6 @@
 -i https://pypi.org/simple
 -r test_requirements.txt
--e git+https://github.com/digital-land/validator.git#egg=validator
+-e git+https://github.com/digital-land/validator.git@9d20f2d082d643052f9dfa32af0f8441b267a0ec#egg=validator
 agate-dbf==0.2.1
 agate-excel==0.2.3
 agate-sql==0.5.4
