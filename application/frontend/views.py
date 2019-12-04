@@ -138,7 +138,7 @@ def get_csv(result):
         writer.writeheader()
         for i, row in enumerate(result.rows):
             r = row
-            original = result.upload[i]
+            original = result.input[i]
             for field in deprecated:
                 r[field] = original.get(field, '')
             writer.writerow(r)

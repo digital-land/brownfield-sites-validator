@@ -32,19 +32,20 @@ def compile_header_edits(form, originals):
     header_edits = []
     new_headers = []
     invalid_edits = {}
-    for i in form:
-        if "update-header" in i:
-            header_idx = int(i.split("-")[2])
-            edit = Edit(index=header_idx, current=originals[header_idx], update=form[i])
-            header_edits.append(edit)
-        else:
-            new_headers.append(form[i])
+    if originals:
+        for i in form:
+            if "update-header" in i:
+                header_idx = int(i.split("-")[2])
+                edit = Edit(index=header_idx, current=originals[header_idx], update=form[i])
+                header_edits.append(edit)
+            else:
+                new_headers.append(form[i])
 
-    for edit in header_edits:
-        if edit.current != edit.update and edit.update not in BrownfieldStandard.v2_standard_headers():
-            invalid_edits[edit.index] = edit
-    if invalid_edits:
-        raise InvalidEditException('Some headers were updated to invalid values', invalid_edits)
+        for edit in header_edits:
+            if edit.current != edit.update and edit.update not in BrownfieldStandard.v2_standard_headers():
+                invalid_edits[edit.index] = edit
+        if invalid_edits:
+            raise InvalidEditException('Some headers were updated to invalid values', invalid_edits)
     return header_edits, new_headers
 
 
@@ -104,6 +105,6 @@ def revalidate_result(result, schema):
     res = check_data(result.rows, schema)
     return Result(id=result.id,
                   result=res,
-                  upload=result.upload,
+                  input=result.input,
                   rows=result.rows,
                   meta_data=result.meta_data)
