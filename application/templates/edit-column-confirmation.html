@@ -43,10 +43,14 @@
 	  <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
 	  <strong class="govuk-warning-text__text">
 	    <span class="govuk-warning-text__assistive">Warning</span>
-	    We can not apply any fixes to {{column}} values
+	    There are no fixes available that we can apply
 	  </strong>
 	</div>
-	<p class="govuk-body">We are only able to apply fixes to fields that contain dates. We recommend that you fix other errors manually.</p>
+	<p class="govuk-body">We are only able to apply fixes to fields that contain dates in the wrong format. We recommend that you fix other errors manually.</p>
+
+	<p class="govuk-body">
+		Go back to the <a href="{{ url_for('frontend.validation_result', result=result.id) }}" class="govuk-link">validation report</a> to see the errors.
+	</p>
 	{% endif %}
   </div>
 </div>
