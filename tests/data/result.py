@@ -69,7 +69,7 @@ result = {
       'PreviouslyPartOf'
     ]
   },
-  'upload': [
+  'input': [
     [
       (
       'OrganisationURI',
@@ -752,7 +752,7 @@ result = {
       ]
     }
   },
-  'raw_result': {
+  'result': {
     'time': 0.131,
     'valid': False,
     'error-count': 8,
