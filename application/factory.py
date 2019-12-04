@@ -65,9 +65,11 @@ def register_commands(app):
 
 def register_filters(app):
     from application.filters import healthcheck, pluralise,\
-        format_date_time, count_fields_with_errors, count_fields_with_warnings
+        format_date_time, count_fields_with_errors, count_fields_with_warnings,\
+        check_if_fixable
     app.add_template_filter(healthcheck)
     app.add_template_filter(pluralise)
     app.add_template_filter(format_date_time)
     app.add_template_filter(count_fields_with_errors)
     app.add_template_filter(count_fields_with_warnings)
+    app.add_template_filter(check_if_fixable)
