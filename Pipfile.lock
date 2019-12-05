@@ -666,7 +666,7 @@
         "validator": {
             "editable": true,
             "git": "https://github.com/digital-land/validator.git",
-            "ref": "43b912d9d3ce3c411c69b11823e5fd2820864351"
+            "ref": "8e2ad41a3e113f9ebed093b2a3dac200d24a71e8"
         },
         "validators": {
             "hashes": [
