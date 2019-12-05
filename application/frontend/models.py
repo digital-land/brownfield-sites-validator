@@ -10,7 +10,7 @@ class ResultModel(db.Model):
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     result = db.Column(JSONB, default=dict)
-    upload = db.Column(JSONB, default=dict)
+    input = db.Column(JSONB, default=dict)
     rows = db.Column(JSONB, default=dict)
     errors_by_column = db.Column(JSONB, default=dict)
     errors_by_row = db.Column(JSONB, default=list)
@@ -19,14 +19,14 @@ class ResultModel(db.Model):
     updated_at = db.Column(db.DateTime(), nullable=True, onupdate=func.now())
 
     def __init__(self, validation_result):
-        upload = validation_result.upload
+        input = validation_result.input
         rows = validation_result.rows
         result = validation_result.result
         meta_data = validation_result.meta_data
         errors_by_column = validation_result.errors_by_column
         errors_by_row = validation_result.errors_by_row
         super(ResultModel, self).__init__(result=result,
-                                          upload=upload,
+                                          input=input,
                                           rows=rows,
                                           meta_data=meta_data,
                                           errors_by_column=errors_by_column,
@@ -36,7 +36,7 @@ class ResultModel(db.Model):
         return {
             'id': str(self.id),
             'result': self.result,
-            'upload': self.upload,
+            'input': self.input,
             'rows': self.rows,
             'meta_data': self.meta_data,
             'errors_by_row': self.errors_by_row,

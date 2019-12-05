@@ -70,17 +70,17 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:259b795fc577ba0c8c085509d18bc7b9a7c7e813c93c2d72278affb922f64d8d",
-                "sha256:cf887435085e90ab2fdce50ea77b4569b8728faf9a8d86b16f382161af6bd441"
+                "sha256:d280f2bf7dc373e8aeab296f81aadefabf8780ff8c8ad27cdc36f8f112ca95ed",
+                "sha256:edbf4636e700c46e49f555ac87ab48b8c385fde604528db15fc5189d5a73dc72"
             ],
-            "version": "==1.10.30"
+            "version": "==1.10.33"
         },
         "botocore": {
             "hashes": [
-                "sha256:9857929cab4366badda0cc9d2066bb1f71269344ef7523186f6a1b26924bbc15",
-                "sha256:ced50943d83d7007fe02b91739e849f36b64ed5c5ab7af3b771bff21aca554a7"
+                "sha256:4861785b52b0b3f97da91613c31f8e501f12517c9c79482b44efbdb56b69aefc",
+                "sha256:9cc87d7906693c9c8fe862c574a1bebbe22a0475d6991e9b7251bc93cb1954d9"
             ],
-            "version": "==1.13.30"
+            "version": "==1.13.33"
         },
         "cchardet": {
             "hashes": [
@@ -310,11 +310,11 @@
         },
         "importlib-metadata": {
             "hashes": [
-                "sha256:b044f07694ef14a6683b097ba56bd081dbc7cdc7c7fe46011e499dfecc082f21",
-                "sha256:e6ac600a142cf2db707b1998382cc7fc3b02befb7273876e01b8ad10b9652742"
+                "sha256:3a8b2dfd0a2c6a3636e7c016a7e54ae04b997d30e69d5eacdca7a6c2221a1402",
+                "sha256:41e688146d000891f32b1669e8573c57e39e5060e7f5f647aa617cd9a9568278"
             ],
             "markers": "python_version < '3.8'",
-            "version": "==1.1.0"
+            "version": "==1.2.0"
         },
         "isodate": {
             "hashes": [
@@ -661,13 +661,13 @@
         "validator": {
             "editable": true,
             "git": "https://github.com/digital-land/validator.git",
-            "ref": "9d20f2d082d643052f9dfa32af0f8441b267a0ec"
+            "ref": "43b912d9d3ce3c411c69b11823e5fd2820864351"
         },
         "validators": {
             "hashes": [
-                "sha256:f0ac832212e3ee2e9b10e156f19b106888cf1429c291fbc5297aae87685014ae"
+                "sha256:0bfe836a1af37bb266d71ec1e98b530c38ce11bc7fbe0c4c96ef7b1532d019e5"
             ],
-            "version": "==0.14.0"
+            "version": "==0.14.1"
         },
         "werkzeug": {
             "hashes": [
@@ -731,11 +731,11 @@
         },
         "importlib-metadata": {
             "hashes": [
-                "sha256:b044f07694ef14a6683b097ba56bd081dbc7cdc7c7fe46011e499dfecc082f21",
-                "sha256:e6ac600a142cf2db707b1998382cc7fc3b02befb7273876e01b8ad10b9652742"
+                "sha256:3a8b2dfd0a2c6a3636e7c016a7e54ae04b997d30e69d5eacdca7a6c2221a1402",
+                "sha256:41e688146d000891f32b1669e8573c57e39e5060e7f5f647aa617cd9a9568278"
             ],
             "markers": "python_version < '3.8'",
-            "version": "==1.1.0"
+            "version": "==1.2.0"
         },
         "more-itertools": {
             "hashes": [
