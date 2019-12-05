@@ -61,7 +61,6 @@ def validation_result(result):
         updated_at = db_result.updated_at
         return render_template('validation-result.html',
                                result=result,
-                               brownfield_standard=brownfield_standard,
                                register_updated_at=updated_at)
     abort(404)
 
@@ -83,7 +82,6 @@ def edit_headers(result):
             except InvalidEditException as e:
                 return render_template('edit-headers.html',
                                        result=result,
-                                       brownfield_standard=BrownfieldStandard,
                                        invalid_edits=e.invalid_edits)
             update = update_and_save_headers(result, header_edits, new_headers)
             result = revalidate_result(result, brownfield_standard)
@@ -97,8 +95,7 @@ def edit_headers(result):
                                    header_changes=update['header_changes'])
 
     return render_template('edit-headers.html',
-                           result=result,
-                           brownfield_standard=BrownfieldStandard)
+                           result=result)
 
 
 @frontend.route('/validation/<result>/edit/column/<column>')
@@ -122,8 +119,7 @@ def edit_column(result, column):
                                column=column,
                                result=result,
                                fixes_applied=fixes_applied,
-                               edited=True,
-                               brownfield_standard=brownfield_standard)
+                               edited=True)
 
 
 @frontend.route('/validation/<result>/csv')

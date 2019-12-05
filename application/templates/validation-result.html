@@ -90,8 +90,8 @@
 
 <h3 class="govuk-heading-m">Data standard headers</h3>
 <p class="govuk-body">Below are the headers that are part of the brownfield land registers data standard.</p>
-<ul class="govuk-list field-list {{ ' field-list--columns' if brownfield_standard.current_standard_headers()|length > 4 else ' ' }}">
-  {% for header in brownfield_standard.current_standard_headers() %}
+<ul class="govuk-list field-list {{ ' field-list--columns' if result.standard.current_standard_headers()|length > 4 else ' ' }}">
+  {% for header in result.standard.current_standard_headers() %}
   <li class="field-list__item{% if not header in result.headers_found() %} error{% endif %}">
     {{ header }}
     <span class="govuk-tag{% if not header in result.headers_found() %} govuk-tag--error{% endif %}">{{ "Found" if header in result.headers_found() else "Missing" }}</span>
