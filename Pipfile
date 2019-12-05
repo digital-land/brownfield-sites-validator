@@ -17,6 +17,7 @@ psycopg2-binary = "*"
 flask-misaka = "*"
 gunicorn = "*"
 validator = {editable = true,git = "https://github.com/digital-land/validator.git"}
+govuk-jinja-components = {editable = true,git="https://github.com/colmjude/govuk-jinja-components.git"}
 flask-sslify = "*"
 python-dotenv = "*"
 
