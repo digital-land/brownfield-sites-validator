@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "bdab4e8d170868663d64b830804a21ded19ca1b0e5c463a22e16bc1921165bad"
+            "sha256": "54651e60a6f01fbe2aa30180982edc3719084e52217cda9139f6629a77d4d35d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -660,7 +660,8 @@
         },
         "validator": {
             "editable": true,
-            "path": "/Users/adam/repos/digital-land/validator"
+            "git": "https://github.com/digital-land/validator.git",
+            "ref": "43b912d9d3ce3c411c69b11823e5fd2820864351"
         },
         "validators": {
             "hashes": [
