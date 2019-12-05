@@ -2,7 +2,6 @@
 attrs==19.3.0
 beautifulsoup4==4.8.1
 html5lib==1.0.1
-importlib-metadata==1.1.0 ; python_version < '3.8'
 more-itertools==8.0.0
 packaging==19.2
 pluggy==0.13.1
