@@ -1,5 +1,6 @@
 import os
 import pytest
+from validator.standards import BrownfieldStandard
 from validator.validation_result import Result
 
 from application.factory import create_app
@@ -55,11 +56,15 @@ def session(db, request):
     request.addfinalizer(teardown)
     return session
 
+@pytest.fixture(scope='session')
+def standard():
+    return BrownfieldStandard()
+
 
 @pytest.fixture(scope='session')
-def result():
+def result(standard):
     from tests.data.result import result as _result
-    return Result.factory(_result)
+    return Result.factory(_result, standard)
 
 
 @pytest.fixture(scope='session')

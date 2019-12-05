@@ -2,12 +2,13 @@ import os
 import tempfile
 import collections
 
+from validator.standards import BrownfieldStandard
 from werkzeug.utils import secure_filename
 from validator.validation_result import Result
 from validator.validator import validate_file, check_data
-from validator.utils import BrownfieldStandard
 
-brownfield_standard_v2_schema = BrownfieldStandard.v2_standard_schema()
+
+brownfield_standard = BrownfieldStandard()
 
 
 class InvalidEditException(Exception):
@@ -42,7 +43,7 @@ def compile_header_edits(form, originals):
                 new_headers.append(form[i])
 
         for edit in header_edits:
-            if edit.current != edit.update and edit.update not in BrownfieldStandard.v2_standard_headers():
+            if edit.current != edit.update and edit.update not in brownfield_standard.current_standard_headers():
                 invalid_edits[edit.index] = edit
         if invalid_edits:
             raise InvalidEditException('Some headers were updated to invalid values', invalid_edits)
@@ -57,12 +58,12 @@ def write_tempfile_and_validate(form):
             os.makedirs(output_dir)
         file = os.path.join(output_dir, filename)
         form.upload.data.save(file)
-        report = validate_file(file, brownfield_standard_v2_schema)
+        report = validate_file(file, brownfield_standard)
     return report
 
 
 def set_new_header(result, current, update):
-    for i, row in enumerate(result.upload):
+    for i, row in enumerate(result.input):
         item = row.pop(current, None)
         if item is not None:
             result.rows[i][update] = item
@@ -101,10 +102,11 @@ def update_and_save_headers(result, header_edits, new_headers):
             'header_changes': header_changes}
 
 
-def revalidate_result(result, schema):
-    res = check_data(result.rows, schema)
+def revalidate_result(result, standard):
+    res = check_data(result.rows, standard.schema)
     return Result(id=result.id,
                   result=res,
                   input=result.input,
                   rows=result.rows,
-                  meta_data=result.meta_data)
+                  meta_data=result.meta_data,
+                  standard=standard)

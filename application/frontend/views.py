@@ -11,7 +11,8 @@ from flask import (
     request,
     make_response
 )
-from validator.utils import FileTypeException, BrownfieldStandard
+from validator.standards import BrownfieldStandard
+from validator.utils import FileTypeException
 from validator.validation_result import Result
 from werkzeug.utils import redirect
 
@@ -26,7 +27,7 @@ from application.utils import (
     revalidate_result
 )
 
-brownfield_standard_v2_schema = BrownfieldStandard.v2_standard_schema()
+brownfield_standard = BrownfieldStandard()
 
 frontend = Blueprint('frontend', __name__, template_folder='templates')
 
@@ -56,25 +57,25 @@ def validate():
 def validation_result(result):
     db_result = ResultModel.query.get(result)
     if db_result is not None:
-        result = Result(**db_result.to_dict())
+        result = Result(**db_result.to_dict(), standard=brownfield_standard)
         updated_at = db_result.updated_at
         return render_template('validation-result.html',
                                result=result,
-                               brownfield_standard=BrownfieldStandard,
+                               brownfield_standard=brownfield_standard,
                                register_updated_at=updated_at)
     abort(404)
 
 
 @frontend.route('/schema')
 def schema():
-    return jsonify(BrownfieldStandard.v2_standard_schema())
+    return jsonify(brownfield_standard.current_standard_headers())
 
 
 @frontend.route('/validation/<result>/edit/headers', methods=['GET', 'POST'])
 def edit_headers(result):
     db_result = ResultModel.query.get(result)
     if db_result is not None:
-        result = Result(**db_result.to_dict())
+        result = Result(**db_result.to_dict(), standard=brownfield_standard)
         if request.method == 'POST':
             original_additional_headers = sorted(result.extra_headers_found(), key=lambda v: (v.upper(), v[0].islower()))
             try:
@@ -85,7 +86,7 @@ def edit_headers(result):
                                        brownfield_standard=BrownfieldStandard,
                                        invalid_edits=e.invalid_edits)
             update = update_and_save_headers(result, header_edits, new_headers)
-            result = revalidate_result(result, brownfield_standard_v2_schema)
+            result = revalidate_result(result, brownfield_standard)
             db_result.update(result)
             db.session.add(db_result)
             db.session.commit()
@@ -104,7 +105,7 @@ def edit_headers(result):
 def edit_column(result, column):
     db_result = ResultModel.query.get(result)
     if db_result is not None:
-        result = Result(**db_result.to_dict())
+        result = Result(**db_result.to_dict(), standard=brownfield_standard)
         if "Date" not in column or result.errors_by_column.get(column) is None:
             # colm, if they get the page again there will be not errors_by_column for this
             # column if we've re-validated
@@ -113,7 +114,7 @@ def edit_column(result, column):
                                    result=result)
 
         fixes_applied = result.apply_fixes(column)
-        result = revalidate_result(result, brownfield_standard_v2_schema)
+        result = revalidate_result(result, brownfield_standard)
         db_result.update(result)
         db.session.add(db_result)
         db.session.commit()
@@ -122,15 +123,15 @@ def edit_column(result, column):
                                result=result,
                                fixes_applied=fixes_applied,
                                edited=True,
-                               brownfield_standard=BrownfieldStandard)
+                               brownfield_standard=brownfield_standard)
 
 
 @frontend.route('/validation/<result>/csv')
 def get_csv(result):
     result_model = ResultModel.query.get(result)
     if result_model is not None:
-        result = Result(**result_model.to_dict())
-        fields = BrownfieldStandard.v2_standard_headers()
+        result = Result(**result_model.to_dict(), standard=brownfield_standard)
+        fields = brownfield_standard.current_standard_headers()
         deprecated = result.meta_data['additional_headers']
         fields.extend(deprecated)
         output = io.StringIO()
