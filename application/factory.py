@@ -2,6 +2,7 @@
 import os
 from flask import Flask, render_template
 from flask.cli import load_dotenv
+from jinja2 import PackageLoader, PrefixLoader, ChoiceLoader
 
 
 if os.environ.get('FLASK_ENV') == 'production':
@@ -26,6 +27,7 @@ def create_app(config_filename):
     register_extensions(app)
     register_commands(app)
     register_filters(app)
+    register_templates(app)
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 10
     return app
 
@@ -73,3 +75,14 @@ def register_filters(app):
     app.add_template_filter(count_fields_with_errors)
     app.add_template_filter(count_fields_with_warnings)
     app.add_template_filter(check_if_fixable)
+
+
+def register_templates(app):
+    multi_loader = ChoiceLoader([
+        app.jinja_loader,
+        PrefixLoader({
+            'govuk-jinja-components': PackageLoader('govuk-jinja-components')
+        })
+    ])
+    app.jinja_loader = multi_loader
+
