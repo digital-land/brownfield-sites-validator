@@ -24,6 +24,18 @@ Make a virtualenv for the project and install python dependencies
     
     or pipenv install
 
+Create a postgres db called `brownfield`
+
+    createdb brownfield
+
+Add environment variable to `.flaskenv` file
+
+    DATABASE_URL=postgresql://localhost/brownfield
+
+Then run db migrations
+
+    flask db upgrade
+
 Run the application
 
     python -m flask run
