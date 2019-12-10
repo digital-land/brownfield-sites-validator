@@ -16,13 +16,25 @@ Getting started
 
 Install front end build tool (gulp)
 
-    npm install && gulp scss
+    npm install && gulp stylesheets
 
 Make a virtualenv for the project and install python dependencies
 
     pip install -r requirements.txt
     
     or pipenv install
+
+Create a postgres db called `brownfield`
+
+    createdb brownfield
+
+Add environment variable to `.flaskenv` file
+
+    DATABASE_URL=postgresql://localhost/brownfield
+
+Then run db migrations
+
+    flask db upgrade
 
 Run the application
 
