@@ -16,7 +16,7 @@ Getting started
 
 Install front end build tool (gulp)
 
-    npm install && gulp scss
+    npm install && gulp stylesheets
 
 Make a virtualenv for the project and install python dependencies
 
