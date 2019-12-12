@@ -66,6 +66,7 @@
 <p class="govuk-body">Below are the headers that are part of the brownfield land registers data standard.</p>
 {{ listComparedToStandard(result.standard.current_standard_headers(), result.headers_found()) }}
 
+{%- if result.deprecated_headers_found()|length > 0 -%}
 <p class="govuk-body">Your register included the following headers that are no longer required. We haven't validated the values for these headers. You can remove them from your register if you wish.</p>
 
 {{ listDeprecatedHeaders(result.deprecated_headers_found()) }}
@@ -77,6 +78,7 @@
     <p class="govuk-body">You must not include any fields that are neither part of the standard or deprecated. Any additional fields will be shown here.</p>
   </div>
 </details>
+{%- endif -%}
 
 {% if result.extra_headers_found() %}
 <h3 class="govuk-heading-m">Unknown</h3>
