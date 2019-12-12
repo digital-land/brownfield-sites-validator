@@ -1,5 +1,11 @@
 {% extends "dlf-base.html" %}
-{% from "macros/validation-result-panel.html" import validationResultPanel2 %}
+
+{% from "validation-result-components/result-panel.html" import validationResultPanel %}
+{% from "validation-result-components/table-summary.html" import valTableSummary %}
+{% from "validation-result-components/header-playback-lists.html" import listHeaderItem %}
+{% from "validation-result-components/header-playback-lists.html" import listDeprecatedHeaders %}
+{% from "validation-result-components/header-playback-lists.html" import listComparedToStandard %}
+{% from "validation-result-components/errors-by-header.html" import renderErrorsByHeaders %}
 
 {% block beforeContent %}
   {{ super() }}
@@ -12,53 +18,21 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-full">
   {% if result.valid() %}
-  {{ validationResultPanel2(true) }}
+  {{ validationResultPanel(true) }}
   {% else %}
-  {{ validationResultPanel2(false, result.error_count()) }}
+  {{ validationResultPanel(false, result.error_count()) }}
   {% endif %}
   </div>
 </div>
 
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-      <h1 class="govuk-heading-xl govuk-!-margin-top-6">Validation overview</h1>
-
-      <table class="govuk-table">
-        <tbody class="govuk-table__body">
-
-          <!-- what type of file was uploaded -->
-          <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">File type</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.file_type() }}</td>
-          </tr>
-
-          <!-- were we able to extract name of Local Authority -->
-          <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">Local Authority</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.planning_authority() }}</td>
-          </tr>
-
-          <!-- check column headers (row 1) against expected columns -->
-          <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">Column headers</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#column-issues-section">{{ result.check_headers() }}</a></td>
-          </tr>
-
-          <!-- is the data valid -->
-          <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">Total rows found</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">{{ result.row_count() }}</td>
-          </tr>
-          <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">Invalid rows</th>
-            <td class="govuk-table__cell govuk-table__cell--numeric"><a href="#data-issues-section">{{ result.row_count() - result.valid_row_count() }}</a></td>
-          </tr>
-
-        </tbody>
-      </table>
-
-    </div>
-</div>
+{{-  valTableSummary({
+  "file_type": result.file_type(),
+  "organisation": result.planning_authority(),
+  "headers_check": result.check_headers(),
+  "row_count": result.row_count(),
+  "invalid_row_count": result.row_count() - result.valid_row_count()
+})
+-}}
 
 {% if not result.valid() %}
 <!-- section to highlight issues with the file -->
@@ -90,25 +64,11 @@
 
 <h3 class="govuk-heading-m">Data standard headers</h3>
 <p class="govuk-body">Below are the headers that are part of the brownfield land registers data standard.</p>
-<ul class="govuk-list field-list {{ ' field-list--columns' if result.standard.current_standard_headers()|length > 4 else ' ' }}">
-  {% for header in result.standard.current_standard_headers() %}
-  <li class="field-list__item{% if not header in result.headers_found() %} error{% endif %}">
-    {{ header }}
-    <span class="govuk-tag{% if not header in result.headers_found() %} govuk-tag--error{% endif %}">{{ "Found" if header in result.headers_found() else "Missing" }}</span>
-  </li>
-  {% endfor %}
-</ul>
+{{ listComparedToStandard(result.standard.current_standard_headers(), result.headers_found()) }}
 
 <p class="govuk-body">Your register included the following headers that are no longer required. We haven't validated the values for these headers. You can remove them from your register if you wish.</p>
 
-<ul class="govuk-list field-list{{ ' field-list--columns' if result.deprecated_headers_found()|length > 4 else ' ' }}">
-  {% for header in result.deprecated_headers_found() %}
-  <li class="field-list__item">
-    {{ header }}
-    <span class="govuk-tag govuk-tag--warning">Deprecated</span>
-  </li>
-  {% endfor %}
-</ul>
+{{ listDeprecatedHeaders(result.deprecated_headers_found()) }}
 
 <details class="govuk-details govuk-details--close">
   <summary class="govuk-details__summary">Why are some headers marked as deprecated?</summary>
@@ -125,9 +85,13 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-one-half">
     <ul class="govuk-list field-list">
-      {% for header in result.extra_headers_found() %}
-      <li class="field-list__item">{{ header }}</li>
-      {% endfor %}
+      {%- for header in result.extra_headers_found() %}
+        {{- listHeaderItem({
+          "header": header,
+          "tag": "Unknown",
+          "classes": "govuk-tag--secondary"
+        }) -}}
+      {%- endfor %}
     </ul>
   </div>
 </div>
