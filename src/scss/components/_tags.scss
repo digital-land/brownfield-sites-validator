@@ -10,6 +10,11 @@
   background-color: govuk-colour("yellow");
 }
 
+.govuk-tag--secondary {
+  color:  govuk-colour("white");
+  background-color: govuk-colour("dark-grey");
+}
+
 // dl Tag
 // --------------
 .dl-tag {
