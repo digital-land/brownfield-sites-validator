@@ -12,7 +12,6 @@ from flask import (
     make_response
 )
 from validator.standards import BrownfieldStandard
-from validator.utils import FileTypeException
 from validator.validation_result import Result
 from werkzeug.utils import redirect
 
@@ -41,14 +40,11 @@ def index():
 def validate():
     form = UploadForm()
     if form.validate_on_submit():
-        try:
-            res = write_tempfile_and_validate(form)
-            result = ResultModel(res)
-            db.session.add(result)
-            db.session.commit()
-            return redirect(url_for('frontend.validation_result', result=result.id))
-        except FileTypeException as e:
-            flash(f'{e}', category='error')
+        res = write_tempfile_and_validate(form)
+        result = ResultModel(res)
+        db.session.add(result)
+        db.session.commit()
+        return redirect(url_for('frontend.validation_result', result=result.id))
 
     return render_template('upload.html', form=form)
 
