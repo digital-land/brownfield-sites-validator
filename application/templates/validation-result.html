@@ -5,7 +5,7 @@
 {% from "validation-result-components/header-playback-lists.html" import listHeaderItem %}
 {% from "validation-result-components/header-playback-lists.html" import listDeprecatedHeaders %}
 {% from "validation-result-components/header-playback-lists.html" import listComparedToStandard %}
-{% from "validation-result-components/errors-by-header.html" import renderErrorsByHeaders %}
+{% from "validation-result-components/errors-by-header.html" import renderErrorsByHeader %}
 
 {% block beforeContent %}
   {{ super() }}
@@ -134,31 +134,18 @@
     <p class="govuk-body">Your register has <span class="inline-error-text govuk-!-font-size-24">{{ number_of_errors }} {{ "error"|pluralise("", "s", number_of_errors) }}</span>. The errors occurred under the headers listed.</p>
 
     <ul class="govuk-list">
-      {% for column, error in result.errors_by_column.items() %}
-          <li>
-            <h3 class="govuk-heading-s">{{ column }}</h3>
-            {% for msg in error.messages %}
-              <p class="no-margin">
-                  {{ msg|markdown}}
-              </p>
-            {% endfor %}
-            <p>We found errors across <span class="row-value">{{ error.rows|count }} {{ "row"|pluralise("", "s", error.rows|count) }}</span>.
-            </p>
-            <details class="govuk-details">
-              <summary class="govuk-details__summary">See all incorrect rows</summary>
-              <div class="govuk-details__text">
-                <ul class="govuk-list">
-                  {% for e in error.errors %}<li><span class="govuk-tag govuk-tag--error">{% if e.row == 0 %}Header row{% else %}Row {{ e.row }}{% endif %}</span> {{ e.message }}</li>{% endfor %}
-                </ul>
-                {% if error.errors|check_if_fixable %}
-                <div class="highlight-box--cta highlight-box--flush">
-                  <p class="govuk-body">We can apply the suggested fixes and then you can download an updated CSV file. <a href="{{ url_for('frontend.edit_column', result=result.id, column=column) }}" class="govuk-link">Apply fixes</a>.</p>
-                </div>
-                {% endif %}
-              </div>
-            </details>
-          </li>
-      {% endfor %}
+      {%- for column, error in result.errors_by_column.items() -%}
+        {#- if fix is available insert HTML below -#}
+        {%- if error.errors|check_if_fixable -%}
+          {% call renderErrorsByHeader(column, error) %}
+            <div class="highlight-box--cta highlight-box--flush">
+              <p class="govuk-body">We can apply the suggested fixes and then you can download an updated CSV file. <a href="{{ url_for('frontend.edit_column', result=result.id, column=column) }}" class="govuk-link">Apply fixes</a>.</p>
+            </div>
+          {% endcall %}
+        {%- else -%}
+          {{- renderErrorsByHeader(column, error) -}}
+        {%- endif -%}
+      {%- endfor -%}
     </ul>
 
   </div>
