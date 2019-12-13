@@ -6659,6 +6659,11 @@
   background-color: #ffdd00;
 }
 
+.govuk-tag--secondary {
+  color: #ffffff;
+  background-color: #6f777b;
+}
+
 .dl-tag {
   display: inline-block;
   margin-right: 8px;

@@ -39,6 +39,7 @@ def pluralise(str, str_off, str_on, count):
     else:
         return str
 
+
 def check_if_fixable(row_list):
     for row in row_list:
         if row["fix"]:
