@@ -8102,3 +8102,9 @@ a:focus {
 .govuk-form-group--no-label .govuk-error-message {
   margin-top: 10px;
 }
+
+.truncate-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

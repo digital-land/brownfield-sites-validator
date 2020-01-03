@@ -298,3 +298,9 @@ a {
     margin-top: 10px;
   }
 }
+
+.truncate-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
