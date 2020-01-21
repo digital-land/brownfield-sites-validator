@@ -304,3 +304,17 @@ a {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.contains-url {
+  word-break: break-all;
+}
+
+.govuk-summary-list--no-bottom-border {
+  .govuk-summary-list__row:last-of-type {
+    .govuk-summary-list__key,
+    .govuk-summary-list__value {
+      border-bottom: 0;
+    }
+  }
+}
+
