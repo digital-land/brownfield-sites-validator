@@ -3,7 +3,7 @@
 import os
 
 
-class Config(object):
+class Config:
     APP_ROOT = os.path.abspath(os.path.dirname(__file__))
     PROJECT_ROOT = os.path.abspath(os.path.join(APP_ROOT, os.pardir))
     SECRET_KEY = os.getenv('SECRET_KEY')
@@ -11,8 +11,8 @@ class Config(object):
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
     UPLOAD_FOLDER = '/tmp'
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
-    if SQLALCHEMY_DATABASE_URI.startswith("postgres"):
-        SQLALCHEMY_DATABASE_URI.replace("postgres", "postgresql")
+    if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
