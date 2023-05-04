@@ -13,6 +13,7 @@
 <p class="govuk-body">If there are some missing headers we can create them and add them to the CSV file. Below you can choose the headers you would like us to create.</p>
 
 <form method="POST" class="govuk-form">
+	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 	{% if result.extra_headers_found()|length > 0 %}
 	<label class="govuk-label govuk-!-font-weight-bold">Unknown headers</h4>
 	<span class="govuk-hint">Edit any misspelt headers. E.g. sitePlanURL to SiteplanURL</span>
@@ -42,7 +43,7 @@
 			<span id="missing-headers-hint" class="govuk-hint">
 			  Select all headers we should create in the CSV.
 			</span>
-			
+
 			<div class="govuk-checkboxes">
 				{%- for header in result.missing_headers()|sort -%}
 				<div class="govuk-checkboxes__item">
@@ -53,7 +54,7 @@
       			</div>
       			{%- endfor -%}
     		</div>
-    		
+
   		</fieldset>
 	</div>
 

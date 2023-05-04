@@ -4,6 +4,4 @@ from flask_wtf.file import FileField, FileRequired
 
 class UploadForm(FlaskForm):
 
-    upload = FileField('file', validators=[
-        FileRequired()
-    ])
+    upload = FileField("file", validators=[FileRequired()])

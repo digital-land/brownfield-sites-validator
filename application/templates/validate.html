@@ -47,6 +47,7 @@
                   <input class="govuk-input" id="url" name="url" required="" value="" type="url">
               </div>
               <button class="govuk-button button-validate dlf-secondary-button" type="submit">Fetch and validate</button>
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           </form>
       </div>
     </div>

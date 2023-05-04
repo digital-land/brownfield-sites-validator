@@ -25,22 +25,24 @@ class ResultModel(db.Model):
         meta_data = validation_result.meta_data
         errors_by_column = validation_result.errors_by_column
         errors_by_row = validation_result.errors_by_row
-        super(ResultModel, self).__init__(result=result,
-                                          input=input,
-                                          rows=rows,
-                                          meta_data=meta_data,
-                                          errors_by_column=errors_by_column,
-                                          errors_by_row=errors_by_row)
+        super(ResultModel, self).__init__(
+            result=result,
+            input=input,
+            rows=rows,
+            meta_data=meta_data,
+            errors_by_column=errors_by_column,
+            errors_by_row=errors_by_row,
+        )
 
     def to_dict(self):
         return {
-            'id': str(self.id),
-            'result': self.result,
-            'input': self.input,
-            'rows': self.rows,
-            'meta_data': self.meta_data,
-            'errors_by_row': self.errors_by_row,
-            'errors_by_column': self.errors_by_column
+            "id": str(self.id),
+            "result": self.result,
+            "input": self.input,
+            "rows": self.rows,
+            "meta_data": self.meta_data,
+            "errors_by_row": self.errors_by_row,
+            "errors_by_column": self.errors_by_column,
         }
 
     def update(self, validation_result):
@@ -50,8 +52,8 @@ class ResultModel(db.Model):
         self.errors_by_column = validation_result.errors_by_column
         self.errors_by_row = validation_result.errors_by_row
 
-        flag_modified(self, 'result')
-        flag_modified(self, 'rows')
-        flag_modified(self, 'meta_data')
-        flag_modified(self, 'errors_by_column')
-        flag_modified(self, 'errors_by_row')
+        flag_modified(self, "result")
+        flag_modified(self, "rows")
+        flag_modified(self, "meta_data")
+        flag_modified(self, "errors_by_column")
+        flag_modified(self, "errors_by_row")

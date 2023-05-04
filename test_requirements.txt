@@ -1,4 +1,4 @@
--r test_requirements.txt
+-r requirements.txt
 attrs
 beautifulsoup4
 html5lib

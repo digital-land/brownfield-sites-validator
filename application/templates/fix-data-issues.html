@@ -37,6 +37,7 @@
       <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
       <form action="" class="govuk-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="govuk-form-group">
           <button type="submit" class="govuk-button">
             Save and continue
