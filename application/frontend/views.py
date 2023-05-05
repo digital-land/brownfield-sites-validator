@@ -37,6 +37,11 @@ def index():
     return render_template("index.html")
 
 
+@frontend.route("/googlec286796fd66ca377.html")
+def google_verification():
+    return render_template("googlec286796fd66ca377.html")
+
+
 @frontend.route("/validate", methods=["GET", "POST"])
 def validate():
     form = UploadForm()
