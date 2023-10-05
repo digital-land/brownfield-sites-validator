@@ -17,11 +17,11 @@
   },
   "homepage": "https://github.com/communitiesuk/digital-land-explorer#readme",
   "devDependencies": {
-    "autoprefixer": "^9.7.6",
+    "autoprefixer": "^10.4.16",
     "gulp": "^4.0.2",
     "gulp-better-rollup": "^4.0.1",
     "gulp-clean": "^0.4.0",
-    "gulp-postcss": "^8.0.0",
+    "gulp-postcss": "^9.0.1",
     "gulp-sass": "^5.1.0",
     "gulp-sass-lint": "^1.4.0",
     "rollup": "^2.3.3"
